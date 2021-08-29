@@ -449,7 +449,7 @@ export interface AllowedMentions {
 export type GetChannelBody = Channel;
 
 /** https://discord.dev/resources/channel#modify-channel */
-export interface ModifyChannelJSON {
+export interface ModifyChannelData {
   /** 1-100 character channel name */
   name?: string;
   /** base64 encoded icon */
@@ -513,7 +513,7 @@ export type GetChannelMessagesBody = Message[];
 export type GetChannelMessageBody = Message;
 
 /** https://discord.dev/resources/channel#create-message */
-export interface CreateMessageJSON {
+export interface CreateMessageData {
   /** the message contents (up to 2000 characters) */
   content?: string;
   /** true if this is a TTS message */
@@ -522,7 +522,7 @@ export interface CreateMessageJSON {
   file?: string;
   /** embedded `rich` content (up to 6000 characters) */
   embeds?: Embed[];
-  /** JSON encoded body of non-file params */
+  /** Data encoded body of non-file params */
   payload_json?: string;
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions;
@@ -567,13 +567,13 @@ export type DeleteAllReactionsBody = void;
 export type DeleteAllReactionsForEmojiBody = void;
 
 /** https://discord.dev/resources/channel#edit-message */
-export interface EditMessageJSON
-  extends Nullable<Omit<CreateMessageJSON, "tts" | "message_reference">> {
+export interface EditMessageData
+  extends Nullable<Omit<CreateMessageData, "tts" | "message_reference">> {
   /** edit the [flags](https://discord.dev/resources/channel#message-object-message-flags) of a message (only `SUPPRESS_EMBEDS` can currently be set/unset) */
   flags?: MessageFlags | null;
   /** the contents of the file being sent/edited */
   file?: string | null;
-  /** JSON encoded body of non-file params (multipart/form-data only) */
+  /** Data encoded body of non-file params (multipart/form-data only) */
   payload_json?: string;
   /** attached files to keep */
   attachments?: Attachment[] | null;
@@ -588,7 +588,7 @@ export type EditMessageBody = Message;
 export type DeleteMessageBody = void;
 
 /** https://discord.dev/resources/channel#bulk-delete-messages */
-export interface BulkDeleteMessagesJSON {
+export interface BulkDeleteMessagesData {
   /** an array of message ids to delete (2-100) */
   messages: Snowflake[];
 }
@@ -597,7 +597,7 @@ export interface BulkDeleteMessagesJSON {
 export type BulkDeleteMessagesBody = void;
 
 /** https://discord.dev/resources/channel#edit-channel-permissions */
-export interface EditChannelPermissionsJSON {
+export interface EditChannelPermissionsData {
   /** the bitwise value of all allowed permissions */
   allow: Permissions;
   /** the bitwise value of all disallowed permissions */
@@ -613,7 +613,7 @@ export type EditChannelPermissionsBody = void;
 export type GetChannelInvitesBody = Invite[];
 
 /** https://discord.dev/resources/channel#create-channel-invite */
-export interface CreateChannelInviteJSON {
+export interface CreateChannelInviteData {
   /** duration of invite in seconds before expiry, or 0 for never. between 0 and 604800 (7 days) */
   max_age: number;
   /** max number of uses or 0 for unlimited. between 0 and 100 */
@@ -637,7 +637,7 @@ export type CreateChannelInviteBody = Invite;
 export type DeleteChannelPermissionBody = void;
 
 /** https://discord.dev/resources/channel#follow-news-channel */
-export interface FollowNewsChannelJSON {
+export interface FollowNewsChannelData {
   /** id of target channel */
   webhook_channel_id: Snowflake;
 }
@@ -658,7 +658,7 @@ export type PinMessageBody = void;
 export type UnpinMessageBody = void;
 
 /** https://discord.dev/resources/channel#group-dm-add-recipient */
-export interface GroupDMAddRecipientJSON {
+export interface GroupDMAddRecipientData {
   /** access token of a user that has granted your app the `gdm.join` scope */
   access_token: string;
   /** nickname of the user being added */
@@ -672,7 +672,7 @@ export type GroupDMAddRecipientBody = void;
 export type GroupDMRemoveRecipientBody = void;
 
 /** https://discord.dev/resources/channel#start-thread-with-message */
-export interface StartThreadWithMessageJSON {
+export interface StartThreadWithMessageData {
   /** 1-100 character channel name */
   name: string;
   /** duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
@@ -683,8 +683,8 @@ export interface StartThreadWithMessageJSON {
 export type StartThreadWithMessageBody = Channel;
 
 /** https://discord.dev/resources/channel#start-thread-without-message */
-export interface StartThreadWithoutMessageJSON
-  extends StartThreadWithMessageJSON {
+export interface StartThreadWithoutMessageData
+  extends StartThreadWithMessageData {
   /** the [type of thread](https://discord.dev/resources/channel#channel-object-channel-types) to create */
   type?: ChannelTypes;
 }

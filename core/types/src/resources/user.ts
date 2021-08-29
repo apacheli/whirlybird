@@ -102,7 +102,7 @@ export type GetCurrentUserBody = User;
 export type GetUserBody = User;
 
 /** https://discord.dev/resources/user#modify-current-user */
-export interface ModifyCurrentUserJSON {
+export interface ModifyCurrentUserData {
   /** user's username, if changed may cause the user's discriminator to be randomized. */
   username?: string;
   /** if passed, modifies the user's avatar */
@@ -129,7 +129,7 @@ export type GetCurrentUserGuildsBody = Partial<Guild>[];
 export type LeaveGuildBody = void;
 
 /** https://discord.dev/resources/user#create-dm */
-export interface CreateDMJSON {
+export interface CreateDMData {
   /** the recipient to open a DM channel with */
   recipient_id: Snowflake;
 }
@@ -138,7 +138,7 @@ export interface CreateDMJSON {
 export type CreateDMBody = Channel;
 
 /** https://discord.dev/resources/user#create-group-dm */
-export interface CreateGroupDMJSON {
+export interface CreateGroupDMData {
   /** access tokens of users that have granted your app the `gdm.join` scope */
   access_tokens: string[];
   /** a dictionary of user ids to their respective nicknames */

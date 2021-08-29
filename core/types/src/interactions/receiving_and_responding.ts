@@ -10,8 +10,8 @@ import type {
 import type { GuildMember } from "../resources/guild.ts";
 import type { User } from "../resources/user.ts";
 import type {
-  EditWebhookMessageJSON,
-  ExecuteWebhookJSON,
+  EditWebhookMessageData,
+  ExecuteWebhookData,
   GetWebhookMessageBody,
 } from "../resources/webhook.ts";
 import type { Role } from "../topics/permissions.ts";
@@ -149,7 +149,7 @@ export enum InteractionCallbackDataFlags {
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#create-interaction-response */
-export type CreateInteractionResponseJSON = InteractionResponse;
+export type CreateInteractionResponseData = InteractionResponse;
 
 /** https://discord.dev/interactions/receiving-and-responding#create-interaction-response */
 export type CreateInteractionResponseBody = void;
@@ -158,7 +158,7 @@ export type CreateInteractionResponseBody = void;
 export type GetOriginalInteractionResponseBody = GetWebhookMessageBody;
 
 /** https://discord.dev/interactions/receiving-and-responding#edit-original-interaction-response */
-export type EditOriginalInteractionResponseJSON = EditWebhookMessageJSON;
+export type EditOriginalInteractionResponseData = EditWebhookMessageData;
 
 /** https://discord.dev/interactions/receiving-and-responding#edit-original-interaction-response */
 export type EditOriginalInteractionResponseBody = Message;
@@ -167,13 +167,13 @@ export type EditOriginalInteractionResponseBody = Message;
 export type DeleteOriginalInteractionResponseBody = void;
 
 /** https://discord.dev/interactions/receiving-and-responding#create-followup-message */
-export type CreateFollowupMessageJSON = ExecuteWebhookJSON;
+export type CreateFollowupMessageData = ExecuteWebhookData;
 
 /** https://discord.dev/interactions/receiving-and-responding#create-followup-message */
 export type CreateFollowupMessageBody = Message;
 
 /** https://discord.dev/interactions/receiving-and-responding#edit-followup-message */
-export type EditFollowupMessageJSON = EditWebhookMessageJSON;
+export type EditFollowupMessageData = EditWebhookMessageData;
 
 /** https://discord.dev/interactions/receiving-and-responding#edit-followup-message */
 export type EditFollowupMessageBody = Message;

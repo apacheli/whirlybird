@@ -121,7 +121,7 @@ export enum ApplicationCommandPermissionType {
 export type GetGlobalApplicationCommandsBody = ApplicationCommand[];
 
 /** https://discord.dev/interactions/application-commands#create-global-application-command */
-export type CreateGlobalApplicationCommandJSON = Omit<
+export type CreateGlobalApplicationCommandData = Omit<
   ApplicationCommand,
   "id" | "application_id"
 >;
@@ -133,8 +133,8 @@ export type CreateGlobalApplicationCommandBody = ApplicationCommand;
 export type GetGlobalApplicationCommandBody = ApplicationCommand;
 
 /** https://discord.dev/interactions/application-commands#edit-global-application-command */
-export type EditGlobalApplicationCommandJSON = Partial<
-  Nullify<CreateGlobalApplicationCommandJSON, "options">
+export type EditGlobalApplicationCommandData = Partial<
+  Nullify<CreateGlobalApplicationCommandData, "options">
 >;
 
 /** https://discord.dev/interactions/application-commands#edit-global-application-command */
@@ -144,7 +144,7 @@ export type EditGlobalApplicationCommandBody = ApplicationCommand;
 export type DeleteGlobalApplicationCommandBody = void;
 
 /** https://discord.dev/interactions/application-commands#bulk-overwrite-global-application-commands */
-export type BulkOverwriteGlobalApplicationCommandsJSON = ApplicationCommand[];
+export type BulkOverwriteGlobalApplicationCommandsData = ApplicationCommand[];
 
 /** https://discord.dev/interactions/application-commands#bulk-overwrite-global-application-commands */
 export type BulkOverwriteGlobalApplicationCommandsBody = ApplicationCommand[];
@@ -153,8 +153,8 @@ export type BulkOverwriteGlobalApplicationCommandsBody = ApplicationCommand[];
 export type GetGuildApplicationCommandsBody = ApplicationCommand[];
 
 /** https://discord.dev/interactions/application-commands#create-guild-application-command */
-export type CreateGuildApplicationCommandJSON =
-  CreateGlobalApplicationCommandJSON;
+export type CreateGuildApplicationCommandData =
+  CreateGlobalApplicationCommandData;
 
 /** https://discord.dev/interactions/application-commands#create-guild-application-command */
 export type CreateGuildApplicationCommandBody = ApplicationCommand;
@@ -163,7 +163,7 @@ export type CreateGuildApplicationCommandBody = ApplicationCommand;
 export type GetGuildApplicationCommandBody = ApplicationCommand;
 
 /** https://discord.dev/interactions/application-commands#edit-guild-application-command */
-export type EditGuildApplicationCommandJSON = EditGlobalApplicationCommandJSON;
+export type EditGuildApplicationCommandData = EditGlobalApplicationCommandData;
 
 /** https://discord.dev/interactions/application-commands#edit-guild-application-command */
 export type EditGuildApplicationCommandBody = ApplicationCommand;
@@ -172,7 +172,7 @@ export type EditGuildApplicationCommandBody = ApplicationCommand;
 export type DeleteGuildApplicationCommandBody = void;
 
 /** https://discord.dev/interactions/application-commands#bulk-overwrite-guild-application-commands */
-export type BulkOverwriteGuildApplicationCommandsJSON = ApplicationCommand[];
+export type BulkOverwriteGuildApplicationCommandsData = ApplicationCommand[];
 
 /** https://discord.dev/interactions/application-commands#bulk-overwrite-guild-application-commands */
 export type BulkOverwriteGuildApplicationCommandsBody = ApplicationCommand[];
@@ -186,7 +186,7 @@ export type GetApplicationCommandPermissionsBody =
   GuildApplicationCommandPermissions[];
 
 /** https://discord.dev/interactions/application-commands#edit-application-command-permissions */
-export interface EditApplicationCommandPermissionsJSON {
+export interface EditApplicationCommandPermissionsData {
   /** the permissions for the command in the guild */
   permissions: ApplicationCommandPermissions[];
 }
@@ -196,7 +196,7 @@ export type EditApplicationCommandPermissionsBody =
   GuildApplicationCommandPermissions;
 
 /** https://discord.dev/interactions/application-commands#batch-edit-application-command-permissions */
-export type BatchEditApplicationCommandPermissionsJSON =
+export type BatchEditApplicationCommandPermissionsData =
   GuildApplicationCommandPermissions[];
 
 /** https://discord.dev/interactions/application-commands#batch-edit-application-command-permissions */

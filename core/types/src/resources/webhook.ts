@@ -51,7 +51,7 @@ export enum WebhookTypes {
 }
 
 /** https://discord.dev/resources/webhook#create-webhook */
-export interface CreateWebhookJSON {
+export interface CreateWebhookData {
   /** name of the webhook (1-80 characters) */
   name: string;
   /** image for the default webhook avatar */
@@ -74,7 +74,7 @@ export type GetWebhookBody = Webhook;
 export type GetWebhookWithTokenBody = Webhook;
 
 /** https://discord.dev/resources/webhook#modify-webhook */
-export interface ModifyWebhookJSON {
+export interface ModifyWebhookData {
   /** the default name of the webhook */
   name?: string;
   /** image for the default webhook avatar */
@@ -87,7 +87,7 @@ export interface ModifyWebhookJSON {
 export type ModifyWebhookBody = Webhook;
 
 /** https://discord.dev/resources/webhook#modify-webhook-with-token */
-export type ModifyWebhookWithTokenJSON = Omit<ModifyWebhookJSON, "channel_id">;
+export type ModifyWebhookWithTokenData = Omit<ModifyWebhookData, "channel_id">;
 
 /** https://discord.dev/resources/webhook#modify-webhook-with-token */
 export type ModifyWebhookWithTokenBody = Omit<Webhook, "user">;
@@ -107,7 +107,7 @@ export interface ExecuteWebhookQuery {
 }
 
 /** https://discord.dev/resources/webhook#execute-webhook */
-export interface ExecuteWebhookJSON {
+export interface ExecuteWebhookData {
   /** the message contents (up to 2000 characters) */
   content?: string;
   /** override the default username of the webhook */
@@ -147,14 +147,14 @@ export type ExecuteGitHubCompatibleWebhookBody = ExecuteWebhookBody;
 export type GetWebhookMessageBody = Message;
 
 /** https://discord.dev/resources/webhook#edit-webhook-message */
-export interface EditWebhookMessageJSON {
+export interface EditWebhookMessageData {
   /** the message contents (up to 2000 characters) */
   content?: string | null;
   /** embedded rich content */
   embeds?: Embed | null;
   /** the contents of the file being sent/edited */
   file?: unknown | null;
-  /** JSON encoded body of non-file params (multipart/form-data only) */
+  /** Data encoded body of non-file params (multipart/form-data only) */
   payload_json?: string | null;
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions | null;

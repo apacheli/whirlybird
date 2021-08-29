@@ -386,7 +386,7 @@ export interface WelcomeScreenChannel {
 }
 
 /** https://discord.dev/resources/guild#create-guild */
-export interface CreateGuildJSON {
+export interface CreateGuildData {
   /** name of the guild (2-100 characters) */
   name: string;
   /** [voice region](https://discord.dev/resources/voice#voice-region-object) id */
@@ -429,7 +429,7 @@ export type GetGuildBody = Guild;
 export type GetGuildPreviewBody = GuildPreview;
 
 /** https://discord.dev/resources/guild#modify-guild */
-export interface ModifyGuildJSON {
+export interface ModifyGuildData {
   /** guild name */
   name?: string;
   /** guild [voice region](https://discord.dev/resources/voice#voice-region-object) id */
@@ -480,7 +480,7 @@ export type DeleteGuildBody = void;
 export type GetGuildChannelsBody = Channel[];
 
 /** https://discord.dev/resources/guild#create-guild-channel */
-export interface CreateGuildChannelJSON {
+export interface CreateGuildChannelData {
   /** channel name (1-100 characters) */
   name: string;
   /** the [type of channel](https://discord.dev/resources/channel#channel-object-channel-types) */
@@ -507,7 +507,7 @@ export interface CreateGuildChannelJSON {
 export type CreateGuildChannelBody = Channel;
 
 /** https://discord.dev/resources/guild#modify-guild-channel-positions */
-export type ModifyGuildChannelPositionsJSON = {
+export type ModifyGuildChannelPositionsData = {
   /** channel id */
   id: Snowflake;
   /** sorting position of the channel */
@@ -547,7 +547,7 @@ export interface SearchGuildMembersQuery {
 export type SearchGuildMembersBody = GuildMember[];
 
 /** https://discord.dev/resources/guild#add-guild-member */
-export interface AddGuildMemberJSON {
+export interface AddGuildMemberData {
   /** an oauth2 access token granted with the `guilds.join` to the bot's application for the user you want to add to the guild */
   access_token: string;
   /** value to set users nickname to */
@@ -564,7 +564,7 @@ export interface AddGuildMemberJSON {
 export type AddGuildMemberBody = GuildMember | void;
 
 /** https://discord.dev/resources/guild#modify-guild-member */
-export interface ModifyGuildMemberJSON extends ModifyCurrentUserNickJSON {
+export interface ModifyGuildMemberData extends ModifyCurrentUserNickData {
   /** array of role ids the member is assigned */
   roles?: Snowflake[] | null;
   /** whether the user is muted in voice channels. Will throw a 400 if the user is not in a voice channel */
@@ -579,13 +579,13 @@ export interface ModifyGuildMemberJSON extends ModifyCurrentUserNickJSON {
 export type ModifyGuildMemberBody = GuildMember;
 
 /** https://discord.dev/resources/guild#modify-current-user-nick */
-export interface ModifyCurrentUserNickJSON {
+export interface ModifyCurrentUserNickData {
   /** value to set users nickname to */
   nick?: string | null;
 }
 
 /** https://discord.dev/resources/guild#modify-current-user-nick */
-export type ModifyCurrentUserNickBody = ModifyCurrentUserNickJSON;
+export type ModifyCurrentUserNickBody = ModifyCurrentUserNickData;
 
 /** https://discord.dev/resources/guild#add-guild-member-role */
 export type AddGuildMemberRoleBody = void;
@@ -603,7 +603,7 @@ export type GetGuildBansBody = Ban[];
 export type GetGuildBanBody = Ban;
 
 /** https://discord.dev/resources/guild#create-guild-ban */
-export interface CreateGuildBanJSON {
+export interface CreateGuildBanData {
   /** number of days to delete messages for (0-7) */
   delete_message_days?: number;
   /** reason for the ban */
@@ -620,7 +620,7 @@ export type RemoveGuildBanBody = void;
 export type GetGuildRolesBody = Role[];
 
 /** https://discord.dev/resources/guild#create-guild-role */
-export type CreateGuildRoleJSON = Partial<
+export type CreateGuildRoleData = Partial<
   Omit<Role, "id" | "position" | "managed" | "tags">
 >;
 
@@ -628,7 +628,7 @@ export type CreateGuildRoleJSON = Partial<
 export type CreateGuildRoleBody = Role;
 
 /** https://discord.dev/resources/guild#modify-guild-role-positions */
-export type ModifyGuildRolePositionsJSON = {
+export type ModifyGuildRolePositionsData = {
   /** role */
   id: Snowflake;
   /** sorting position of the role */
@@ -639,7 +639,7 @@ export type ModifyGuildRolePositionsJSON = {
 export type ModifyGuildRolePositionsBody = Role[];
 
 /** https://discord.dev/resources/guild#modify-guild-role */
-export type ModifyGuildRoleJSON = Nullable<CreateGuildRoleJSON>;
+export type ModifyGuildRoleData = Nullable<CreateGuildRoleData>;
 
 /** https://discord.dev/resources/guild#modify-guild-role */
 export type ModifyGuildRoleBody = Role;
@@ -661,7 +661,7 @@ export interface GetGuildPruneCountBody {
 }
 
 /** https://discord.dev/resources/guild#begin-guild-prune */
-export interface BeginGuildPruneJSON extends GetGuildPruneCountQuery {
+export interface BeginGuildPruneData extends GetGuildPruneCountQuery {
   /** whether 'pruned' is returned, discouraged for large guilds */
   compute_prune_count?: boolean;
   /** reason for the prune */
@@ -687,7 +687,7 @@ export type DeleteGuildIntegrationBody = void;
 export type GetGuildWidgetSettingsBody = GuildWidget;
 
 /** https://discord.dev/resources/guild#modify-guild-widget */
-export type ModifyGuildWidgetJSON = Partial<GuildWidget>;
+export type ModifyGuildWidgetData = Partial<GuildWidget>;
 
 /** https://discord.dev/resources/guild#modify-guild-widget */
 export type ModifyGuildWidgetBody = GuildWidget;
@@ -729,7 +729,7 @@ export type WidgetStyleOptions =
 export type GetGuildWelcomeScreenBody = WelcomeScreen;
 
 /** https://discord.dev/resources/guild#modify-guild-welcome-screen */
-export type ModifyGuildWelcomeScreenJSON = Nullable<
+export type ModifyGuildWelcomeScreenData = Nullable<
   Partial<
     WelcomeScreen & {
       /** whether the welcome screen is enabled */
@@ -742,8 +742,8 @@ export type ModifyGuildWelcomeScreenJSON = Nullable<
 export type ModifyGuildWelcomeScreenBody = WelcomeScreen;
 
 /** https://discord.dev/resources/guild#modify-current-user-voice-state */
-export interface ModifyCurrentUserVoiceStateJSON
-  extends ModifyUserVoiceStateJSON {
+export interface ModifyCurrentUserVoiceStateData
+  extends ModifyUserVoiceStateData {
   /** sets the user's request to speak */
   request_to_speak_timestamp?: string | null;
 }
@@ -752,7 +752,7 @@ export interface ModifyCurrentUserVoiceStateJSON
 export type ModifyCurrentUserVoiceStateBody = void;
 
 /** https://discord.dev/resources/guild#modify-user-voice-state */
-export interface ModifyUserVoiceStateJSON {
+export interface ModifyUserVoiceStateData {
   /** the id of the channel the user is currently in */
   channel_id: Snowflake;
   /** toggles the user's suppress state */

@@ -36,7 +36,7 @@ export interface GuildTemplate {
 export type GetGuildTemplateBody = GuildTemplate;
 
 /** https://discord.dev/resources/template#create-guild-from-guild-template */
-export interface CreateGuildFromGuildTemplateJSON {
+export interface CreateGuildFromGuildTemplateData {
   /** name of the guild (2-100 characters) */
   name: string;
   /** base64 128x128 image for the guild icon */
@@ -50,7 +50,7 @@ export type CreateGuildFromGuildTemplateBody = Guild;
 export type GetGuildTemplatesBody = GuildTemplate[];
 
 /** https://discord.dev/resources/template#create-guild-template */
-export interface CreateGuildTemplateJSON {
+export interface CreateGuildTemplateData {
   /** name of the template (1-100 characters) */
   name: string;
   /** description for the template (0-120 characters) */
@@ -64,7 +64,7 @@ export type CreateGuildTemplateBody = GuildTemplate;
 export type SyncGuildTemplateBody = GuildTemplate;
 
 /** https://discord.dev/resources/template#modify-guild-template */
-export type ModifyGuildTemplateJSON = Partial<CreateGuildTemplateJSON>;
+export type ModifyGuildTemplateData = Partial<CreateGuildTemplateData>;
 
 /** https://discord.dev/resources/template#modify-guild-template */
 export type ModifyGuildTemplateBody = GuildTemplate;

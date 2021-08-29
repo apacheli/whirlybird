@@ -139,7 +139,7 @@ export enum HTTPResponseCodes {
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#json-json-error-codes */
-export enum JSONErrorCodes {
+export enum DataErrorCodes {
   /** General error (such as a malformed request body, amongst other things) */
   GeneralError,
 
@@ -427,8 +427,8 @@ export enum JSONErrorCodes {
   //#endregion 16xxxx
 
   //#region 17xxxx
-  /** Invalid JSON for uploaded Lottie file */
-  InvalidLottieJSON = 170001,
+  /** Invalid Data for uploaded Lottie file */
+  InvalidLottieData = 170001,
   /** Uploaded Lotties cannot contain rasterized images such as PNG or JPEG */
   LottieRasterized,
   /** Sticker maximum framerate exceeded */

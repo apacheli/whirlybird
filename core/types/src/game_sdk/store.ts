@@ -83,7 +83,7 @@ export type ConsumeSKUBody = void;
 export type DeleteTestEntitlementBody = void;
 
 /** https://discord.dev/game-sdk/store#create-purchase-discount */
-export interface CreatePurchaseDiscountJSON {
+export interface CreatePurchaseDiscountData {
   /** the percentage to discount - max of 100, min of 1 */
   percent_off: number;
   /** the time to live for the discount, in seconds - max of 3600, min of 60, default of 600 */

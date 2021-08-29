@@ -32,7 +32,7 @@ export type ListGuildEmojisBody = Emoji[];
 export type GetGuildEmojiBody = Emoji;
 
 /** https://discord.dev/resources/emoji#create-guild-emoji */
-export interface CreateGuildEmojiJSON {
+export interface CreateGuildEmojiData {
   /** name of the emoji */
   name: string;
   /** the 128x128 emoji image */
@@ -45,7 +45,7 @@ export interface CreateGuildEmojiJSON {
 export type CreateGuildEmojiBody = Emoji;
 
 /** https://discord.dev/resources/emoji#modify-guild-emoji */
-export interface ModifyGuildEmojiJSON {
+export interface ModifyGuildEmojiData {
   /** name of the emoji */
   name?: string;
   /** roles allowed to use this emoji */

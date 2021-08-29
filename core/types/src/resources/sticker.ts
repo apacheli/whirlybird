@@ -89,8 +89,8 @@ export type ListGuildStickersBody = Sticker[];
 export type GetGuildStickerBody = Sticker;
 
 /** https://discord.dev/resources/sticker#create-guild-sticker */
-export interface CreateGuildStickerForm extends ModifyGuildStickerJSON {
-  /** the sticker file to upload, must be a PNG, APNG, or Lottie JSON file, max 500 KB */
+export interface CreateGuildStickerForm extends ModifyGuildStickerData {
+  /** the sticker file to upload, must be a PNG, APNG, or Lottie Data file, max 500 KB */
   file: string;
 }
 
@@ -98,7 +98,7 @@ export interface CreateGuildStickerForm extends ModifyGuildStickerJSON {
 export type CreateGuildStickerBody = Sticker;
 
 /** https://discord.dev/resources/sticker#modify-guild-sticker */
-export interface ModifyGuildStickerJSON {
+export interface ModifyGuildStickerData {
   /** name of the sticker (2-30 characters) */
   name: string;
   /** description of the sticker (empty or 2-100 characters) */
