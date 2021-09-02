@@ -416,6 +416,8 @@ export enum DataErrorCodes {
   //#endregion 15xxxx
 
   //#region 16xxxx
+  /** Cannot reply without permission to read message history */
+  CannotReplyWithoutReadMessageHistory = 160002,
   /** A thread has already been created for this message */
   MessageAlreadyHasThread = 160004,
   /** Thread is locked */
@@ -427,8 +429,8 @@ export enum DataErrorCodes {
   //#endregion 16xxxx
 
   //#region 17xxxx
-  /** Invalid Data for uploaded Lottie file */
-  InvalidLottieData = 170001,
+  /** Invalid JSON for uploaded Lottie file */
+  InvalidLottieJSON = 170001,
   /** Uploaded Lotties cannot contain rasterized images such as PNG or JPEG */
   LottieRasterized,
   /** Sticker maximum framerate exceeded */

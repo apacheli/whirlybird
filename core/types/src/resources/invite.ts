@@ -1,7 +1,7 @@
 // deno-lint-ignore-file camelcase
 
 import type { Application } from "./application.ts";
-import type { Channel } from "./channel.ts";
+import type { GuildChannel } from "./channel.ts";
 import type { Guild, GuildMember } from "./guild.ts";
 import type { User } from "./user.ts";
 
@@ -14,7 +14,7 @@ export interface Invite {
   /** the guild this invite is for */
   guild?: Partial<Guild>;
   /** the channel this invite is for */
-  channel?: Partial<Channel>;
+  channel?: Partial<GuildChannel>;
   /** the user who created the invite */
   inviter?: User;
   /** the [type of target](https://discord.dev/resources/invite#invite-object-invite-target-types) for this voice channel invite */
@@ -35,8 +35,8 @@ export interface Invite {
 
 /** https://discord.dev/resources/invite#invite-object-invite-target-types */
 export enum InviteTargetTypes {
-  STREAM = 1,
-  EMBEDDED_APPLICATION,
+  Stream = 1,
+  EmbeddedApplication,
 }
 
 /** https://discord.dev/resources/invite#invite-metadata-object */

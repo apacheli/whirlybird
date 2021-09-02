@@ -90,7 +90,7 @@ export type GetGuildStickerBody = Sticker;
 
 /** https://discord.dev/resources/sticker#create-guild-sticker */
 export interface CreateGuildStickerForm extends ModifyGuildStickerData {
-  /** the sticker file to upload, must be a PNG, APNG, or Lottie Data file, max 500 KB */
+  /** the sticker file to upload, must be a PNG, APNG, or Lottie JSON file, max 500 KB */
   file: string;
 }
 

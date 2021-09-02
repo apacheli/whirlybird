@@ -15,12 +15,17 @@ export interface StageInstance {
   channel_id: Snowflake;
   /** The topic of the Stage instance (1-120 characters) */
   topic: string;
+  /** The [privacy level](https://discord.dev/resources/stage-instance#stage-instance-object-privacy-level) of the Stage instance */
   privacy_level: PrivacyLevel;
+  /** Whether or not Stage Discovery is disabled */
   discoverable_disabled: boolean;
 }
 
+/** https://discord.dev/resources/stage-instance#stage-instance-object-privacy-level */
 export enum PrivacyLevel {
-  Public,
+  /** The Stage instance is visible publicly, such as on Stage Discovery. */
+  Public = 1,
+  /** The Stage instance is visible to only guild members. */
   GuildOnly,
 }
 

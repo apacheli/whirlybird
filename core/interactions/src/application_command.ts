@@ -7,7 +7,7 @@ import type {
   CreateGlobalApplicationCommandData,
 } from "../../types/src/interactions/application_commands.ts";
 
-export const a = (
+const a = (
   type: ApplicationCommandTypes,
   name: string,
   description: string,
@@ -32,7 +32,7 @@ const o = (
   type: ApplicationCommandOptionType,
   name: string,
   description: string,
-  extra?: Omit<ApplicationCommandOption, "type" | "name" | "description">,
+  extra?: Omit<ApplicationCommandOption, "name" | "description">,
 ): ApplicationCommandOption => ({
   name,
   description,

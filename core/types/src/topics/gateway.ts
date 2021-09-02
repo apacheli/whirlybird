@@ -1,12 +1,16 @@
 // deno-lint-ignore-file camelcase
 
-import type {
-  ApplicationCommand,
-} from "../interactions/application_commands.ts";
+import type { ApplicationCommand } from "../interactions/application_commands.ts";
 import type { Interaction } from "../interactions/receiving_and_responding.ts";
 import type { Snowflake } from "../reference.ts";
 import type { Application } from "../resources/application.ts";
-import type { Channel, Message, ThreadMember } from "../resources/channel.ts";
+import type {
+  Channel,
+  GuildChannel,
+  Message,
+  ThreadChannel,
+  ThreadMember,
+} from "../resources/channel.ts";
 import type { Emoji } from "../resources/emoji.ts";
 import type {
   Guild,
@@ -414,7 +418,7 @@ export type DispatchPayloadChannelCreate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#channel-create */
-export type DispatchPayloadChannelCreateData = Channel;
+export type DispatchPayloadChannelCreateData = GuildChannel;
 
 /** https://discord.dev/topics/gateway#channel-update */
 export type DispatchPayloadChannelUpdate = BaseDispatchPayload<
@@ -457,7 +461,7 @@ export type DispatchPayloadThreadCreate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#thread-create */
-export type DispatchPayloadThreadCreateData = Channel;
+export type DispatchPayloadThreadCreateData = ThreadChannel;
 
 /** https://discord.dev/topics/gateway#thread-update */
 export type DispatchPayloadThreadUpdate = BaseDispatchPayload<
@@ -466,7 +470,7 @@ export type DispatchPayloadThreadUpdate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#thread-update */
-export type DispatchPayloadThreadUpdateData = Channel;
+export type DispatchPayloadThreadUpdateData = ThreadChannel;
 
 /** https://discord.dev/topics/gateway#thread-delete */
 export type DispatchPayloadThreadDelete = BaseDispatchPayload<
@@ -476,7 +480,7 @@ export type DispatchPayloadThreadDelete = BaseDispatchPayload<
 
 /** https://discord.dev/topics/gateway#thread-delete */
 export type DispatchPayloadThreadDeleteData = Pick<
-  Channel,
+  GuildChannel,
   "id" | "guild_id" | "parent_id" | "type"
 >;
 
@@ -493,7 +497,7 @@ export interface DispatchPayloadThreadListSyncData {
   /** the parent channel ids whose threads are being synced. If omitted, then threads were synced for the entire guild. This array may contain channel_ids that have no active threads as well, so you know to clear that data. */
   channel_ids?: Snowflake[];
   /** all active threads in the given channels that the current user can access */
-  threads: Channel[];
+  threads: ThreadChannel[];
   /** all thread member objects from the synced threads for the current user, indicating which threads the current user has been added to */
   members: ThreadMember[];
 }

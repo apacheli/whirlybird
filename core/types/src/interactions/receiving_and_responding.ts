@@ -19,7 +19,12 @@ import type {
   ApplicationCommandInteractionDataOption,
   ApplicationCommandTypes,
 } from "./application_commands.ts";
-import type { Component, ComponentTypes } from "./message_components.ts";
+import type {
+  ActionRow,
+  Button,
+  ComponentTypes,
+  SelectMenu,
+} from "./message_components.ts";
 
 // https://discord.dev/interactions/receiving-and-responding
 
@@ -139,7 +144,7 @@ export interface InteractionCallbackData {
   /** [interaction application command callback data flags](https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags) */
   flags?: InteractionCallbackDataFlags;
   /** message components */
-  components?: Component[];
+  components?: ActionRow<Button | SelectMenu>[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags */

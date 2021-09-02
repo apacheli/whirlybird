@@ -5,32 +5,7 @@ import type { Emoji } from "../resources/emoji.ts";
 // https://discord.dev/interactions/message-components
 
 /** https://discord.dev/interactions/message-components#component-object */
-export interface Component {
-  /** [component type](https://discord.dev/interactions/message-components#component-object-component-types) */
-  type: ComponentTypes;
-  /** a developer-defined identifier for the component, max 100 characters */
-  custom_id?: string;
-  /** whether the component is disabled, default `false` */
-  disabled?: boolean;
-  /** one of [button styles](https://discord.dev/interactions/message-components#button-object-button-styles) */
-  style?: ButtonStyles;
-  /** text that appears on the button, max 80 characters */
-  label?: string;
-  /**` name`, `id`, and `animated` */
-  emoji?: Partial<Emoji>;
-  /** a url for link-style buttons */
-  url?: string;
-  /** the choices in the select, max 25 */
-  options?: SelectOption[];
-  /** custom placeholder text if nothing is selected, max 100 characters */
-  placeholder?: string;
-  /** the minimum number of items that must be chosen; default 1, min 0, max 25 */
-  min_values?: number;
-  /** the maximum number of items that can be chosen; default 1, max 25 */
-  max_values?: number;
-  /** a list of child components */
-  components?: Component[];
-}
+export type Component = ActionRow<Button | SelectMenu> | Button | SelectMenu;
 
 /** https://discord.dev/interactions/message-components#component-object-component-types */
 export enum ComponentTypes {
@@ -40,6 +15,14 @@ export enum ComponentTypes {
   Button,
   /** A select menu for picking from choices */
   SelectMenu,
+}
+
+/** https://discord.dev/interactions/message-components#action-rows */
+export interface ActionRow<T extends Button | SelectMenu> {
+  /** `1` for an action row */
+  type: ComponentTypes.ActionRow;
+  /** a list of child components */
+  components: [T?, T?, T?, T?, T?];
 }
 
 /** https://discord.dev/interactions/message-components#button-object */

@@ -4,7 +4,6 @@ import type { Nullable } from "../../../util/mod.ts";
 import type { Component } from "../interactions/message_components.ts";
 import type { MessageInteraction } from "../interactions/receiving_and_responding.ts";
 import type { Snowflake } from "../reference.ts";
-import type { DispatchPayloadPresenceUpdateData } from "../topics/gateway.ts";
 import type { Permissions } from "../topics/permissions.ts";
 import type { Application } from "./application.ts";
 import type { Emoji } from "./emoji.ts";
@@ -16,57 +15,143 @@ import type { User } from "./user.ts";
 // https://discord.dev/resources/channel
 
 /** https://discord.dev/resources/channel#channel-object */
-export interface Channel {
+export type Channel =
+  | GuildChannel
+  | DMChannel
+  | GroupDMChannel;
+
+export type GuildChannel =
+  | GuildTextChannel
+  | GuildVoiceChannel
+  | GuildCategoryChannel
+  | GuildNewsChannel
+  | GuildStoreChannel
+  | ThreadChannel
+  | GuildStageVoiceChannel;
+
+export type ThreadChannel =
+  | GuildNewsThreadChannel
+  | GuildPublicThreadChannel
+  | GuildPrivateThreadChannel;
+
+//#region base channel interfaces
+/* export */ interface BaseChannel<T extends ChannelTypes> {
   /** the id of this channel */
   id: Snowflake;
   /** the [type of channel](https://discord.dev/resources/channel#channel-object-channel-types) */
-  type: ChannelTypes;
+  type: T;
+}
+
+/* export */ interface BaseGuildChannel<T extends ChannelTypes>
+  extends BaseChannel<T> {
   /** the id of the guild (may be missing for some channel objects received over gateway guild dispatches) */
-  guild_id?: Snowflake;
+  guild_id: Snowflake;
   /** sorting position of the channel */
-  position?: number;
+  position: number;
   /** explicit permission overwrites for members and roles */
-  permission_overwrites?: Overwrite[];
+  permission_overwrites: Overwrite[];
   /** the name of the channel (1-100 characters) */
-  name?: string;
-  /** the channel topic (0-1024 characters) */
-  topic?: string | null;
+  name: string;
   /** whether the channel is nsfw */
-  nsfw?: boolean;
+  nsfw: boolean;
+  /** for guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels), for threads: id of the text channel this thread was created */
+  parent_id: Snowflake | null;
+  /** computed permissions for the invoking user in the channel, including overwrites, only included when part of the `resolved` data received on a slash command interaction */
+  permissions?: Permissions;
+}
+
+/* export */ interface BaseTextChannel {
   /** the id of the last message sent in this channel (may not point to an existing or valid message) */
   last_message_id?: Snowflake | null;
-  /** the bitrate (in bits) of the voice channel */
-  bitrate?: number;
-  /** the user limit of the voice channel */
-  user_limit?: number;
-  /** mount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission `manage_messages` or `manage_channel`, are unaffected */
-  rate_limit_per_user?: number;
-  /** the recipients of the DM */
-  recipients?: User[];
-  /** icon hash */
-  icon?: string | null;
-  /** id of the creator of the group DM or thread */
-  owner_id?: Snowflake;
-  /** application id of the group DM creator if it is bot-created */
-  application_id?: Snowflake;
-  /** for guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels), for threads: id of the text channel this thread was created */
-  parent_id?: Snowflake | null;
   /** when the last pinned message was pinned. This may be `null` in events such as `GUILD_CREATE` when a message is not pinned. */
   last_pin_timestamp?: string | null;
+}
+
+/* export */ interface BaseVoiceChannel {
+  /** the bitrate (in bits) of the voice channel */
+  bitrate: number;
+  /** the user limit of the voice channel */
+  user_limit: number;
   /** [voice region](https://discord.dev/resources/voice#voice-region-object) id for the voice channel, automatic when set to null */
-  rtc_region?: string | null;
+  rtc_region: string | null;
   /** the camera [video quality mode](https://discord.dev/resources/channel#channel-object-video-quality-modes) of the voice channel, 1 when not present */
-  video_quality_mode?: VideoQualityModes;
+  video_quality_mode: VideoQualityModes;
+}
+
+/* export */ interface BaseThreadChannel extends BaseTextChannel {
   /** an approximate count of messages in a thread, stops counting at 50 */
-  message_count?: number;
+  message_count: number;
   /** an approximate count of users in a thread, stops counting at 50 */
-  member_count?: number;
+  member_count: number;
   /** thread-specific fields not needed by other channels */
   thread_metadata?: ThreadMetadata;
   /** thread member object for the current user, if they have joined the thread, only included on certain API endpoints */
-  member?: ThreadMember;
+  member: ThreadMember;
+}
+//#endregion base channel interfaces
+
+export interface GuildTextChannel
+  extends BaseGuildChannel<ChannelTypes.GuildText>, BaseTextChannel {
+  /** the channel topic (0-1024 characters) */
+  topic: string;
+  /** mount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission `manage_messages` or `manage_channel`, are unaffected */
+  rate_limit_per_user: number;
   /** default duration for newly created threads, in minutes, to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
   default_auto_archive_duration?: AutoArchiveDuration;
+}
+
+export interface DMChannel
+  extends BaseChannel<ChannelTypes.DM>, BaseTextChannel {
+  /** the recipients of the DM */
+  recipients: [User];
+}
+
+export type GuildVoiceChannel =
+  & BaseGuildChannel<ChannelTypes.GuildVoice>
+  & BaseVoiceChannel;
+
+export interface GroupDMChannel
+  extends BaseChannel<ChannelTypes.GroupDM>, BaseTextChannel {
+  /** the name of the channel (1-100 characters) */
+  name: string;
+  /** the recipients of the DM */
+  recipients: User[];
+  /** icon hash */
+  icon: string | null;
+  /** id of the creator of the group DM or thread */
+  owner_id: Snowflake;
+  /** application id of the group DM creator if it is bot-created */
+  application_id: Snowflake | null;
+}
+
+export type GuildCategoryChannel = BaseGuildChannel<ChannelTypes.GuildCategory>;
+
+export interface GuildNewsChannel
+  extends BaseGuildChannel<ChannelTypes.GuildNews>, BaseTextChannel {
+  /** the channel topic (0-1024 characters) */
+  topic: string;
+  /** default duration for newly created threads, in minutes, to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
+  default_auto_archive_duration?: AutoArchiveDuration;
+}
+
+export type GuildStoreChannel = BaseGuildChannel<ChannelTypes.GuildStore>;
+
+export type GuildNewsThreadChannel =
+  & BaseGuildChannel<ChannelTypes.GuildNewsThread>
+  & BaseThreadChannel;
+
+export type GuildPublicThreadChannel =
+  & BaseGuildChannel<ChannelTypes.GuildPublicThread>
+  & BaseThreadChannel;
+
+export type GuildPrivateThreadChannel =
+  & BaseGuildChannel<ChannelTypes.GuildPrivateThread>
+  & BaseThreadChannel;
+
+export interface GuildStageVoiceChannel
+  extends BaseGuildChannel<ChannelTypes.GuildStageVoice>, BaseVoiceChannel {
+  /** the channel topic (0-1024 characters) */
+  topic: string;
 }
 
 /** https://discord.dev/resources/channel#channel-object-channel-types */
@@ -303,10 +388,6 @@ export interface ThreadMember {
   join_timestamp: string;
   /** any user-thread settings, currently only used for notifications */
   flags: number;
-  /** the member object for the user who joined the thread */
-  member?: GuildMember;
-  /** the current presence of the user who joined the thread */
-  presence?: DispatchPayloadPresenceUpdateData;
 }
 
 /** https://discord.dev/resources/channel#embed-object */
@@ -340,14 +421,13 @@ export interface Embed {
 }
 
 /** https://discord.dev/resources/channel#embed-object-embed-types */
-export enum EmbedTypes {
-  Rich = "rich",
-  Image = "image",
-  Video = "video",
-  GIFV = "gifv",
-  Article = "article",
-  Link = "link",
-}
+export type EmbedTypes =
+  | "rich"
+  | "image"
+  | "video"
+  | "gifv"
+  | "article"
+  | "link";
 
 /** https://discord.dev/resources/channel#embed-object-embed-thumbnail-structure */
 export type EmbedThumbnail = EmbedVideo;
@@ -573,7 +653,7 @@ export interface EditMessageData
   flags?: MessageFlags | null;
   /** the contents of the file being sent/edited */
   file?: string | null;
-  /** Data encoded body of non-file params (multipart/form-data only) */
+  /** JSON encoded body of non-file params (multipart/form-data only) */
   payload_json?: string;
   /** attached files to keep */
   attachments?: Attachment[] | null;
@@ -710,7 +790,7 @@ export type ListThreadMembersBody = ThreadMember[];
 /** https://discord.dev/resources/channel#list-active-threads */
 export interface ListActiveThreadsBody {
   /** the active threads */
-  threads: Channel[];
+  threads: ThreadChannel[];
   /** a thread member object for each returned thread the current user has joined */
   members: ThreadMember[];
   /** whether there are potentially additional threads that could be returned on a subsequent call */

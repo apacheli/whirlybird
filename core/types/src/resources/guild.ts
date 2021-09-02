@@ -5,7 +5,12 @@ import type { Snowflake } from "../reference.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../topics/gateway.ts";
 import type { Permissions, Role } from "../topics/permissions.ts";
 import type { Application } from "./application.ts";
-import type { Channel, ChannelTypes, Overwrite } from "./channel.ts";
+import type {
+  ChannelTypes,
+  GuildChannel,
+  Overwrite,
+  ThreadChannel,
+} from "./channel.ts";
 import type { Emoji } from "./emoji.ts";
 import type { Invite } from "./invite.ts";
 import type { StageInstance } from "./stage_instance.ts";
@@ -80,9 +85,9 @@ export interface Guild {
   /** users in the guild */
   members?: GuildMember[];
   /** channels in the guild */
-  channels?: Channel[];
+  channels?: GuildChannel[];
   /** all active threads in the guild that current user has permission to view */
-  threads?: Channel[];
+  threads?: ThreadChannel[];
   /** presences of the members in the guild, will only include non-offline members if the size is greater than `large threshold` */
   presences?: DispatchPayloadPresenceUpdateData[];
   /** the maximum number of presences for the guild (the default value, currently 25000, is in effect when `null` is returned) */
@@ -402,7 +407,7 @@ export interface CreateGuildData {
   /** new guild roles */
   roles?: Role[];
   /** new guild's channels */
-  channels?: Partial<Channel>[];
+  channels?: Partial<GuildChannel>[];
   /** id for afk channel */
   afk_channel_id?: Snowflake;
   /** afk timeout in seconds */
@@ -477,7 +482,7 @@ export type ModifyGuildBody = Guild;
 export type DeleteGuildBody = void;
 
 /** https://discord.dev/resources/guild#get-guild-channels */
-export type GetGuildChannelsBody = Channel[];
+export type GetGuildChannelsBody = GuildChannel[];
 
 /** https://discord.dev/resources/guild#create-guild-channel */
 export interface CreateGuildChannelData {
@@ -504,7 +509,7 @@ export interface CreateGuildChannelData {
 }
 
 /** https://discord.dev/resources/guild#create-guild-channel */
-export type CreateGuildChannelBody = Channel;
+export type CreateGuildChannelBody = GuildChannel;
 
 /** https://discord.dev/resources/guild#modify-guild-channel-positions */
 export type ModifyGuildChannelPositionsData = {
@@ -697,7 +702,7 @@ export interface GetGuildWidgetBody {
   id: Snowflake;
   name: string;
   instant_invite: string;
-  channels: Partial<Channel>[];
+  channels: Partial<GuildChannel>[];
   members: (User & { status: string; avatar_url: string })[];
   presence_count: number;
 }

@@ -1,20 +1,15 @@
 import { ComponentTypes } from "../../types/src/interactions/message_components.ts";
 import type {
+  ActionRow,
   Button,
   ButtonStyles,
-  Component,
   SelectMenu,
   SelectOption,
 } from "../../types/src/interactions/message_components.ts";
 
-interface ActionRow<T extends Component> {
-  components?: [T?, T?, T?, T?, T?];
-  type: ComponentTypes.ActionRow;
-}
-
 /** Action row message component */
-export const actionRow = <T extends Component>(
-  components?: [T?, T?, T?, T?, T?],
+export const actionRow = <T extends Button | SelectMenu>(
+  components: [T?, T?, T?, T?, T?],
 ): ActionRow<T> => ({
   components,
   type: ComponentTypes.ActionRow,
