@@ -83,6 +83,8 @@ export const BitwisePermissionFlags = {
   UsePrivateThreads: 1n << 36n,
   /** Allows the usage of custom stickers from other servers */
   UseExternalStickers: 1n << 37n,
+  /** Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel */
+  StartEmbeddedActivities: 1n << 38n,
 };
 
 /** https://discord.dev/topics/permissions#role-object */

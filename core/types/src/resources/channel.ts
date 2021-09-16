@@ -274,9 +274,10 @@ export enum MessageTypes {
   GuildDiscoveryGracePeriodFinalWarning,
   ThreadCreated,
   Reply,
-  ApplicationCommand,
+  ChatInputCommand,
   ThreadStarterMessage,
   GuildInviteReminder,
+  ContextMenuCommand,
 }
 
 /** https://discord.dev/resources/channel#message-object-message-activity-structure */
@@ -435,7 +436,7 @@ export type EmbedThumbnail = EmbedVideo;
 /** https://discord.dev/resources/channel#embed-object-embed-video-structure */
 export interface EmbedVideo {
   /** source url of thumbnail, video, or image (only supports http(s) and attachments) */
-  url?: string;
+  url: string;
   /** a proxied url of the thumbnail, video, or image */
   proxy_url?: string;
   /** height of thumbnail, video, or image */
@@ -456,7 +457,16 @@ export interface EmbedProvider {
 }
 
 /** https://discord.dev/resources/channel#embed-object-embed-author-structure */
-export type EmbedAuthor = EmbedProvider & Omit<EmbedFooter, "text">;
+export interface EmbedAuthor {
+  /** name of author */
+  name: string;
+  /** url of author */
+  url?: string;
+  /** url of author icon (only supports http(s) and attachments) */
+  icon_url?: string;
+  /** a proxied url of author icon */
+  proxy_icon_url?: string;
+}
 
 /** https://discord.dev/resources/channel#embed-object-embed-field-structure */
 export interface EmbedFooter {

@@ -15,7 +15,7 @@ export interface ApplicationCommand {
   application_id: Snowflake;
   /** guild id of the command, if not global */
   guild_id?: boolean;
-  /** 1-32 lowercase character name matching `^[\w-]{1,32}$` */
+  /** [1-32 character name](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming) */
   name: string;
   /** 1-100 character description */
   description: string;
@@ -23,6 +23,8 @@ export interface ApplicationCommand {
   options?: ApplicationCommandOption[];
   /** whether the command is enabled by default when the app is added to a guild */
   default_permission?: boolean;
+  /** autoincrementing version identifier updated during substantial record changes */
+  version: Snowflake;
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-object-application-command-types */
@@ -39,7 +41,7 @@ export enum ApplicationCommandTypes {
 export interface ApplicationCommandOption {
   /** value of [application command option type](https://discord.dev/interactions/application-commands#application-command-object-application-command-option-type) */
   type: ApplicationCommandOptionType;
-  /** 1-32 lowercase character name matching `^[\w-]{1,32}$` */
+  /** [1-32 character name](https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-naming) */
   name: string;
   /** 1-100 character description */
   description: string;
@@ -77,7 +79,7 @@ export interface ApplicationCommandOptionChoice {
   value: string | number;
 }
 
-/** https://discord.dev/interactions/application-commands#interaction-object-application-command-interaction-data-option-structure */
+/** https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-interaction-data-option-structure */
 export interface ApplicationCommandInteractionDataOption {
   /** the name of the parameter */
   name: string;

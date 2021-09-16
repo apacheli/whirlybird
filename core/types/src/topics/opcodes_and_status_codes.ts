@@ -283,7 +283,11 @@ export enum DataErrorCodes {
   /** Maximum number of bans fetches has been reached */
   MaximumBanFetches = 30037,
   /** Maximum number of stickers reached */
-  MaximumStickers,
+  MaximumStickers = 30039,
+  /** Maximum number of prune requests has been reached. Try again later */
+  MaximumPruneRequests,
+  /** Maximum number of guild widget settings updates has been reached. Try again later */
+  MaximumGuildWidgetSettingsUpdated = 30042,
   //#endregion 3xxxx
 
   //#region 4xxxx

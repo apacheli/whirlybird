@@ -15,7 +15,7 @@ export interface Sticker {
   name: string;
   /** description of the sticker */
   description: string;
-  /** for guild stickers, the Discord name of a unicode emoji representing the sticker's expression. for standard stickers, a comma-separated list of related expressions. */
+  /** autocomplete/suggestion tags for the sticker (max 200 characters) */
   tags: string;
   /** [type of sticker](https://discord.dev/resources/sticker#sticker-object-sticker-types) */
   type: StickerTypes;
@@ -103,7 +103,7 @@ export interface ModifyGuildStickerData {
   name: string;
   /** description of the sticker (empty or 2-100 characters) */
   description: string;
-  /** the Discord name of a unicode emoji representing the sticker's expression (2-200 characters) */
+  /** autocomplete/suggestion tags for the sticker (max 200 characters) */
   tags: string;
 }
 
