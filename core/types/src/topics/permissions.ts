@@ -31,7 +31,7 @@ export const BitwisePermissionFlags = {
   Stream: 1n << 9n,
   /** Allows guild members to view a channel, which includes reading messages in text channels */
   ViewChannel: 1n << 10n,
-  /** Allows for sending messages in a channel */
+  /** Allows for sending messages in a channel (does not allow sending messages in threads) */
   SendMessages: 1n << 11n,
   /** Allows for sending of /tts messages */
   SendTTSMessages: 1n << 12n,
@@ -77,14 +77,16 @@ export const BitwisePermissionFlags = {
   RequestToSpeak: 1n << 32n,
   /** Allows for deleting and archiving threads, and viewing all private threads */
   ManageThreads: 1n << 34n,
-  /** Allows for creating and participating in threads */
-  UsePublicThreads: 1n << 35n,
-  /** Allows for creating and participating in private threads */
-  UsePrivateThreads: 1n << 36n,
+  /** Allows for creating threads */
+  CreatePublicThreads: 1n << 35n,
+  /** Allows for creating private threads */
+  CreatePrivateThreads: 1n << 36n,
   /** Allows the usage of custom stickers from other servers */
   UseExternalStickers: 1n << 37n,
+  /** Allows for sending messages in threads */
+  SendMessagesInThreads: 1n << 38n,
   /** Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel */
-  StartEmbeddedActivities: 1n << 38n,
+  StartEmbeddedActivities: 1n << 39n,
 };
 
 /** https://discord.dev/topics/permissions#role-object */

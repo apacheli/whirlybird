@@ -506,6 +506,8 @@ export interface Attachment {
   height?: number | null;
   /** width of file (if image) */
   width?: number | null;
+  /** whether this attachment is ephemeral */
+  ephemeral?: boolean;
 }
 
 /** https://discord.dev/resources/channel#channel-mention-object */
