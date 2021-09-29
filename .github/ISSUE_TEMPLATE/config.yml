@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+
+contact_links:
+
+  - name: Help
+    about: The issue tracker is only used for reporting bugs. If you need help, join the Discord server.
+    url: https://discord.gg/QyXH5EE4sw
+
+  - name: Suggestion
+    about: Have an idea or a suggestion? Create a discussion.
+    url: https://github.com/apacheli/whirlybird/discussions

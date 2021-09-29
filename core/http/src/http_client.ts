@@ -1,8 +1,17 @@
 import { BaseURL } from "../../types/src/reference.ts";
 import type { APIVersions } from "../../types/src/reference.ts";
-import { RateLimiter } from "../../util/src/rate_limiter.ts";
+import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
+import {
+  X_RATELIMIT_BUCKET,
+  X_RATELIMIT_LIMIT,
+  X_RATELIMIT_REMAINING,
+  X_RATELIMIT_RESET_AFTER,
+} from "../../types/src/topics/rate_limits.ts";
+import { RateLimit } from "../../util/src/rate_limit.ts";
 import { HTTP_VERSION, REQUEST_DELAY, USER_AGENT } from "./constants.ts";
 import { HttpError } from "./http_error.ts";
+
+// Thank you night, very cool! https://github.com/discord/discord-api-docs/issues/981#issuecomment-507471706
 
 /** HTTP client options */
 export interface HttpClientOptions {
@@ -17,7 +26,7 @@ export interface HttpClientOptions {
 export interface RateLimitInfo {
   endpointKey: string;
   majorParameters: string;
-  rateLimit?: RateLimiter;
+  rateLimit?: RateLimit;
 }
 
 export interface RequestOptions {
@@ -30,10 +39,10 @@ export interface RequestOptions {
 
 /** Makes HTTP requests to Discord */
 export class HttpClient {
-  /** `METHOD.ROUTE_NAME.major parameters` => `bucket` */
+  /** `Method.RouteName.MajorParameters` => `Bucket` */
   buckets = new Map<string, string>();
-  /** `bucket.major parameters` => `RateLimiter` */
-  rateLimits = new Map<string, RateLimiter>();
+  /** `Bucket.MajorParameters` => `RateLimiter` */
+  rateLimits = new Map<string, RateLimit>();
 
   constructor(public token: string, public options?: HttpClientOptions) {
   }
@@ -60,7 +69,7 @@ export class HttpClient {
       headers.set("Content-Type", "application/json");
     }
 
-    let url = `${BaseURL}/v${this.options?.version ?? HTTP_VERSION}${path}`;
+    let url = `${BaseURL}/v${this.options?.version ?? HTTP_VERSION}?${path}`;
     if (options?.query) {
       url += "?";
       for (const key in options.query) {
@@ -77,7 +86,7 @@ export class HttpClient {
     });
   }
 
-  getRateLimitInfo(routeKey: string, method: string): RateLimitInfo {
+  getRateLimitInfo(routeKey: string, method = "GET"): RateLimitInfo {
     const endpointKey = method + "." + routeKey;
     const bucket = this.buckets.get(endpointKey);
 
@@ -110,19 +119,27 @@ export class HttpClient {
 
     clearTimeout(timeout);
 
-    const bucket = response.headers.get("X-RateLimit-Bucket");
+    const bucket = response.headers.get(X_RATELIMIT_BUCKET);
     if (bucket !== null) {
       this.buckets.set(info.endpointKey, bucket);
       if (rateLimit === undefined) {
-        rateLimit = new RateLimiter();
+        rateLimit = new RateLimit();
         this.rateLimits.set(bucket + info.majorParameters, rateLimit);
       }
 
       rateLimit.update(
-        parseInt(response.headers.get("X-RateLimit-Limit")!),
-        parseFloat(response.headers.get("X-RateLimit-Reset-After")!) * 1_000,
-        parseInt(response.headers.get("X-RateLimit-Remaining")!),
+        parseInt(response.headers.get(X_RATELIMIT_LIMIT)!),
+        parseFloat(response.headers.get(X_RATELIMIT_RESET_AFTER)!) * 1_000,
+        parseInt(response.headers.get(X_RATELIMIT_REMAINING)!),
       );
+    }
+
+    if (response.status === HttpResponseCodes.TooManyRequests) {
+      const resetAfter = response.headers.get(X_RATELIMIT_RESET_AFTER)!;
+      return new Promise((...args) => {
+        const callback = () => this.realRequest(request, info).then(...args);
+        setTimeout(callback, parseFloat(resetAfter) * 1_000);
+      });
     }
 
     rateLimit?.shift();
@@ -146,14 +163,13 @@ export class HttpClient {
     if (response.ok) {
       return body;
     }
-
     throw new HttpError(body);
   }
 
   request(path: string, routeKey: string, options?: RequestOptions) {
     return this.realRequest(
       this.createRequest(path, options),
-      this.getRateLimitInfo(routeKey, options?.method ?? "GET"),
+      this.getRateLimitInfo(routeKey, options?.method),
     );
   }
 }

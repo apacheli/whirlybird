@@ -1,13 +1,8 @@
-import type { Awaitable } from "./types.ts";
-
 /** A generic function */
 export type GenericFunction = (...args: unknown[]) => unknown;
 
-/** A task function */
-export type TaskFunction = () => Awaitable<number[]>;
-
 /** Handles rate limits */
-export class RateLimiter {
+export class RateLimit {
   lastUpdatedAt = 0;
   queue: GenericFunction[] = [];
   timeout?: number;

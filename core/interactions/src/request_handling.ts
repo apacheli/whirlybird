@@ -1,6 +1,8 @@
 import {
   InteractionCallbackType,
   InteractionType,
+  SIGNATURE,
+  TIMESTAMP,
 } from "../../types/src/interactions/receiving_and_responding.ts";
 import type {
   Interaction,
@@ -23,8 +25,8 @@ export const handleRequestEvent = async (
   handler: Handler,
 ) => {
   const contentType = request.headers.get("Content-Type");
-  const signature = request.headers.get("X-Signature-Ed25519");
-  const timestamp = request.headers.get("X-Signature-Timestamp");
+  const signature = request.headers.get(SIGNATURE);
+  const timestamp = request.headers.get(TIMESTAMP);
 
   const respond = (body: string, status: number, headers?: HeadersInit) =>
     respondWith(new Response(body, { headers, status }));
