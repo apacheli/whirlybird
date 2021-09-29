@@ -186,7 +186,7 @@ export enum GatewayEvents {
 
 /** https://discord.dev/topics/gateway#heartbeating-example-gateway-heartbeat-ack */
 export type HeartbeatACKPayload = BasePayload<
-  GatewayOpcodes.HeartbeatACK,
+  GatewayOpcodes.HeartbeatAck,
   HeartbeatACKPayloadData
 >;
 
@@ -1029,6 +1029,9 @@ export enum ActivityFlags {
   JoinRequest = 1 << 3,
   Sync = 1 << 4,
   Play = 1 << 5,
+  PartyPrivacyFriends = 1 << 6,
+  PartyPrivacyVoiceChannel = 1 << 7,
+  Embedded = 1 << 8,
 }
 
 /** https://discord.dev/topics/gateway#activity-object-activity-buttons */

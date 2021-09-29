@@ -210,32 +210,34 @@ export enum GuildFeatures {
   InviteSplash = "INVITE_SPLASH",
   /** guild has enabled [Membership Screening](https://discord.dev/resources/guild#membership-screening-object) */
   MemberVerificationGateEnabled = "MEMBER_VERIFICATION_GATE_ENABLED",
+  /** guild has enabled monetization */
+  MonetizationEnabled = "MONETIZATION_ENABLED",
+  /** guild has increased custom sticker slots */
+  MoreStickers = "MORE_STICKERS",
   /** guild has access to create news channels */
   News = "NEWS",
   /** guild is partnered */
   Partnered = "PARTNERED",
   /** guild can be previewed before joining via Membership Screening or the directory */
   PreviewEnabled = "PREVIEW_ENABLED",
+  /** guild has access to create private threads */
+  PrivateThreads = "PRIVATE_THREADS",
+  /** guild is able to set role icons */
+  RoleIcons = "ROLE_ICONS",
+  /** guild has access to the seven day archive time for threads */
+  SevenDayThreadArchive = "SEVEN_DAY_THREAD_ARCHIVE",
+  /** guild has access to the three day archive time for threads */
+  ThreeDayThreadArchive = "THREE_DAY_THREAD_ARCHIVE",
+  /** guild has enabled ticketed events */
+  TicketedEventsEnabled = "TICKETED_EVENTS_ENABLED",
   /** guild has access to set a vanity URL */
-  VanityURL = "VANITY_URL",
+  VanityUurl = "VANITY_URL",
   /** guild is verified */
   Verified = "VERIFIED",
   /** guild has access to set 384kbps bitrate in voice (previously VIP voice servers) */
-  VIPRegions = "VIP_REGIONS",
+  VipRegions = "VIP_REGIONS",
   /** guild has enabled the welcome screen */
   WelcomeScreenEnabled = "WELCOME_SCREEN_ENABLED",
-  /** guild has enabled ticketed events */
-  TicketedEventsEnabled = "TICKETED_EVENTS_ENABLED",
-  /** guild has enabled monetization */
-  MonetizationEnabled = "MONETIZATION_ENABLED",
-  /** guild has increased custom sticker slots */
-  MoreStickers = "MORE_STICKERS",
-  /** guild has access to the three day archive time for threads */
-  ThreeDayThreadArchive = "THREE_DAY_THREAD_ARCHIVE",
-  /** guild has access to the seven day archive time for threads */
-  SevenDayThreadArchive = "SEVEN_DAY_THREAD_ARCHIVE",
-  /** guild has access to create private threads */
-  PrivateThreads = "PRIVATE_THREADS",
 }
 
 /** https://discord.dev/resources/guild#unavailable-guild-object */
@@ -282,6 +284,8 @@ export interface GuildMember {
   user?: User;
   /** this users guild nickname */
   nick?: string | null;
+  /** the member's [guild avatar hash](https://discord.dev/reference#image-formatting) */
+  avatar: string | null;
   /** array of [role](https://discord.dev/topics/permissions#role-object) object ids */
   roles: Snowflake[];
   /** when the user joined the guild */
@@ -582,6 +586,15 @@ export interface ModifyGuildMemberData extends ModifyCurrentUserNickData {
 
 /** https://discord.dev/resources/guild#modify-guild-member */
 export type ModifyGuildMemberBody = GuildMember;
+
+/** https://discord.dev/resources/guild#modify-current-member */
+export interface ModifyCurrentMemberData {
+  /** value to set users nickname to */
+  nick?: string | null;
+}
+
+/** https://discord.dev/resources/guild#modify-current-member */
+export type ModifyCurrentMemberBody = GuildMember;
 
 /** https://discord.dev/resources/guild#modify-current-user-nick */
 export interface ModifyCurrentUserNickData {

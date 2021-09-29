@@ -31,7 +31,7 @@ export enum OAuth2Scopes {
   /** enables [/users/@me](https://discord.dev/resources/user#get-current-user) to return an `email` */
   Email = "email",
   /** allows your app to [join users to a group dm](https://discord.dev/resources/channel#group-dm-add-recipient) */
-  GDMJoin = "gdm.join",
+  GdmJoin = "gdm.join",
   /** allows [/users/@me/guilds](https://discord.dev/resources/user#get-current-user-guilds) to return basic information about all of a user's guilds */
   Guilds = "guilds",
   /** allows [/guilds/{guild.id}/members/{user.id}](https://discord.dev/resources/guild#add-guild-member) to be used for joining users to a guild */
@@ -43,15 +43,15 @@ export enum OAuth2Scopes {
   /** allows your app to know a user's friends and implicit relationships - requires Discord approval */
   RelationshipsRead = "relationships.read",
   /** for local rpc server access, this allows you to control a user's local Discord client - requires Discord approval */
-  RPC = "rpc",
+  Rpc = "rpc",
   /** for local rpc server access, this allows you to update a user's activity - requires Discord approval */
-  RPCActivitiesWrite = "rpc.activities.write",
+  RpcActivitiesWrite = "rpc.activities.write",
   /** for local rpc server access, this allows you to receive notifications pushed out to the user - requires Discord approval */
-  RPCNotificationsRead = "rpc.notifications.read",
+  RpcNotificationsRead = "rpc.notifications.read",
   /** for local rpc server access, this allows you to read a user's voice settings and listen for voice events - requires Discord approval */
-  RPCVoiceRead = "rpc.voice.read",
+  RpcVoiceRead = "rpc.voice.read",
   /** for local rpc server access, this allows you to update a user's voice settings - requires Discord approval */
-  RPCVoiceWrite = "rpc.voice.write",
+  RpcVoiceWrite = "rpc.voice.write",
   /** this generates a webhook that is returned in the oauth token response for authorization code grants */
   WebhookIncoming = "webhook.incoming",
 }

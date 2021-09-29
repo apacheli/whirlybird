@@ -7,7 +7,7 @@ import type { Snowflake } from "../reference.ts";
 /** https://discord.dev/topics/certified-devices#connecting */
 export interface ConnectingQuery {
   /** `1` */
-  v: number;
+  v: 1;
   /** your app's client id */
   client_id: Snowflake;
   /** `json` */
@@ -53,8 +53,4 @@ export interface Model {
 }
 
 /** https://discord.dev/topics/certified-devices#models-device-types */
-export enum DeviceTypes {
-  AudioInput = "audioinput",
-  AudioOutput = "audiooutput",
-  VideoInput = "videoinput",
-}
+export type DeviceTypes = "audioinput" | "audiooutput" | "videoinput";

@@ -153,6 +153,11 @@ export enum InteractionCallbackDataFlags {
   Ephemeral = 1 << 6,
 }
 
+// deno-fmt-ignore
+export const
+  SIGNATURE = "X-Signature-Ed25519",
+  TIMESTAMP = "X-Signature-Timestamp";
+
 /** https://discord.dev/interactions/receiving-and-responding#create-interaction-response */
 export type CreateInteractionResponseData = InteractionResponse;
 

@@ -50,10 +50,10 @@ export interface ModifyLobbyData {
 }
 
 /** https://discord.dev/game-sdk/lobbies#modify-lobby */
-export type ModifyLobbyBody = unknown;
+export type ModifyLobbyBody = Lobby;
 
 /** https://discord.dev/game-sdk/lobbies#delete-lobby */
-export type DeleteLobbyBody = unknown;
+export type DeleteLobbyBody = void;
 
 /** https://discord.dev/game-sdk/lobbies#modify-lobby-member */
 export interface ModifyLobbyMemberData {
@@ -77,7 +77,7 @@ export interface CreateLobbySearchData {
 }
 
 /** https://discord.dev/game-sdk/lobbies#create-lobby-search */
-export type CreateLobbySearchBody = unknown;
+export type CreateLobbySearchBody = Lobby;
 
 /** https://discord.dev/game-sdk/lobbies#create-lobby-search-searchfilter-object */
 export interface SearchFilter {
@@ -124,4 +124,4 @@ export interface SendLobbyDataData {
 }
 
 /** https://discord.dev/game-sdk/lobbies#send-lobby-data */
-export type SearchLobbyDataBody = unknown;
+export type SendLobbyDataBody = unknown;

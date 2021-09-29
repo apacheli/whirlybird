@@ -2,7 +2,12 @@
 
 import type { Snowflake } from "../reference.ts";
 import type { Permissions, Role } from "../topics/permissions.ts";
-import type { AutoArchiveDuration, Overwrite } from "./channel.ts";
+import type {
+  AutoArchiveDuration,
+  Overwrite,
+  OverwriteTypes,
+  ThreadChannel,
+} from "./channel.ts";
 import type {
   DefaultMessageNotificationLevel,
   ExplicitContentFilterLevel,
@@ -18,14 +23,16 @@ import type { Webhook } from "./webhook.ts";
 
 /** https://discord.dev/resources/audit-log#audit-log-object */
 export interface AuditLog {
-  /** list of webhooks found in the audit log */
-  webhooks: Webhook[];
-  /** list of users found in the audit log */
-  users: User[];
   /** list of audit log entries */
   audit_log_entries: AuditLogEntry[];
   /** list of partial integration objects */
   integrations: Integration[];
+  /** array of [channel](https://discord.dev/resources/channel#channel-object) objects */
+  threads: ThreadChannel;
+  /** list of webhooks found in the audit log */
+  webhooks: Webhook[];
+  /** list of users found in the audit log */
+  users: User[];
 }
 
 /** https://discord.dev/resources/audit-log#audit-log-entry-object */
@@ -93,22 +100,22 @@ export enum AuditLogEvents {
 
 /** https://discord.dev/resources/audit-log#audit-log-entry-object-optional-audit-entry-info */
 export interface OptionalAuditLogInfo {
-  /** number of days after which inactive members were kicked */
-  delete_member_days?: string;
-  /** number of members removed by the prune */
-  members_removed?: string;
   /** channel in which the entities were targeted */
   channel_id?: Snowflake;
-  /** id of the message that was targeted */
-  guild_id?: Snowflake;
   /** number of entities that were targeted */
   count?: string;
+  /** number of days after which inactive members were kicked */
+  delete_member_days?: string;
   /** id of the overwritten entity */
   id?: Snowflake;
-  /** type of overwritten entity - "0" for "role" or "1" for "member" */
-  type?: string;
+  /** number of members removed by the prune */
+  members_removed?: string;
+  /** id of the message that was targeted */
+  message_id?: Snowflake;
   /** name of the role if type is "0" (not present if type is "1") */
   role_name?: string;
+  /** type of overwritten entity - "0" for "role" or "1" for "member" */
+  type?: `${OverwriteTypes}`;
 }
 
 /** https://discord.dev/resources/audit-log#audit-log-change-object */

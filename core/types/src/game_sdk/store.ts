@@ -18,6 +18,7 @@ export interface LimitedPaymentData {
   tax_inclusive: boolean;
 }
 
+// Not properly documented
 export interface Entitlement {
   user_id: Snowflake;
   sku_id: Snowflake;
@@ -27,6 +28,7 @@ export interface Entitlement {
   payment?: LimitedPaymentData;
 }
 
+// Not properly documented
 export interface SKU {
   id: Snowflake;
   type: number;

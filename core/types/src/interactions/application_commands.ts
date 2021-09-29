@@ -2,6 +2,7 @@
 
 import type { Nullify } from "../../../util/mod.ts";
 import type { Snowflake } from "../reference.ts";
+import type { ChannelTypes } from "../resources/channel.ts";
 
 // https://discord.dev/interactions/application-commands
 
@@ -51,6 +52,8 @@ export interface ApplicationCommandOption {
   choices?: ApplicationCommandOptionChoice[];
   /** if the option is a subcommand or subcommand group type, this nested options will be the parameters */
   options?: ApplicationCommandOption[];
+  /** if the option is a channel type, the channels shown will be restricted to these types */
+  channel_types?: ChannelTypes[];
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-object-application-command-option-type */
@@ -125,7 +128,7 @@ export type GetGlobalApplicationCommandsBody = ApplicationCommand[];
 /** https://discord.dev/interactions/application-commands#create-global-application-command */
 export type CreateGlobalApplicationCommandData = Omit<
   ApplicationCommand,
-  "id" | "application_id"
+  "id" | "application_id" | "version"
 >;
 
 /** https://discord.dev/interactions/application-commands#create-global-application-command */

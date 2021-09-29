@@ -23,7 +23,7 @@ export enum GatewayOpcodes {
   /** Sent immediately after connecting, contains the `heartbeat_interval` to use. */
   Hello,
   /** Sent in response to receiving a heartbeat to acknowledge that it has been received. */
-  HeartbeatACK,
+  HeartbeatAck,
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes */
@@ -113,7 +113,7 @@ export enum VoiceCloseEventCodes {
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#http-http-response-codes */
-export enum HTTPResponseCodes {
+export enum HttpResponseCodes {
   /** The request completed successfully. */
   Ok = 200,
   /** The entity was created successfully. */
@@ -360,7 +360,7 @@ export enum DataErrorCodes {
   InvalidWebhookToken,
   /** Invalid role */
   InvalidRole,
-  /** "Invalid Recipient(s)" */
+  /** Invalid Recipient(s) */
   InvalidRecipients = 50033,
   /** A message provided was too old to bulk delete */
   MessageTooOldToBulkDelete,
@@ -392,6 +392,8 @@ export enum DataErrorCodes {
   ServerNotAvailableInLocation = 50095,
   /** This server needs monetization enabled in order to perform this action */
   ActionNeedsServerMonetization = 50097,
+  /** This server needs more boosts to perform this action */
+  ActionNeedsMoreBoosts = 50101,
   //#endregion 5xxxx
 
   //#region 6xxxx
@@ -451,7 +453,7 @@ export enum DataErrorCodes {
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#rpc-rpc-error-codes */
-export enum RPCErrorCodes {
+export enum RpcErrorCodes {
   /** An unknown error occurred. */
   UnknownError = 1000,
   /** You sent an invalid payload. */
@@ -487,7 +489,7 @@ export enum RPCErrorCodes {
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#rpc-rpc-close-event-codes */
-export enum RPCCloseEventCodes {
+export enum RpcCloseEventCodes {
   /** You connected to the RPC server with an invalid client ID. */
   InvalidClientId = 4000,
   /** You connected to the RPC server with an invalid origin. */
