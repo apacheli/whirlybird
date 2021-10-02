@@ -163,7 +163,8 @@ export class HttpClient {
     if (response.ok) {
       return body;
     }
-    throw new HttpError(body);
+
+    throw new HttpError(response, body);
   }
 
   request(path: string, routeKey: string, options?: RequestOptions) {
