@@ -1,19 +1,25 @@
 import type { DataErrorCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
 
-interface HttpErrorBody {
+/** Response body error */
+export interface DiscordApiError {
   code: DataErrorCodes;
   message: string;
   errors: Record<
     string,
-    & { [k: string]: HttpErrorBody["errors"][string] }
-    & { _errors: { code: string; message: string }[] }
+    & { [k: string]: DiscordApiError["errors"][string] }
+    & { _errors: DiscordApiErrorChunk[] }
   >;
 }
 
-/** HTTP exception */
+export interface DiscordApiErrorChunk {
+  code: string;
+  message: string;
+}
+
+/** An error that was encountered over HTTP */
 export class HttpError extends Error {
-  constructor(public response: Response, public body: HttpErrorBody) {
+  constructor(public response: Response, public body: DiscordApiError) {
     super();
   }
 
