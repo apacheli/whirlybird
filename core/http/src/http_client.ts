@@ -7,6 +7,7 @@ import {
   X_RATELIMIT_REMAINING,
   X_RATELIMIT_RESET_AFTER,
 } from "../../types/src/topics/rate_limits.ts";
+import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
 import { HTTP_VERSION, REQUEST_DELAY, USER_AGENT } from "./constants.ts";
 import { HttpError } from "./http_error.ts";
@@ -23,12 +24,6 @@ export interface HttpClientOptions {
   version?: APIVersions;
 }
 
-export interface RateLimitInfo {
-  endpointKey: string;
-  majorParameters: string;
-  rateLimit?: RateLimit;
-}
-
 export interface RequestOptions {
   data?: unknown;
   files?: File[];
@@ -39,92 +34,87 @@ export interface RequestOptions {
 
 /** Makes HTTP requests to Discord */
 export class HttpClient {
-  /** `Method.RouteName.MajorParameters` => `Bucket` */
-  buckets = new Map<string, string>();
+  /** `Endpoint.MajorParameters` => `Bucket` */
+  buckets: Record<string, string> = Object.create(null);
   /** `Bucket.MajorParameters` => `RateLimiter` */
-  rateLimits = new Map<string, RateLimit>();
+  rateLimits: Record<string, RateLimit> = Object.create(null);
 
   constructor(public token: string, public options?: HttpClientOptions) {
   }
 
-  createRequest(path: string, options?: RequestOptions) {
-    const headers = new Headers();
-    headers.set("Authorization", this.token);
-    headers.set("User-Agent", this.options?.userAgent ?? USER_AGENT);
-    if (options?.reason) {
-      headers.set("X-Audit-Log-Reason", options.reason);
-    }
+  async request(path: string, key: string, options?: RequestOptions) {
+    const bucket = this.buckets[key];
 
-    let body;
-    if (options?.files) {
-      body = new FormData();
-      for (const file of options.files) {
-        body.append(file.name, file, file.name);
-      }
-      if (options.data) {
-        body.append("payload_json", JSON.stringify(options.data));
-      }
-    } else if (options?.data) {
-      body = JSON.stringify(options.data);
-      headers.set("Content-Type", "application/json");
-    }
-
-    let url = `${BaseURL}/v${this.options?.version ?? HTTP_VERSION}?${path}`;
-    if (options?.query) {
-      url += "?";
-      for (const key in options.query) {
-        url += encodeURIComponent(key);
-        url += `=${encodeURIComponent(options.query[key])}&`;
-      }
-      url = url.slice(0, -1);
-    }
-
-    return new Request(url, {
-      body,
-      headers,
-      method: options?.method,
-    });
-  }
-
-  getRateLimitInfo(routeKey: string, method = "GET"): RateLimitInfo {
-    const endpointKey = method + "." + routeKey;
-    const bucket = this.buckets.get(endpointKey);
-
-    const separator = routeKey.indexOf(".");
-    const majorParameters = separator > -1 ? routeKey.slice(separator) : "";
-
-    return {
-      endpointKey,
-      majorParameters,
-      rateLimit: this.rateLimits.get(bucket + majorParameters),
-    };
-  }
-
-  async realRequest(request: Request, info: RateLimitInfo) {
-    let rateLimit = info.rateLimit;
+    const separator = key.indexOf(".");
+    const majorParameters = separator > -1 ? key.slice(separator) : "";
+    let rateLimit = this.rateLimits[bucket + majorParameters];
 
     if (rateLimit?.rateLimited) {
       return new Promise((...args) => {
-        rateLimit?.add(() => this.realRequest(request, info).then(...args));
+        rateLimit?.add(() => this.request(path, key, options).then(...args));
       });
+    }
+
+    const headers: Record<string, string> = {
+      "Authorization": this.token,
+      "User-Agent": this.options?.userAgent ?? USER_AGENT,
+    };
+    if (options?.reason) {
+      headers["X-Audit-Log-Reason"] = options.reason;
+    }
+
+    let data;
+    if (options?.files) {
+      data = new FormData();
+      for (const file of options.files) {
+        data.append(file.name, file, file.name);
+      }
+      if (options.data) {
+        data.append("payload_json", JSON.stringify(options.data));
+      }
+    } else if (options?.data) {
+      data = JSON.stringify(options.data);
+      headers["Content-Type"] = "application/json";
+    }
+
+    let url = `${BaseURL}/v${this.options?.version ?? HTTP_VERSION}${path}`;
+    if (options?.query) {
+      let query = "?";
+      for (const key in options.query) {
+        const value = options.query[key];
+        query += `${encodeURIComponent(key)}=${encodeURIComponent(value)}&`;
+      }
+      url += query.slice(0, -1);
     }
 
     const controller = new AbortController();
     const delay = this.options?.delay ?? REQUEST_DELAY;
     const timeout = setTimeout(() => controller.abort(), delay);
 
-    const response = await fetch(request, {
+    const response = await fetch(url, {
+      body: data,
+      headers,
+      method: options?.method,
       signal: controller.signal,
     });
 
     clearTimeout(timeout);
 
-    const bucket = response.headers.get(X_RATELIMIT_BUCKET);
-    if (bucket !== null) {
-      this.buckets.set(info.endpointKey, bucket);
+    const bucketHeader = response.headers.get(X_RATELIMIT_BUCKET);
+    if (bucketHeader !== null) {
+      if (bucket !== undefined && bucket !== bucketHeader) {
+        logger.warn(
+          `Known bucket and unknown bucket for "${key}" are different.`,
+          bucket,
+          bucketHeader,
+        );
+      }
+
+      this.buckets[key] = bucketHeader;
+
       if (rateLimit === undefined) {
         rateLimit = new RateLimit();
-        this.rateLimits.set(bucket + info.majorParameters, rateLimit);
+        this.rateLimits[bucketHeader + majorParameters] = rateLimit;
       }
 
       rateLimit.update(
@@ -137,8 +127,8 @@ export class HttpClient {
     if (response.status === HttpResponseCodes.TooManyRequests) {
       const resetAfter = response.headers.get(X_RATELIMIT_RESET_AFTER)!;
       return new Promise((...args) => {
-        const callback = () => this.realRequest(request, info).then(...args);
-        setTimeout(callback, parseFloat(resetAfter) * 1_000);
+        const cb = () => this.request(path, key, options).then(...args);
+        setTimeout(cb, parseFloat(resetAfter) * 1_000);
       });
     }
 
@@ -165,12 +155,5 @@ export class HttpClient {
     }
 
     throw new HttpError(response, body);
-  }
-
-  request(path: string, routeKey: string, options?: RequestOptions) {
-    return this.realRequest(
-      this.createRequest(path, options),
-      this.getRateLimitInfo(routeKey, options?.method),
-    );
   }
 }
