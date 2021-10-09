@@ -20,7 +20,7 @@ export const button = (
   customId: string,
   label: string,
   style: ButtonStyles,
-  extra?: Omit<Button, "custom_id" | "label" | "style">,
+  extra?: Omit<Button, "custom_id" | "label" | "style" | "type">,
 ): Button => ({
   custom_id: customId,
   label,
@@ -33,7 +33,7 @@ export const button = (
 export const selectMenu = (
   customId: string,
   options: SelectOption[],
-  extra?: Omit<SelectMenu, "custom_id" | "options">,
+  extra?: Omit<SelectMenu, "custom_id" | "options" | "type">,
 ): SelectMenu => ({
   custom_id: customId,
   options,

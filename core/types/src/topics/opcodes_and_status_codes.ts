@@ -276,7 +276,7 @@ export enum DataErrorCodes {
   MaximumGuildChannelCategories = 30030,
   /** Guild already has a template */
   GuildAlreadyHasATemplate,
-  /** Max number of thread participants has been reached */
+  /** Max number of thread participants has been reached (1000) */
   MaximumThreadParticipants = 30033,
   /** Maximum number of bans for non-guild members have been exceeded */
   MaximumNonGuildMembersBanned = 30035,

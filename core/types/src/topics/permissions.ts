@@ -100,9 +100,9 @@ export interface Role {
   /** if this role is pinned in the user listing */
   hoist: boolean;
   /** role [icon hash](https://discord.dev/reference#image-formatting) */
-  icon: string | null;
+  icon?: string | null;
   /** role unicode emoji */
-  unicode_emoji: string | null;
+  unicode_emoji?: string | null;
   /** position of this role */
   position: number;
   /** permission bit set */

@@ -11,7 +11,10 @@ const a = (
   type: ApplicationCommandTypes,
   name: string,
   description: string,
-  extra?: Omit<CreateGlobalApplicationCommandData, "name" | "description">,
+  extra?: Omit<
+    CreateGlobalApplicationCommandData,
+    "name" | "description" | "type"
+  >,
 ): CreateGlobalApplicationCommandData => ({
   name,
   description,
@@ -21,7 +24,7 @@ const a = (
 
 // deno-fmt-ignore
 export const
-  /** Slash application command */
+  /** Chat input application command (because the genuises at Discord did not call it "slash command") */
   chatInputCommand = a.bind(null, ApplicationCommandTypes.ChatInput),
   /** Message application command */
   messageCommand = a.bind(null, ApplicationCommandTypes.Message),
@@ -32,7 +35,7 @@ const o = (
   type: ApplicationCommandOptionType,
   name: string,
   description: string,
-  extra?: Omit<ApplicationCommandOption, "name" | "description">,
+  extra?: Omit<ApplicationCommandOption, "name" | "description" | "type">,
 ): ApplicationCommandOption => ({
   name,
   description,

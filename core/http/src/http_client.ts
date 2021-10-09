@@ -1,5 +1,5 @@
-import { BaseURL } from "../../types/src/reference.ts";
-import type { APIVersions } from "../../types/src/reference.ts";
+import { BaseUrl } from "../../types/src/reference.ts";
+import type { ApiVersions } from "../../types/src/reference.ts";
 import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import {
   X_RATELIMIT_BUCKET,
@@ -10,6 +10,8 @@ import {
 import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
 import { HTTP_VERSION, REQUEST_DELAY, USER_AGENT } from "./constants.ts";
+import { encodeQuery } from "./encode_query.ts";
+import type { Query } from "./encode_query.ts";
 import { HttpError } from "./http_error.ts";
 
 // Thank you night, very cool! https://github.com/discord/discord-api-docs/issues/981#issuecomment-507471706
@@ -21,15 +23,15 @@ export interface HttpClientOptions {
   /** Request header `User-Agent` */
   userAgent?: string;
   /** Discord HTTP version */
-  version?: APIVersions;
+  version?: ApiVersions;
 }
 
-export interface RequestOptions {
+interface RequestOptions {
   data?: unknown;
   files?: File[];
   method?: string;
   reason?: string;
-  query?: Record<string, string | number | boolean>;
+  query?: Query;
 }
 
 /** Makes HTTP requests to Discord */
@@ -42,16 +44,16 @@ export class HttpClient {
   constructor(public token: string, public options?: HttpClientOptions) {
   }
 
-  async request(path: string, key: string, options?: RequestOptions) {
+  async #request(path: string, key: string, options?: RequestOptions) {
     const bucket = this.buckets[key];
 
     const separator = key.indexOf(".");
-    const majorParameters = separator > -1 ? key.slice(separator) : "";
+    const majorParameters = separator > -1 ? key.substring(separator) : "";
     let rateLimit = this.rateLimits[bucket + majorParameters];
 
     if (rateLimit?.rateLimited) {
       return new Promise((...args) => {
-        rateLimit?.add(() => this.request(path, key, options).then(...args));
+        rateLimit?.add(() => this.#request(path, key, options).then(...args));
       });
     }
 
@@ -77,14 +79,9 @@ export class HttpClient {
       headers["Content-Type"] = "application/json";
     }
 
-    let url = `${BaseURL}/v${this.options?.version ?? HTTP_VERSION}${path}`;
+    let url = `${BaseUrl}/v${this.options?.version ?? HTTP_VERSION}${path}`;
     if (options?.query) {
-      let query = "?";
-      for (const key in options.query) {
-        const value = options.query[key];
-        query += `${encodeURIComponent(key)}=${encodeURIComponent(value)}&`;
-      }
-      url += query.slice(0, -1);
+      url += `?${encodeQuery(options.query)}`;
     }
 
     const controller = new AbortController();
@@ -127,33 +124,21 @@ export class HttpClient {
     if (response.status === HttpResponseCodes.TooManyRequests) {
       const resetAfter = response.headers.get(X_RATELIMIT_RESET_AFTER)!;
       return new Promise((...args) => {
-        const cb = () => this.request(path, key, options).then(...args);
+        const cb = () => this.#request(path, key, options).then(...args);
         setTimeout(cb, parseFloat(resetAfter) * 1_000);
       });
     }
 
     rateLimit?.shift();
 
-    let body;
-    switch (response.headers.get("Content-Type")) {
-      case "application/json": {
-        body = await response.json();
-        break;
-      }
-
-      default: {
-        const buffer = await response.arrayBuffer();
-        if (buffer.byteLength > 0) {
-          body = new Uint8Array(buffer);
-        }
-        break;
-      }
-    }
+    const body = response.headers.get("Content-Type") === "application/json"
+      ? response.json()
+      : response.text();
 
     if (response.ok) {
       return body;
     }
 
-    throw new HttpError(response, body);
+    throw new HttpError(response, await body);
   }
 }

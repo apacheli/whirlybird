@@ -285,7 +285,7 @@ export interface GuildMember {
   /** this users guild nickname */
   nick?: string | null;
   /** the member's [guild avatar hash](https://discord.dev/reference#image-formatting) */
-  avatar: string | null;
+  avatar?: string | null;
   /** array of [role](https://discord.dev/topics/permissions#role-object) object ids */
   roles: Snowflake[];
   /** when the user joined the guild */
