@@ -21,7 +21,7 @@ export interface RequestGuildMembersMapEntry {
   members: GuildMember[];
   presences: DispatchPayloadPresenceUpdateData[];
   notFound: (string | number)[];
-  resolve: (value: RequestGuildMembersMapEntry) => void;
+  resolve: (entry: RequestGuildMembersMapEntry) => void;
 }
 
 export const concatGuildMembersChunk = (
@@ -55,10 +55,6 @@ export class Shard extends DiscordSocket {
   constructor(public token: string) {
     super();
   }
-
-  onClose?(reconnectable: boolean, resumable: boolean, event: CloseEvent): void;
-  onError?(event: Event): void;
-  onPayload?(payload: GatewayPayload): void;
 
   onSocketClose(event: CloseEvent) {
     clearInterval(this.#heartbeatInterval);
@@ -233,7 +229,7 @@ export class Shard extends DiscordSocket {
       ...data,
     };
     this.sendPayload(GatewayOpcodes.RequestGuildMembers, payload);
-    return new Promise((resolve) => {
+    return new Promise<RequestGuildMembersMapEntry>((resolve) => {
       this.#requestGuildMembersMap.set(nonce, {
         members: [],
         presences: [],

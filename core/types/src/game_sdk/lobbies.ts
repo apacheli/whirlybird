@@ -105,7 +105,7 @@ export enum SearchComparisonTypes {
 export interface SearchSort {
   /** the metadata key on which to sort lobbies that meet the search criteria */
   key: string;
-  /** 	the type to cast `value` as */
+  /** the type to cast `value` as */
   cast: SearchCastTypes;
   /** the value around which to sort the key */
   near_value: string;

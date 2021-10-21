@@ -54,6 +54,10 @@ export interface ApplicationCommandOption {
   options?: ApplicationCommandOption[];
   /** if the option is a channel type, the channels shown will be restricted to these types */
   channel_types?: ChannelTypes[];
+  /** if the option is an `INTEGER` or `NUMBER` type, the minimum value permitted */
+  min_value?: number;
+  /** if the option is an `INTEGER` or `NUMBER` type, the maximum value permitted */
+  max_value?: number;
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-object-application-command-option-type */

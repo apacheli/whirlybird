@@ -51,6 +51,7 @@ export const
   GUILD_INTEGRATIONS                       = (guildId: Snowflake) => `/guilds/${guildId}/integrations`,
   GUILD_INVITES                            = (guildId: Snowflake) => `/guilds/${guildId}/invites`,
   GUILD_MEMBER                             = (guildId: Snowflake, userId: Snowflake) => `/guilds/${guildId}/members/${userId}`,
+  GUILD_MEMBER_ME                          = (guildId: Snowflake) => `/guilds/${guildId}/members/@me`,
   GUILD_MEMBER_ME_NICK                     = (guildId: Snowflake) => `/guilds/${guildId}/members/@me/nick`,
   GUILD_MEMBER_ROLE                        = (guildId: Snowflake, userId: Snowflake, roleId: Snowflake) => `/guilds/${guildId}/members/${userId}/roles/${roleId}`,
   GUILD_MEMBERS                            = (guildId: Snowflake) => `/guilds/${guildId}/members`,

@@ -1,6 +1,7 @@
 // deno-lint-ignore-file camelcase
 
 import type { Nullable } from "../../../util/mod.ts";
+import type { AcceptedLocales } from "../dispatch/field_values.ts";
 import type { Snowflake } from "../reference.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../topics/gateway.ts";
 import type { Permissions, Role } from "../topics/permissions.ts";
@@ -103,7 +104,7 @@ export interface Guild {
   /** the number of boosts this guild currently has */
   premium_subscription_count?: number;
   /** the preferred locale of a Community guild; used in server discovery and notices from Discord; defaults to "en-US" */
-  preferred_locale: string;
+  preferred_locale: AcceptedLocales;
   /** the id of the channel where admins and moderators of Community guilds receive notices from Discord */
   public_updates_channel_id: Snowflake | null;
   /** the maximum amount of users in a video channel */
@@ -190,6 +191,8 @@ export enum SystemChannelFlags {
   SuppressPremiumSubscriptions = 1 << 1,
   /** Suppress server setup tips */
   SuppressGuildReminderNotifications = 1 << 2,
+  /** Suppress member join sticker replies */
+  SuppressJoinNotificationReplies = 1 << 3,
 }
 
 /** https://discord.dev/resources/guild#guild-object-guild-features */
