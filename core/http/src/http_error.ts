@@ -1,25 +1,16 @@
 import type { DataErrorCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
 
-/** Response body error */
-export interface DiscordApiError {
+export interface ErrorMessage {
   code: DataErrorCodes;
   message: string;
-  errors: Record<
-    string,
-    & { [k: string]: DiscordApiError["errors"][string] }
-    & { _errors: DiscordApiErrorChunk[] }
-  >;
+  errors: { [k: string]: ErrorMessage["errors"] } | {
+    _errors: { code: string; message: string }[];
+  };
 }
 
-export interface DiscordApiErrorChunk {
-  code: string;
-  message: string;
-}
-
-/** An error that was encountered over HTTP */
 export class HttpError extends Error {
-  constructor(public response: Response, public body: DiscordApiError) {
+  constructor(public response: Response, public body: ErrorMessage) {
     super();
   }
 
@@ -31,8 +22,10 @@ export class HttpError extends Error {
   #formatErrors(errors = this.body.errors, x = "") {
     let str = "";
     for (const k in errors) {
-      str += errors[k]._errors?.map((e) => `\n${x}${k}: ${e.message}`) ??
-        this.#formatErrors(errors[k], `${x}${k}.`);
+      // @ts-ignore: Fix later
+      str += errors._errors?.reduce((a, b) => `${a}\n${x}: ${b.message}`, "") ??
+        // @ts-ignore: Fix later
+        this.#formatErrors(errors[k], `${x}.${k}`);
     }
     return str;
   }

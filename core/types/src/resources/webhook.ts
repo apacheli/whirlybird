@@ -126,6 +126,7 @@ export interface ExecuteWebhookData {
   allowed_mentions?: AllowedMentions;
   /** the components to include with the message */
   components?: Component[];
+  attachments?: Pick<Attachment, "description" | "filename">[];
 }
 
 /** https://discord.dev/resources/webhook#execute-webhook */
@@ -158,10 +159,10 @@ export interface EditWebhookMessageData {
   payload_json?: string | null;
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions | null;
-  /** attached files to keep */
-  attachments?: Attachment[] | null;
   /** the components to include with the message */
   components?: Component[];
+  /** attached files to keep and possible descriptions for new files */
+  attachments?: Attachment[] | null;
 }
 
 /** https://discord.dev/resources/webhook#edit-webhook-message */

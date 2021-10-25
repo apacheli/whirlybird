@@ -494,6 +494,8 @@ export interface Attachment {
   id: Snowflake;
   /** name of file attached */
   filename: string;
+  /** description for the file */
+  description?: string;
   /** the attachment's [media type](https://en.wikipedia.org/wiki/Media_type) */
   content_type?: string;
   /** size of file in bytes */
@@ -610,12 +612,8 @@ export interface CreateMessageData {
   content?: string;
   /** true if this is a TTS message */
   tts?: boolean;
-  /** the contents of the file being sent */
-  file?: string;
   /** embedded `rich` content (up to 6000 characters) */
   embeds?: Embed[];
-  /** Data encoded body of non-file params */
-  payload_json?: string;
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions;
   /** include to make your message a reply */
@@ -624,6 +622,8 @@ export interface CreateMessageData {
   components?: Component[];
   /** IDs of up to 3 [stickers](https://discord.dev/resources/sticker#sticker-object) in the server to send in the message | one of content, file, embed(s), sticker_ids */
   sticker_ids?: Snowflake[];
+  /** attachment objects with filename and description */
+  attachments?: Pick<Attachment, "description" | "filename">[];
 }
 
 /** https://discord.dev/resources/channel#create-message */
@@ -663,14 +663,10 @@ export interface EditMessageData
   extends Nullable<Omit<CreateMessageData, "tts" | "message_reference">> {
   /** edit the [flags](https://discord.dev/resources/channel#message-object-message-flags) of a message (only `SUPPRESS_EMBEDS` can currently be set/unset) */
   flags?: MessageFlags | null;
-  /** the contents of the file being sent/edited */
-  file?: string | null;
-  /** JSON encoded body of non-file params (multipart/form-data only) */
-  payload_json?: string;
-  /** attached files to keep */
-  attachments?: Attachment[] | null;
   /** the components to include with the message */
   components?: Component[];
+  /** attached files to keep and possible descriptions for new files */
+  attachments?: Attachment[] | null;
 }
 
 /** https://discord.dev/resources/channel#edit-message */

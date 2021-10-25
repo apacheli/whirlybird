@@ -15,31 +15,18 @@ import {
   REQUEST_DELAY,
   USER_AGENT,
 } from "./constants.ts";
-import { encodeQuery } from "./encode_query.ts";
-import type { Query } from "./encode_query.ts";
 import { HttpError } from "./http_error.ts";
 
-// Thank you night, very cool! https://github.com/discord/discord-api-docs/issues/981#issuecomment-507471706
-
-/** HTTP client options */
 export interface HttpClientOptions {
-  /** How long to wait before aborting a prolonged request */
   delay?: number;
-  /** Number of retry attempts for requests that have been rate limited */
   maxRetries?: number;
-  /** Request header `User-Agent` */
   userAgent?: string;
-  /** Discord HTTP version */
   version?: ApiVersions;
 }
 
-export interface RateLimitInfo {
-  bucket?: string;
-  parameters: string;
-  rateLimit?: RateLimit;
-}
+type Query = Record<string, string | number | boolean>;
 
-export interface RequestData {
+interface RequestData {
   controller: AbortController;
   init: RequestInit;
   url: string;
@@ -48,12 +35,18 @@ export interface RequestData {
 export interface RequestOptions {
   body?: unknown;
   files?: File[];
-  method?: string;
-  reason?: string;
   query?: Query;
+  reason?: string;
 }
 
-/** Makes HTTP requests to Discord */
+export const encodeQuery = (query?: Query) => {
+  let str = "?";
+  for (const key in query) {
+    str += `${encodeURIComponent(key)}=${encodeURIComponent(query[key])}&`;
+  }
+  return str.slice(0, -1);
+};
+
 export class HttpClient {
   buckets: Record<string, string | undefined> = Object.create(null);
   rateLimits: Record<string, RateLimit | undefined> = Object.create(null);
@@ -61,7 +54,7 @@ export class HttpClient {
   constructor(public token: string, public options?: HttpClientOptions) {
   }
 
-  createRequest(path: string, options?: RequestOptions): RequestData {
+  createRequest(method: string, path: string, options?: RequestOptions) {
     const headers: Record<string, string> = {
       "Authorization": this.token,
       "User-Agent": this.options?.userAgent ?? USER_AGENT,
@@ -84,49 +77,23 @@ export class HttpClient {
       headers["Content-Type"] = "application/json";
     }
 
-    let url = `${BaseUrl}/v${this.options?.version ?? HTTP_VERSION}${path}`;
-    if (options?.query) {
-      url += `?${encodeQuery(options.query)}`;
-    }
-
     const controller = new AbortController();
+
+    const version = this.options?.version ?? HTTP_VERSION;
 
     return {
       controller,
       init: {
         body,
         headers,
-        method: options?.method,
+        method,
         signal: controller.signal,
       },
-      url,
+      url: `${BaseUrl}/v${version}/${path}${encodeQuery(options?.query)}`,
     };
   }
 
-  getRateLimitInfo(bucketKey: string): RateLimitInfo {
-    const bucket = this.buckets[bucketKey];
-
-    const index = bucketKey.indexOf("_");
-    const parameters = index > -1 ? bucketKey.substring(index) : "";
-
-    return {
-      bucket,
-      parameters,
-      rateLimit: this.rateLimits[bucket + parameters],
-    };
-  }
-
-  async actualRequest(
-    data: RequestData,
-    info: RateLimitInfo,
-    bucketKey: string,
-    retries = 0,
-    // deno-lint-ignore no-explicit-any
-  ): Promise<any> {
-    if (info.rateLimit?.rateLimited) {
-      await info.rateLimit.sleep();
-    }
-
+  async sendRequest(data: RequestData) {
     const delay = this.options?.delay ?? REQUEST_DELAY;
     const timeout = setTimeout(() => data.controller.abort(), delay);
 
@@ -134,53 +101,96 @@ export class HttpClient {
 
     clearTimeout(timeout);
 
-    this.#updateRateLimit(info, bucketKey, response);
-
-    if (
-      info.rateLimit && response.status === HttpResponseCodes.TooManyRequests &&
-      retries < (this.options?.maxRetries ?? MAX_RETRIES)
-    ) {
-      logger.warn(
-        `Encountered a rate limit at "${bucketKey}". Retry attempt`,
-        `${retries} in ${info.rateLimit.time} ms.`,
-      );
-      await info.rateLimit.sleep();
-      return this.actualRequest(data, info, bucketKey, retries + 1);
-    }
-
-    const body = response.headers.get("Content-Type") === "application/json"
-      ? response.json()
-      : response.text();
-    if (response.ok) {
-      return body;
-    }
-    throw new HttpError(response, await body);
+    return response;
   }
 
-  #updateRateLimit(info: RateLimitInfo, bucketKey: string, response: Response) {
+  updateRateLimit(bucketKey: string, parameters: string, response: Response) {
     const bucket = response.headers.get(X_RATELIMIT_BUCKET);
-    if (bucket === null) {
+    if (!bucket) {
       return;
     }
-    if (info.bucket !== undefined && info.bucket !== bucket) {
+    const oldBucket = this.buckets[bucketKey];
+    if (oldBucket !== undefined && oldBucket !== bucket) {
       logger.debug(
-        `Known bucket for "${bucketKey}" is different than new bucket.`,
-        `Known bucket: "${info.bucket}" | New Bucket: "${bucket}"`,
+        `Encountered a new bucket for "${bucketKey}" Old: "${oldBucket}" |`,
+        `New: "${bucket}"`,
       );
     }
-
     this.buckets[bucketKey] = bucket;
-
-    (this.rateLimits[bucket + info.parameters] ??= new RateLimit()).update(
-      parseInt(response.headers.get(X_RATELIMIT_LIMIT) ?? "0"),
-      parseFloat(response.headers.get(X_RATELIMIT_RESET_AFTER) ?? "0") * 1_000,
-      parseInt(response.headers.get(X_RATELIMIT_REMAINING) ?? "0"),
+    const rateLimit = this.rateLimits[bucket + parameters] ??= new RateLimit();
+    rateLimit.update(
+      parseInt(response.headers.get(X_RATELIMIT_LIMIT)!),
+      parseFloat(response.headers.get(X_RATELIMIT_RESET_AFTER)!) * 1_000,
+      parseInt(response.headers.get(X_RATELIMIT_REMAINING)!),
     );
+    return rateLimit;
   }
 
-  request(path: string, bucketKey: string, options?: RequestOptions) {
-    const data = this.createRequest(path, options);
-    const info = this.getRateLimitInfo(bucketKey);
-    return this.actualRequest(data, info, bucketKey);
+  async request(
+    method: string,
+    path: string,
+    options?: RequestOptions,
+    bucketKey?: string,
+  ) {
+    const data = this.createRequest(method, path, options);
+
+    const parameters = bucketKey?.substring(bucketKey.indexOf("_")) ?? "";
+    const bucket = bucketKey ? this.buckets[bucketKey] : undefined;
+    let rateLimit = bucket ? this.rateLimits[bucket + parameters] : undefined;
+
+    if (rateLimit?.rateLimited) {
+      await rateLimit.sleep();
+    }
+
+    const maxRetries = this.options?.maxRetries ?? MAX_RETRIES;
+
+    for (let retries = 0; retries <= maxRetries; retries++) {
+      const response = await this.sendRequest(data);
+      if (bucketKey) {
+        rateLimit = this.updateRateLimit(bucketKey, parameters, response);
+      }
+
+      if (
+        rateLimit && response.status === HttpResponseCodes.TooManyRequests &&
+        retries < maxRetries
+      ) {
+        logger.warn(
+          `Rate limited at "${bucketKey}". Retry ${retries}/${maxRetries} in`,
+          `${rateLimit.time} ms.`,
+        );
+        await rateLimit.sleep();
+        continue;
+      }
+
+      const body = response.headers.get("Content-Type") === "application/json"
+        ? response.json()
+        : response.text();
+
+      if (response.ok) {
+        return body;
+      }
+
+      throw new HttpError(response, await body);
+    }
+  }
+
+  delete(path: string, options?: RequestOptions, bucketKey?: string) {
+    return this.request("DELETE", path, options, bucketKey);
+  }
+
+  get(path: string, options?: RequestOptions, bucketKey?: string) {
+    return this.request("GET", path, options, bucketKey);
+  }
+
+  patch(path: string, options?: RequestOptions, bucketKey?: string) {
+    return this.request("PATCH", path, options, bucketKey);
+  }
+
+  post(path: string, options?: RequestOptions, bucketKey?: string) {
+    return this.request("POST", path, options, bucketKey);
+  }
+
+  put(path: string, options?: RequestOptions, bucketKey?: string) {
+    return this.request("PUT", path, options, bucketKey);
   }
 }

@@ -3,6 +3,7 @@
 import type { Snowflake } from "../reference.ts";
 import type {
   AllowedMentions,
+  Attachment,
   Channel,
   Embed,
   Message,
@@ -145,6 +146,8 @@ export interface InteractionCallbackData {
   flags?: InteractionCallbackDataFlags;
   /** message components */
   components?: ActionRow<Button | SelectMenu>[];
+  /** attachment objects with filename and description */
+  attachments?: Pick<Attachment, "description" | "filename">[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags */
