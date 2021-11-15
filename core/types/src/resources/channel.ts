@@ -543,11 +543,23 @@ export interface AllowedMentions {
 export type GetChannelBody = Channel;
 
 /** https://discord.dev/resources/channel#modify-channel */
-export interface ModifyChannelData {
+export type ModifyChannelData =
+  | ModifyChannelDataGroupDm
+  | ModifyChannelDataGuildChannel
+  | ModifyChannelDataThread;
+
+/** https://discord.dev/resources/channel#modify-channel-json-params-group-dm */
+/* export */ interface ModifyChannelDataGroupDm {
+  /** 1-100 character channel name */
+  name: string;
+  /** base64 encoded icon */
+  icon: string;
+}
+
+/** https://discord.dev/resources/channel#modify-channel-json-params-guild-channel */
+/* export */ interface ModifyChannelDataGuildChannel {
   /** 1-100 character channel name */
   name?: string;
-  /** base64 encoded icon */
-  icon?: string;
   /** the [type of channel](https://discord.dev/resources/channel#channel-object-channel-types); only conversion between text and news is supported and only in guilds with the "NEWS" feature */
   type?: ChannelTypes;
   /** the position of the channel in the left-hand listing */
@@ -570,16 +582,24 @@ export interface ModifyChannelData {
   rtc_region?: string | null;
   /** the camera [video quality mode](https://discord.dev/resources/channel#channel-object-video-quality-modes) of the voice channel */
   video_quality_mode?: number | null;
-  /** whether the thread is archived */
-  archived?: boolean;
   /** the default duration for newly created threads in the channel, in minutes, to automatically archive the thread after recent activity */
   default_auto_archive_duration?: AutoArchiveDuration;
+}
+
+/** https://discord.dev/resources/channel#modify-channel-json-params-thread */
+/* export */ interface ModifyChannelDataThread {
+  /** 1-100 character channel name */
+  name: string;
+  /** whether the thread is archived */
+  archived?: boolean;
   /** duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
   auto_archive_duration?: AutoArchiveDuration;
   /** whether the thread is locked; when a thread is locked, only users with MANAGE_THREADS can unarchive it */
   locked?: number;
   /** whether non-moderators can add other non-moderators to a thread; only available on private threads */
   invitable?: boolean;
+  /** amount of seconds a user has to wait before sending another message (0-21600); bots, as well as users with the permission `manage_messages` or `manage_channel`, are unaffected */
+  rate_limit_per_user?: number | null;
 }
 
 /** https://discord.dev/resources/channel#modify-channel */
@@ -791,6 +811,9 @@ export type LeaveThreadBody = void;
 
 /** https://discord.dev/resources/channel#remove-thread-member */
 export type RemoveThreadMemberBody = void;
+
+/** https://discord.dev/resources/channel#get-thread-member */
+export type GetThreadMemberBody = ThreadMember;
 
 /** https://discord.dev/resources/channel#list-thread-members */
 export type ListThreadMembersBody = ThreadMember[];

@@ -18,6 +18,7 @@ import type {
 import type { Role } from "../topics/permissions.ts";
 import type {
   ApplicationCommandInteractionDataOption,
+  ApplicationCommandOptionChoice,
   ApplicationCommandTypes,
 } from "./application_commands.ts";
 import type {
@@ -60,6 +61,7 @@ export enum InteractionType {
   Ping = 1,
   ApplicationCommand,
   MessageComponent,
+  ApplicationCommandAutocomplete,
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-object-interaction-data-structure */
@@ -130,6 +132,8 @@ export enum InteractionCallbackType {
   DeferredUpdateMessage,
   /** for components, edit the message the component was attached to */
   UpdateMessage,
+  /** respond to an autocomplete interaction with suggested choices */
+  ApplicationCommandAutocompleteResult,
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-structure */
@@ -148,6 +152,12 @@ export interface InteractionCallbackData {
   components?: ActionRow<Button | SelectMenu>[];
   /** attachment objects with filename and description */
   attachments?: Pick<Attachment, "description" | "filename">[];
+}
+
+/** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-autocomplete */
+export interface Autocomplete {
+  /** autocomplete choices (max of 25 choices) */
+  choices: ApplicationCommandOptionChoice;
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags */

@@ -116,16 +116,13 @@ export interface ExecuteWebhookData {
   avatar_url?: string;
   /** true if this is a TTS message */
   tts?: boolean;
-  /** the contents of the file being sent */
-  file?: unknown;
   /** embedded `rich` content */
-  embed?: Embed;
-  /** See [message create](https://discord.dev/resources/channel#create-message) */
-  payload_json?: string;
+  embeds?: Embed[];
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions;
   /** the components to include with the message */
   components?: Component[];
+  /** attachment objects with filename and description */
   attachments?: Pick<Attachment, "description" | "filename">[];
 }
 
@@ -144,19 +141,24 @@ export type ExecuteGitHubCompatibleWebhookQuery = ExecuteWebhookQuery;
 /** https://discord.dev/resources/webhook#execute-githubcompatible-webhook */
 export type ExecuteGitHubCompatibleWebhookBody = ExecuteWebhookBody;
 
+/** https://discord.dev/resources/webhook#get-webhook-message-query-string-params */
+export interface GetWebhookMessageQuery {
+  /** id of the thread the message is in */
+  thread_id?: Snowflake;
+}
+
 /** https://discord.dev/resources/webhook#get-webhook-message */
 export type GetWebhookMessageBody = Message;
+
+/** https://discord.dev/resources/webhook#edit-webhook-message-query-string-params */
+export type EditWebhookMessageQuery = GetWebhookMessageQuery;
 
 /** https://discord.dev/resources/webhook#edit-webhook-message */
 export interface EditWebhookMessageData {
   /** the message contents (up to 2000 characters) */
   content?: string | null;
   /** embedded rich content */
-  embeds?: Embed | null;
-  /** the contents of the file being sent/edited */
-  file?: unknown | null;
-  /** Data encoded body of non-file params (multipart/form-data only) */
-  payload_json?: string | null;
+  embeds?: Embed[] | null;
   /** allowed mentions for the message */
   allowed_mentions?: AllowedMentions | null;
   /** the components to include with the message */
@@ -167,6 +169,9 @@ export interface EditWebhookMessageData {
 
 /** https://discord.dev/resources/webhook#edit-webhook-message */
 export type EditWebhookMessageBody = Message;
+
+/** https://discord.dev/resources/webhook#delete-webhook-message-query-string-params */
+export type DeleteWebhookMessageQuery = GetWebhookMessageQuery;
 
 /** https://discord.dev/resources/webhook#delete-webhook-message */
 export type DeleteWebhookMessageBody = void;

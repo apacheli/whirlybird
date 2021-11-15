@@ -58,6 +58,8 @@ export interface ApplicationCommandOption {
   min_value?: number;
   /** if the option is an `INTEGER` or `NUMBER` type, the maximum value permitted */
   max_value?: number;
+  /** enable autocomplete interactions for this option */
+  autocomplete?: boolean;
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-object-application-command-option-type */
@@ -96,6 +98,8 @@ export interface ApplicationCommandInteractionDataOption {
   value?: string | number;
   /** present if this option is a group or subcommand */
   options?: ApplicationCommandInteractionDataOption[];
+  /** true if this option is the currently focused option for autocomplete */
+  focused?: boolean;
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-permissions-object */
