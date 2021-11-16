@@ -18,6 +18,7 @@ import type {
   Integration,
   UnavailableGuild,
 } from "../resources/guild.ts";
+import type { GuildScheduledEvent } from "../resources/guild_scheduled_event.ts";
 import type { Invite, InviteMetadata } from "../resources/invite.ts";
 import type { StageInstance } from "../resources/stage_instance.ts";
 import type { Sticker } from "../resources/sticker.ts";
@@ -72,6 +73,7 @@ export enum GatewayIntents {
   DirectMessages = 1 << 12,
   DirectMessageReactions = 1 << 13,
   DirectMessageTyping = 1 << 14,
+  GuildScheduledEvents = 1 << 16,
 }
 
 /** https://discord.dev/topics/gateway#commands-and-events-gateway-events */
@@ -136,6 +138,16 @@ export enum GatewayEvents {
   GuildRoleUpdate = "GUILD_ROLE_UPDATE",
   /** guild role was deleted */
   GuildRoleDelete = "GUILD_ROLE_DELETE",
+  /** guild scheduled event was created */
+  GuildScheduledEventCreate = "GUILD_SCHEDULED_EVENT_CREATE",
+  /** guild scheduled event was updated */
+  GuildScheduledEventUpdate = "GUILD_SCHEDULED_EVENT_UPDATE",
+  /** guild scheduled event was deleted */
+  GuildScheduledEventDelete = "GUILD_SCHEDULED_EVENT_DELETE",
+  /** user subscribed to a guild scheduled event */
+  GuildScheduledEventUserAdd = "GUILD_SCHEDULED_EVENT_USER_ADD",
+  /** user unsubscribed from a guild scheduled event */
+  GuildScheduledEventUserRemove = "GUILD_SCHEDULED_EVENT_USER_REMOVE",
   /** guild integration was created */
   IntegrationCreate = "INTEGRATION_CREATE",
   /** guild integration was updated */
@@ -731,6 +743,59 @@ export interface DispatchPayloadGuildRoleDeleteData {
   role_id: Snowflake;
 }
 
+/** https://discord.dev/topics/gateway#guild-scheduled-event-create */
+export type DispatchPayloadGuildScheduledEventCreate = BaseDispatchPayload<
+  GatewayEvents.GuildScheduledEventCreate,
+  DispatchPayloadGuildScheduledEventCreateData
+>;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-create */
+export type DispatchPayloadGuildScheduledEventCreateData = GuildScheduledEvent;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-update */
+export type DispatchPayloadGuildScheduledEventUpdate = BaseDispatchPayload<
+  GatewayEvents.GuildScheduledEventUpdate,
+  DispatchPayloadGuildScheduledEventUpdateData
+>;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-update */
+export type DispatchPayloadGuildScheduledEventUpdateData = GuildScheduledEvent;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-delete */
+export type DispatchPayloadGuildScheduledEventDelete = BaseDispatchPayload<
+  GatewayEvents.GuildScheduledEventDelete,
+  DispatchPayloadGuildScheduledEventDeleteData
+>;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-delete */
+export type DispatchPayloadGuildScheduledEventDeleteData = GuildScheduledEvent;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-user-add */
+export type DispatchPayloadGuildScheduledEventUserAdd = BaseDispatchPayload<
+  GatewayEvents.GuildScheduledEventUserAdd,
+  DispatchPayloadGuildScheduledEventUserAddData
+>;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-user-add-guild-scheduled-event-user-add-event-fields */
+export interface DispatchPayloadGuildScheduledEventUserAddData {
+  /** id of the guild scheduled event */
+  guild_scheduled_event_id: Snowflake;
+  /** id of the user */
+  user_id: Snowflake;
+  /** d of the guild */
+  guild_id: Snowflake;
+}
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-user-remove */
+export type DispatchPayloadGuildScheduledEventUserRemove = BaseDispatchPayload<
+  GatewayEvents.GuildScheduledEventUserRemove,
+  DispatchPayloadGuildScheduledEventUserRemoveData
+>;
+
+/** https://discord.dev/topics/gateway#guild-scheduled-event-user-remove-guild-scheduled-event-user-remove-event-fields */
+export type DispatchPayloadGuildScheduledEventUserRemoveData =
+  DispatchPayloadGuildScheduledEventUserAddData;
+
 /** https://discord.dev/topics/gateway#integration-create */
 export type DispatchPayloadIntegrationCreate = BaseDispatchPayload<
   GatewayEvents.IntegrationCreate,
@@ -1207,6 +1272,11 @@ export type DispatchPayload =
   | DispatchPayloadGuildRoleCreate
   | DispatchPayloadGuildRoleUpdate
   | DispatchPayloadGuildRoleDelete
+  | DispatchPayloadGuildScheduledEventCreate
+  | DispatchPayloadGuildScheduledEventUpdate
+  | DispatchPayloadGuildScheduledEventDelete
+  | DispatchPayloadGuildScheduledEventUserAdd
+  | DispatchPayloadGuildScheduledEventUserRemove
   | DispatchPayloadIntegrationCreate
   | DispatchPayloadIntegrationUpdate
   | DispatchPayloadIntegrationDelete

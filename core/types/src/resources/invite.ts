@@ -1,8 +1,10 @@
 // deno-lint-ignore-file camelcase
 
+import type { Snowflake } from "../reference.ts";
 import type { Application } from "./application.ts";
 import type { GuildChannel } from "./channel.ts";
 import type { Guild, GuildMember } from "./guild.ts";
+import type { GuildScheduledEvent } from "./guild_scheduled_event.ts";
 import type { User } from "./user.ts";
 
 // https://discord.dev/resources/invite
@@ -31,6 +33,8 @@ export interface Invite {
   expires_at?: string | null;
   /** stage instance data if there is a [public Stage instance](https://discord.dev/resources/stage-instance) in the Stage channel this invite is for */
   stage_instance?: InviteStageInstance;
+  /** guild scheduled event data, only included if `guild_scheduled_event_id` contains a valid guild scheduled event id */
+  guild_scheduled_event?: GuildScheduledEvent;
 }
 
 /** https://discord.dev/resources/invite#invite-object-invite-target-types */
@@ -71,6 +75,8 @@ export interface GetInviteQuery {
   with_counts?: boolean;
   /** whether the invite should contain the expiration date */
   with_expiration?: boolean;
+  /** the guild scheduled event to include with the invite */
+  guild_scheduled_event_id?: Snowflake;
 }
 
 /** https://discord.dev/resources/invite#get-invite */

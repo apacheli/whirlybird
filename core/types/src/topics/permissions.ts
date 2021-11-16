@@ -75,6 +75,8 @@ export const BitwisePermissionFlags = {
   UseApplicationCommands: 1n << 31n,
   /** Allows for requesting to speak in stage channels. (_This permission is under active development and may be changed or removed._) */
   RequestToSpeak: 1n << 32n,
+  /** Allows for creating, editing, and deleting scheduled events */
+  ManageEvents: 1n << 33n,
   /** Allows for deleting and archiving threads, and viewing all private threads */
   ManageThreads: 1n << 34n,
   /** Allows for creating threads */
@@ -87,7 +89,7 @@ export const BitwisePermissionFlags = {
   SendMessagesInThreads: 1n << 38n,
   /** Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel */
   StartEmbeddedActivities: 1n << 39n,
-};
+} as const;
 
 /** https://discord.dev/topics/permissions#role-object */
 export interface Role {

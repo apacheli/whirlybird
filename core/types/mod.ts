@@ -14,6 +14,7 @@ export * from "./src/resources/audit_log.ts";
 export * from "./src/resources/channel.ts";
 export * from "./src/resources/emoji.ts";
 export * from "./src/resources/guild.ts";
+export * from "./src/resources/guild_scheduled_event.ts";
 export * from "./src/resources/guild_template.ts";
 export * from "./src/resources/invite.ts";
 export * from "./src/resources/stage_instance.ts";

@@ -16,6 +16,10 @@ import type {
   MFALevel,
   VerificationLevel,
 } from "./guild.ts";
+import type {
+  GuildScheduledEventEntityTypes,
+  GuildScheduledEventStatus,
+} from "./guild_scheduled_event.ts";
 import type { PrivacyLevel } from "./stage_instance.ts";
 import type { StickerFormatTypes } from "./sticker.ts";
 import type { User } from "./user.ts";
@@ -98,6 +102,12 @@ export enum AuditLogEvents {
   StickerCreate = 90,
   StickerUpdate,
   StickerDelete,
+  GuildScheduledEventCreate = 100,
+  GuildScheduledEventUpdate,
+  GuildScheduledEventDelete,
+  ThreadCreate = 110,
+  ThreadUpdate,
+  ThreadDelete,
 }
 
 /** https://discord.dev/resources/audit-log#audit-log-entry-object-optional-audit-entry-info */
@@ -156,7 +166,7 @@ export interface AuditLogChangeKey {
   banner_hash: string;
   /** voice channel bitrate changed */
   bitrate: number;
-  /** channel for invite code changed */
+  /** channel for invite code  or guild scheduled event changed */
   channel_id: Snowflake;
   /** invite code changed */
   code: string;
@@ -176,6 +186,8 @@ export interface AuditLogChangeKey {
   discovery_splash_hash: string;
   /** integration emoticons enabled/disabled */
   enable_emoticons: boolean;
+  /** entity type of guild scheduled event was changed */
+  entity_type: GuildScheduledEventEntityTypes;
   /** integration expiring subscriber behavior changed */
   expire_behavior: number;
   /** integration expire grace period changed */
@@ -194,6 +206,8 @@ export interface AuditLogChangeKey {
   id: Snowflake;
   /** person who created invite code changed */
   inviter_id: Snowflake;
+  /** change in channel id for guild scheduled event */
+  location: string;
   /** thread is now locked/unlocked */
   locked: boolean;
   /** how long invite code lasts changed */
@@ -236,6 +250,8 @@ export interface AuditLogChangeKey {
   rules_channel_id: Snowflake;
   /** invite splash page artwork changed */
   splash_hash: string;
+  /** status of guild scheduled event was changed */
+  status: GuildScheduledEventStatus;
   /** id of the system channel changed */
   system_channel_id: Snowflake;
   /** related emoji of sticker changed */
