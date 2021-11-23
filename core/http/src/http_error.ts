@@ -4,9 +4,9 @@ import * as logger from "../../util/src/logger.ts";
 export interface ErrorMessage {
   code: DataErrorCodes;
   message: string;
-  errors: { [k: string]: ErrorMessage["errors"] } | {
-    _errors: { code: string; message: string }[];
-  };
+  errors:
+    | { [k: string]: ErrorMessage["errors"] }
+    | { _errors: { code: string; message: string }[] };
 }
 
 export class HttpError extends Error {
@@ -20,12 +20,14 @@ export class HttpError extends Error {
   }
 
   #formatErrors(errors = this.body.errors, x = "") {
+    if (errors._errors instanceof Array) {
+      return errors._errors.reduce((a, b) => `${a}\n${x}: ${b.message}`, "");
+    }
     let str = "";
-    for (const k in errors) {
-      // @ts-ignore: Fix later
-      str += errors._errors?.reduce((a, b) => `${a}\n${x}: ${b.message}`, "") ??
-        // @ts-ignore: Fix later
-        this.#formatErrors(errors[k], `${x}.${k}`);
+    for (const key in errors) {
+      // I love TypeScript
+      const e = errors[key as keyof typeof errors];
+      str += this.#formatErrors(e as typeof errors, `${x}.${key}`);
     }
     return str;
   }

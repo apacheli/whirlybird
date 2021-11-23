@@ -52,7 +52,10 @@ export class Shard extends DiscordSocket {
   /**
    * @param token Bot authentication token
    */
-  constructor(public token: string) {
+  constructor(
+    public token: string,
+    public handler: (event: Event, payload?: GatewayPayload) => void,
+  ) {
     super();
   }
 
@@ -79,11 +82,11 @@ export class Shard extends DiscordSocket {
       }
     }
 
-    this.onClose?.(reconnectable, resumable, event);
+    reconnectable;
+    resumable;
   }
 
-  onSocketError(event: Event) {
-    this.onError?.(event);
+  onSocketError() {
   }
 
   onSocketMessage(message: MessageEvent) {
@@ -138,7 +141,7 @@ export class Shard extends DiscordSocket {
       }
     }
 
-    this.onPayload?.(payload);
+    // this.handler(payload);
   }
 
   /** Send a heartbeat */

@@ -7,7 +7,7 @@ export abstract class DiscordSocket {
   /** When the socket encounters an error */
   abstract onSocketError(event: Event): void;
   /** When the socket receives a message */
-  abstract onSocketMessage(event: MessageEvent): void;
+  abstract onSocketMessage(event: MessageEvent<string>): void;
 
   /** Open a socket connection */
   connect(url: string) {

@@ -1,8 +1,5 @@
 import { sleep } from "./sleep.ts";
 
-/** A generic function */
-export type GenericFunction = (...args: unknown[]) => unknown;
-
 /** Handles rate limits */
 export class RateLimit {
   lastUpdatedAt = 0;
@@ -15,13 +12,8 @@ export class RateLimit {
   constructor(public max = 1, public reset = 0, public left = max) {
   }
 
-  get time() {
-    return this.reset - Date.now() + this.lastUpdatedAt;
-  }
-
-  /** Sleep until the rate limit can reset */
   async sleep() {
-    await sleep(this.time);
+    await sleep(this.reset - Date.now() + this.lastUpdatedAt);
     this.left = this.max;
   }
 
