@@ -11,6 +11,7 @@ import type {
   GuildChannel,
   Overwrite,
   ThreadChannel,
+  ThreadMember,
 } from "./channel.ts";
 import type { Emoji } from "./emoji.ts";
 import type { Invite } from "./invite.ts";
@@ -532,6 +533,14 @@ export type ModifyGuildChannelPositionsData = {
 
 /** https://discord.dev/resources/guild#modify-guild-channel-positions */
 export type ModifyGuildChannelPositionsBody = void;
+
+/** https://discord.dev/resources/guild#list-active-threads */
+export interface ListActiveThreadsBody {
+  /** the active threads */
+  threads: ThreadChannel[];
+  /** a thread member object for each returned thread the current user has joined */
+  members: ThreadMember[];
+}
 
 /** https://discord.dev/resources/guild#get-guild-member */
 export type GetGuildMemberBody = GuildMember;

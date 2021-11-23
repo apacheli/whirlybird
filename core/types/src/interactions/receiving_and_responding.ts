@@ -195,6 +195,9 @@ export type CreateFollowupMessageData = ExecuteWebhookData;
 /** https://discord.dev/interactions/receiving-and-responding#create-followup-message */
 export type CreateFollowupMessageBody = Message;
 
+/** https://discord.dev/interactions/receiving-and-responding#get-followup-message */
+export type GetFollowupMessageBody = GetWebhookMessageBody;
+
 /** https://discord.dev/interactions/receiving-and-responding#edit-followup-message */
 export type EditFollowupMessageData = EditWebhookMessageData;
 

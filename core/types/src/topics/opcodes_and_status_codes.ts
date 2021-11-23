@@ -282,8 +282,10 @@ export enum DataErrorCodes {
   MaximumNonGuildMembersBanned = 30035,
   /** Maximum number of bans fetches has been reached */
   MaximumBanFetches = 30037,
+  /** Maximum number of uncompleted guild scheduled events reached (100) */
+  MaximumGuildScheduledEvents,
   /** Maximum number of stickers reached */
-  MaximumStickers = 30039,
+  MaximumStickers,
   /** Maximum number of prune requests has been reached. Try again later */
   MaximumPruneRequests,
   /** Maximum number of guild widget settings updates has been reached. Try again later */
@@ -450,6 +452,13 @@ export enum DataErrorCodes {
   /** Sticker animation duration exceeds maximum of 5 seconds */
   StickerDurationExceeded,
   //#endregion 17xxxx
+
+  //#region 18xxxx
+  /** Cannot update a finished event */
+  FailedUpdateCompletedEvent = 180000,
+  /** Failed to create stage needed for stage event */
+  FailedStageChannelCreate = 180002,
+  //#endregion 18xxxx
 }
 
 /** https://discord.dev/topics/opcodes-and-status-codes#rpc-rpc-error-codes */

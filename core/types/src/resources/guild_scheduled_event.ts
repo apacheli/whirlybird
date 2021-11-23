@@ -16,9 +16,9 @@ export interface GuildScheduledEvent {
   channel_id: Snowflake | null;
   /** the id of the user that created the scheduled event */
   creator_id?: Snowflake;
-  /** the name of the scheduled event */
+  /** the name of the scheduled event (1-100 characters) */
   name: string;
-  /** the description of the scheduled event */
+  /** the description of the scheduled event (1-1000 characters) */
   description?: string;
   /** the time the scheduled event will start */
   scheduled_start_time: string;
@@ -33,7 +33,7 @@ export interface GuildScheduledEvent {
   /** any additional id of the hosting entity associated with event, e.g. [stage instance id](https://discord.dev/resources/stage-instance#stage-instance-object)) */
   entity_id: Snowflake | null;
   /** the entity metadata for the scheduled event */
-  entity_metadata: GuildScheduledEventEntityMetadata;
+  entity_metadata: GuildScheduledEventEntityMetadata | null;
   /** the user that created the scheduled event */
   creator?: User;
   /** the number of users subscribed to the scheduled event */
@@ -42,16 +42,13 @@ export interface GuildScheduledEvent {
 
 /** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level */
 export enum GuildScheduledEventPrivacyLevel {
-  /** the scheduled event is public and available in discovery */
-  Public = 1,
   /** the scheduled event is only accessible to guild members */
-  GuildOnly,
+  GuildOnly = 2,
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-types */
 export enum GuildScheduledEventEntityTypes {
-  None,
-  StageInstance,
+  StageInstance = 1,
   Voice,
   External,
 }
@@ -66,10 +63,18 @@ export enum GuildScheduledEventStatus {
 
 /** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-entity-metadata */
 export interface GuildScheduledEventEntityMetadata {
-  /** the speakers of the stage channel */
-  speaker_ids?: Snowflake[];
-  /** location of the event */
+  /** location of the event (1-100 characters) */
   location?: string;
+}
+
+/** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-user-object */
+export interface GuildScheduledEventUser {
+  /** the scheduled event id which the user subscribed to */
+  guild_scheduled_event_id: Snowflake;
+  /** user which subscribed to an event */
+  user: User;
+  /** guild member data for this user for the guild which this event belongs to, if any */
+  member?: GuildMember;
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#list-scheduled-events-for-guild */
@@ -104,6 +109,12 @@ export interface CreateGuildScheduledEventData {
 export type CreateGuildScheduledEventBody = GuildScheduledEvent;
 
 /** https://discord.dev/resources/guild-scheduled-event#get-guild-scheduled-event */
+export interface GetGuildScheduledEventQuery {
+  /** include number of users subscribed to this event */
+  with_user_count?: boolean;
+}
+
+/** https://discord.dev/resources/guild-scheduled-event#get-guild-scheduled-event */
 export type GetGuildScheduledEventBody = GuildScheduledEvent;
 
 /** https://discord.dev/resources/guild-scheduled-event#modify-guild-scheduled-event */
@@ -123,10 +134,11 @@ export interface GetGuildScheduledEventUsersData {
   limit?: number;
   /** nclude guild member data. attaches `guild_member` property to the user object */
   with_member?: boolean;
+  /** consider only users before given user id */
+  before?: Snowflake;
+  /** consider only users after given user id */
+  after?: Snowflake;
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#get-guild-scheduled-event-users */
-export interface GetGuildScheduledEventUsersBody {
-  /** array of user objects with an optional `guild_member` property for each user */
-  users: (User & { guild_member?: GuildMember })[];
-}
+export type GetGuildScheduledEventUsersBody = GuildScheduledEventUser[];

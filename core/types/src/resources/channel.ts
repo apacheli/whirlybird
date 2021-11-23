@@ -818,16 +818,6 @@ export type GetThreadMemberBody = ThreadMember;
 /** https://discord.dev/resources/channel#list-thread-members */
 export type ListThreadMembersBody = ThreadMember[];
 
-/** https://discord.dev/resources/channel#list-active-threads */
-export interface ListActiveThreadsBody {
-  /** the active threads */
-  threads: ThreadChannel[];
-  /** a thread member object for each returned thread the current user has joined */
-  members: ThreadMember[];
-  /** whether there are potentially additional threads that could be returned on a subsequent call */
-  has_more: boolean;
-}
-
 /** https://discord.dev/resources/channel#list-public-archived-threads */
 export interface ListPublicArchivedThreadsQuery {
   /** returns threads before this timestamp */
@@ -837,17 +827,25 @@ export interface ListPublicArchivedThreadsQuery {
 }
 
 /** https://discord.dev/resources/channel#list-public-archived-threads */
-export type ListPublicArchivedThreadsBody = ListActiveThreadsBody;
+export interface ListPublicArchivedThreadsBody {
+  /** the active threads */
+  threads: ThreadChannel[];
+  /** a thread member object for each returned thread the current user has joined */
+  members: ThreadMember[];
+  /** whether there are potentially additional threads that could be returned on a subsequent call */
+  has_more: boolean;
+}
 
 /** https://discord.dev/resources/channel#list-private-archived-threads */
 export type ListPrivateArchivedThreadsQuery = ListPublicArchivedThreadsQuery;
 
 /** https://discord.dev/resources/channel#list-private-archived-threads */
-export type ListPrivateArchivedThreadsBody = ListActiveThreadsBody;
+export type ListPrivateArchivedThreadsBody = ListPublicArchivedThreadsBody;
 
 /** https://discord.dev/resources/channel#list-joined-private-archived-threads */
 export type ListJoinedPrivateArchivedThreadsQuery =
   ListPublicArchivedThreadsQuery;
 
 /** https://discord.dev/resources/channel#list-joined-private-archived-threads */
-export type ListJoinedPrivateArchivedThreadsBody = ListActiveThreadsBody;
+export type ListJoinedPrivateArchivedThreadsBody =
+  ListPublicArchivedThreadsBody;
