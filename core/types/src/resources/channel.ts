@@ -530,13 +530,13 @@ export type AllowedMentionTypes = "roles" | "users" | "everyone";
 /** https://discord.dev/resources/channel#allowed-mentions-object-allowed-mentions-structure */
 export interface AllowedMentions {
   /** An array of [allowed mention types](https://discord.dev/resources/channel#allowed-mentions-object-allowed-mention-types) to parse from the content. */
-  parse: AllowedMentionTypes[];
+  parse?: AllowedMentionTypes[];
   /** Array of role_ids to mention (Max size of 100) */
-  roles: Snowflake[];
+  roles?: Snowflake[];
   /** Array of user_ids to mention (Max size of 100) */
-  users: Snowflake[];
+  users?: Snowflake[];
   /** For replies, whether to mention the author of the message being replied to (default false) */
-  replied_user: boolean;
+  replied_user?: boolean;
 }
 
 /** https://discord.dev/resources/channel#get-channel */

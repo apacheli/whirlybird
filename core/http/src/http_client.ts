@@ -402,6 +402,7 @@ export const encodeQuery = (query?: Record<string, string>) => {
 
 export class HttpClient {
   buckets: Record<string, string | undefined> = Object.create(null);
+  globalRateLimit = new RateLimit(50, 1_000);
   rateLimits: Record<string, RateLimit | undefined> = Object.create(null);
 
   #token;
@@ -444,11 +445,15 @@ export class HttpClient {
       url += encodeQuery(options.query as Record<string, string>);
     }
 
-    const parameters = bucketKey.substring(bucketKey.indexOf("_"));
+    const index = bucketKey.indexOf("_");
+    const parameters = index > -1 ? bucketKey.substring(index) : "";
     const bucket = this.buckets[bucketKey];
 
-    let rateLimit = bucket ? this.rateLimits[bucket + parameters] : undefined;
+    let rateLimit = bucket ? this.rateLimits[bucket + parameters] : void 0;
 
+    if (this.globalRateLimit.rateLimited) {
+      await this.globalRateLimit.sleep();
+    }
     if (rateLimit?.rateLimited) {
       await rateLimit.sleep();
     }
@@ -475,12 +480,16 @@ export class HttpClient {
       if (!bucketNew) {
         break;
       }
-      if (bucket !== undefined && bucket !== bucketNew) {
+      if (bucket !== void 0 && bucket !== bucketNew) {
         logger.debug(
           `"${bucketKey}" Encountered a new bucket! Old: "${bucket}"`,
           `New: "${bucketNew}"`,
         );
       }
+
+      const rateLimited = response.status === HttpResponseCodes.TooManyRequests;
+
+      this.globalRateLimit.update(void 0, void 0, rateLimited ? 0 : void 0);
 
       this.buckets[bucketKey] = bucketNew;
       rateLimit = this.rateLimits[bucketNew + parameters] ??= new RateLimit();
@@ -490,15 +499,19 @@ export class HttpClient {
         parseInt(response.headers.get(X_RATELIMIT_REMAINING)!),
       );
 
-      if (response.status === HttpResponseCodes.TooManyRequests) {
+      if (rateLimited) {
+        const isGlobal = response.headers.get("X-RateLimit-Global");
+        const prefix = isGlobal ? "Global rate" : "Rate";
         logger.warn(
-          `"${bucketKey}" Rate limited! Retry ${retries}/${maxRetries} in`,
+          `"${bucketKey}" ${prefix} limited! Retry ${retries}/${maxRetries} in`,
           `${rateLimit.reset} ms`,
         );
-        await rateLimit.sleep();
+        await (isGlobal ? this.globalRateLimit : rateLimit).sleep();
         continue;
       }
 
+      this.globalRateLimit.next();
+      rateLimit.next();
       break;
     }
 
@@ -533,6 +546,7 @@ export class HttpClient {
     return this.request("PUT", path, bucketKey, options);
   }
 
+  //#region methods
   /**
    * https://discord.dev/resources/guild#add-guild-member
    *
@@ -3804,4 +3818,5 @@ export class HttpClient {
       `unpinMessage_${channelId}`,
     );
   }
+  //#endregion methods
 }

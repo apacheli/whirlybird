@@ -1,12 +1,11 @@
-import type { DataErrorCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
 
 export interface ErrorMessage {
-  code: DataErrorCodes;
-  message: string;
-  errors:
+  code: number;
+  errors?:
     | { [k: string]: ErrorMessage["errors"] }
     | { _errors: { code: string; message: string }[] };
+  message: string;
 }
 
 export class HttpError extends Error {
@@ -15,13 +14,13 @@ export class HttpError extends Error {
   }
 
   get message() {
-    const { code, message } = this.body;
-    return logger.highlight(`[${code}] ${message}${this.#formatErrors()}`);
+    const list = this.body.errors ? this.#formatErrors() : "";
+    return logger.highlight(`[${this.body.code}] ${this.body.message}${list}`);
   }
 
   #formatErrors(errors = this.body.errors, x = "") {
-    if (errors._errors instanceof Array) {
-      return errors._errors.reduce((a, b) => `${a}\n${x}: ${b.message}`, "");
+    if (errors?._errors instanceof Array) {
+      return errors?._errors.reduce((a, b) => `${a}\n${x}: ${b.message}`, "");
     }
     let str = "";
     for (const key in errors) {

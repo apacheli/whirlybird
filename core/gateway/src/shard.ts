@@ -1,7 +1,6 @@
 import type { GuildMember } from "../../types/src/resources/guild.ts";
 import { GatewayEvents } from "../../types/src/topics/gateway.ts";
 import type {
-  DispatchPayloadGuildMembersChunkData,
   DispatchPayloadPresenceUpdateData,
   GatewayPayload,
   GuildRequestMembersPayloadData,
@@ -15,78 +14,105 @@ import {
   GatewayOpcodes,
 } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import { DiscordSocket } from "../../util/src/discord_socket.ts";
-import type { PartialKeys } from "../../util/src/types.ts";
+import {
+  REQUEST_GUILD_MEMBERS_DELAY,
+  ShardSocketCloseStates,
+} from "./constants.ts";
 
 export interface RequestGuildMembersMapEntry {
+  done: boolean;
   members: GuildMember[];
   presences: DispatchPayloadPresenceUpdateData[];
   notFound: (string | number)[];
   resolve: (entry: RequestGuildMembersMapEntry) => void;
+  timeout: number;
 }
 
-export const concatGuildMembersChunk = (
-  entry: RequestGuildMembersMapEntry,
-  chunk: DispatchPayloadGuildMembersChunkData,
-) => {
-  entry.members.push(...chunk.members);
-  if (chunk.presences) {
-    entry.presences.push(...chunk.presences);
-  }
-  if (chunk.not_found) {
-    entry.notFound.push(...chunk.not_found);
-  }
-};
+export type ShardIdentifyData = Omit<
+  IdentifyPayloadData,
+  "properties" | "shard" | "token"
+>;
 
-/** Class representing a shard */
+export type Payload = (payload: GatewayPayload) => void;
+export type SocketClose = (
+  event: CloseEvent,
+  state: ShardSocketCloseStates,
+) => void;
+export type SocketError = (event: Event) => void;
+
+export interface ShardOptions {
+  id?: number;
+  payload?: Payload;
+  shards?: number;
+  requestGuildMembersDelay?: number;
+  socketClose?: SocketClose;
+  socketError?: SocketError;
+}
+
+/** Hello, I am a shard! */
 export class Shard extends DiscordSocket {
-  /** `Heartbeat` send and `Heartbeat ACK` latency */
+  heartbeatInterval?: number;
+  /** More accurate shard identifier */
+  id?: number;
+  lastHeartbeatSentAt = -1;
   latency = -1;
+  ready = false;
+  requestGuildMembersMap: Record<string, RequestGuildMembersMapEntry> = Object
+    .create(null);
+  requestGuildMembersNonce = 0;
+  seq = 0;
+  sessionId?: string;
 
-  #heartbeatInterval?: number;
-  #seq = 0;
-  #sessionId?: string;
-  #lastHeartbeatSentAt = -1;
-  #requestGuildMembersMap = new Map<string, RequestGuildMembersMapEntry>();
-  #requestGuildMembersNonce = 0;
+  #token: string;
 
   /**
    * @param token Bot authentication token
+   * @param id Shard identifier
    */
-  constructor(
-    public token: string,
-    public handler: (event: Event, payload?: GatewayPayload) => void,
-  ) {
+  constructor(token: string, public options?: ShardOptions) {
     super();
+
+    this.id = options?.id;
+
+    this.#token = token;
   }
 
   onSocketClose(event: CloseEvent) {
-    clearInterval(this.#heartbeatInterval);
+    clearInterval(this.heartbeatInterval);
+    this.ready = false;
 
-    let reconnectable = false;
-    let resumable = false;
+    let state = ShardSocketCloseStates.Closed;
 
     switch (event.code) {
-      case 0:
-      case 1001: // "Discord WebSocket requesting client reconnect."
-      case GatewayCloseEventCodes.UnknownError: {
-        resumable = true;
-      } /* falls through */
-
       case GatewayCloseEventCodes.UnknownOpcode:
       case GatewayCloseEventCodes.DecodeError:
       case GatewayCloseEventCodes.InvalidSeq:
       case GatewayCloseEventCodes.RateLimited:
       case GatewayCloseEventCodes.SessionTimedOut: {
-        reconnectable = true;
+        state = ShardSocketCloseStates.Reconnectable;
+        break;
+      }
+
+      case 0:
+      case 1001: // "Discord WebSocket requesting client reconnect."
+      case GatewayCloseEventCodes.UnknownError: {
+        state = ShardSocketCloseStates.Resumable;
         break;
       }
     }
 
-    reconnectable;
-    resumable;
+    for (const nonce in this.requestGuildMembersMap) {
+      const entry = this.requestGuildMembersMap[nonce];
+      delete this.requestGuildMembersMap[nonce];
+      clearTimeout(entry.timeout);
+      entry.resolve(entry);
+    }
+
+    this.options?.socketClose?.(event, state);
   }
 
-  onSocketError() {
+  onSocketError(event: Event) {
+    this.options?.socketError?.(event);
   }
 
   onSocketMessage(message: MessageEvent) {
@@ -94,27 +120,40 @@ export class Shard extends DiscordSocket {
 
     switch (payload.op) {
       case GatewayOpcodes.Dispatch: {
-        this.#seq = payload.s;
+        this.seq = payload.s;
 
         switch (payload.t) {
-          case GatewayEvents.Ready: {
-            this.#sessionId = payload.d.session_id;
-            break;
-          }
-
           case GatewayEvents.GuildMembersChunk: {
             if (!payload.d.nonce) {
               break;
             }
-            const entry = this.#requestGuildMembersMap.get(payload.d.nonce);
+            const entry = this.requestGuildMembersMap[payload.d.nonce];
             if (!entry) {
               break;
             }
-            concatGuildMembersChunk(entry, payload.d);
+            entry.members.push(...payload.d.members);
+            if (payload.d.presences) {
+              entry.presences.push(...payload.d.presences);
+            }
+            if (payload.d.not_found) {
+              entry.notFound.push(...payload.d.not_found);
+            }
             if (payload.d.chunk_index + 1 === payload.d.chunk_count) {
-              this.#requestGuildMembersMap.delete(payload.d.nonce);
+              entry.done = true;
+              delete this.requestGuildMembersMap[payload.d.nonce];
+              clearTimeout(entry.timeout);
               entry.resolve(entry);
             }
+            break;
+          }
+
+          case GatewayEvents.Ready: {
+            this.id = payload.d.shard?.[0];
+            this.sessionId = payload.d.session_id;
+          } /* falls through */
+
+          case GatewayEvents.Resumed: {
+            this.ready = true;
             break;
           }
         }
@@ -122,50 +161,53 @@ export class Shard extends DiscordSocket {
       }
 
       case GatewayOpcodes.InvalidSession: {
-        // https://canary.discord.com/channels/81384788765712384/381887113391505410/887898774033268736
-        if (payload.d) {
-          this.resume();
-        }
+        this.ready = false;
         break;
       }
 
       case GatewayOpcodes.Hello: {
         const delay = payload.d.heartbeat_interval;
-        this.#heartbeatInterval = setInterval(() => this.heartbeat(), delay);
+        this.heartbeatInterval = setInterval(() => this.heartbeat(), delay);
         break;
       }
 
       case GatewayOpcodes.HeartbeatAck: {
-        this.latency = Date.now() - this.#lastHeartbeatSentAt;
+        this.latency = Date.now() - this.lastHeartbeatSentAt;
         break;
       }
     }
 
-    // this.handler(payload);
+    this.options?.payload?.(payload);
   }
 
-  /** Send a heartbeat */
+  /** Send a heartbeat. */
   heartbeat() {
-    this.#lastHeartbeatSentAt = Date.now();
-    this.sendPayload(GatewayOpcodes.Heartbeat, this.#seq);
+    this.lastHeartbeatSentAt = Date.now();
+    this.sendPayload(GatewayOpcodes.Heartbeat, this.seq);
   }
 
-  /** Identify */
-  identify(data: PartialKeys<IdentifyPayloadData, "token" | "properties">) {
+  /** Identify a new session. */
+  identify(data: ShardIdentifyData) {
+    if (this.sessionId) {
+      throw new Error("There is already a session.");
+    }
     const payload: IdentifyPayloadData = {
       properties: {
         $browser: "whirlybird",
         $device: "whirlybird",
         $os: Deno.build.os,
       },
-      token: this.token,
+      shard: this.id !== void 0 && this.options?.shards !== void 0
+        ? [this.id, this.options.shards]
+        : void 0,
+      token: this.#token,
       ...data,
     };
     this.sendPayload(GatewayOpcodes.Identify, payload);
   }
 
   /**
-   * Update the shard's presence
+   * Update the shard's presence.
    *
    * ```ts
    * Shard.presenceUpdate({
@@ -186,7 +228,8 @@ export class Shard extends DiscordSocket {
   }
 
   /**
-   * Update the shard's voice state for a guild
+   * Update the shard's voice state in a guild. Setting `channel_id` to `null`
+   * will remove the bot from their current voice channel in the guild.
    *
    * ```ts
    * Shard.voiceStateUpdate({
@@ -201,44 +244,51 @@ export class Shard extends DiscordSocket {
     this.sendPayload(GatewayOpcodes.VoiceStateUpdate, data);
   }
 
-  /** Resume the current gateway session */
+  /** Resume the current gateway session. */
   resume() {
-    if (!this.#sessionId) {
+    if (!this.sessionId) {
       throw new Error("Unable to resume.");
     }
     const payload: ResumePayloadData = {
-      seq: this.#seq,
-      "session_id": this.#sessionId,
-      token: this.token,
+      seq: this.seq,
+      "session_id": this.sessionId,
+      token: this.#token,
     };
     this.sendPayload(GatewayOpcodes.Resume, payload);
   }
 
   /**
-   * Request a guild's members
+   * Request a list of guild members from a guild. The `GUILD_MEMBERS` intent
+   * is required. Otherwise, you will receive a 4001 socket close code.
    *
    * ```ts
-   * const members = await Shard.requestGuildMembers({
+   * const { members } = await Shard.requestGuildMembers({
    *   guild_id: "812458966357377067",
    *   limit: 0,
+   *   query: "",
    * });
    * ```
    */
-  requestGuildMembers(data: GuildRequestMembersPayloadData) {
-    const nonce = data.nonce ?? `${this.#requestGuildMembersNonce++}`;
+  requestGuildMembers(data: GuildRequestMembersPayloadData, delay?: number) {
+    const nonce = data.nonce ?? `${this.requestGuildMembersNonce++}`;
     const payload: GuildRequestMembersPayloadData = {
       nonce,
-      query: "",
       ...data,
     };
     this.sendPayload(GatewayOpcodes.RequestGuildMembers, payload);
     return new Promise<RequestGuildMembersMapEntry>((resolve) => {
-      this.#requestGuildMembersMap.set(nonce, {
+      const timeout = setTimeout(() => {
+        delete this.requestGuildMembersMap[nonce];
+        resolve(entry);
+      }, delay ?? REQUEST_GUILD_MEMBERS_DELAY);
+      const entry = this.requestGuildMembersMap[nonce] = {
+        done: false,
         members: [],
         presences: [],
         notFound: [],
         resolve,
-      });
+        timeout,
+      };
     });
   }
 }

@@ -3,6 +3,8 @@ import { sleep } from "./sleep.ts";
 /** Handles rate limits */
 export class RateLimit {
   lastUpdatedAt = 0;
+  queue: (() => void)[] = [];
+  promise?: Promise<void>;
 
   /**
    * @param max The maximum number of requests
@@ -13,8 +15,16 @@ export class RateLimit {
   }
 
   async sleep() {
-    await sleep(this.reset - Date.now() + this.lastUpdatedAt);
+    if (this.promise) {
+      return new Promise<void>((resolve) => this.queue.push(resolve));
+    }
+    await (this.promise = sleep(this.reset - Date.now() + this.lastUpdatedAt));
+    this.promise = void 0;
     this.left = this.max;
+  }
+
+  next() {
+    return this.queue.shift()?.();
   }
 
   /** If the limiter is rate limited or not */
@@ -22,11 +32,15 @@ export class RateLimit {
     return this.left < 1 && Date.now() - this.lastUpdatedAt < this.reset;
   }
 
+  get resetable() {
+    return this.left < this.max && Date.now() - this.lastUpdatedAt > this.reset;
+  }
+
   /** Update the rate limit */
-  update(max = this.max, reset = this.reset, left = this.left - 1) {
+  update(max = this.max, reset = this.reset, left?: number) {
+    this.left = left ?? (this.resetable ? this.max : this.left) - 1;
     this.lastUpdatedAt = Date.now();
     this.max = max;
     this.reset = reset;
-    this.left = left;
   }
 }
