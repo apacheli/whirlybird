@@ -261,12 +261,14 @@ import type { ApiVersions } from "../../types/src/reference.ts";
 import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import {
   X_RATELIMIT_BUCKET,
+  X_RATELIMIT_GLOBAL,
   X_RATELIMIT_LIMIT,
   X_RATELIMIT_REMAINING,
   X_RATELIMIT_RESET_AFTER,
 } from "../../types/src/topics/rate_limits.ts";
 import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
+import { sleep } from "../../util/src/sleep.ts";
 import {
   HTTP_VERSION,
   MAX_RETRIES,
@@ -402,7 +404,6 @@ export const encodeQuery = (query?: Record<string, string>) => {
 
 export class HttpClient {
   buckets: Record<string, string | undefined> = Object.create(null);
-  globalRateLimit = new RateLimit(50, 1_000);
   rateLimits: Record<string, RateLimit | undefined> = Object.create(null);
 
   #token;
@@ -451,9 +452,6 @@ export class HttpClient {
 
     let rateLimit = bucket ? this.rateLimits[bucket + parameters] : void 0;
 
-    if (this.globalRateLimit.rateLimited) {
-      await this.globalRateLimit.sleep();
-    }
     if (rateLimit?.rateLimited) {
       await rateLimit.sleep();
     }
@@ -476,20 +474,29 @@ export class HttpClient {
 
       clearTimeout(timeout);
 
+      const resetAfter =
+        parseFloat(response.headers.get(X_RATELIMIT_RESET_AFTER)!) * 1_000;
+
+      // TODO: Sleep on new requests (global rate limit pepega)
+      if (response.headers.get(X_RATELIMIT_GLOBAL)) {
+        logger.warn(
+          `Global rate limited - ${retries}/${maxRetries} retrying in`,
+          `${resetAfter} ms`,
+        );
+        await sleep(resetAfter);
+        continue;
+      }
+
       const bucketNew = response.headers.get(X_RATELIMIT_BUCKET);
       if (!bucketNew) {
         break;
       }
       if (bucket !== void 0 && bucket !== bucketNew) {
         logger.debug(
-          `"${bucketKey}" Encountered a new bucket! Old: "${bucket}"`,
-          `New: "${bucketNew}"`,
+          `"${bucketKey}" Encountered a new bucket - old: "${bucket}" new:`,
+          `"${bucketNew}"`,
         );
       }
-
-      const rateLimited = response.status === HttpResponseCodes.TooManyRequests;
-
-      this.globalRateLimit.update(void 0, void 0, rateLimited ? 0 : void 0);
 
       this.buckets[bucketKey] = bucketNew;
       rateLimit = this.rateLimits[bucketNew + parameters] ??= new RateLimit();
@@ -499,19 +506,17 @@ export class HttpClient {
         parseInt(response.headers.get(X_RATELIMIT_REMAINING)!),
       );
 
-      if (rateLimited) {
-        const isGlobal = response.headers.get("X-RateLimit-Global");
-        const prefix = isGlobal ? "Global rate" : "Rate";
+      if (response.status === HttpResponseCodes.TooManyRequests) {
         logger.warn(
-          `"${bucketKey}" ${prefix} limited! Retry ${retries}/${maxRetries} in`,
+          `"${bucketKey}" rate limited - ${retries}/${maxRetries} retrying in`,
           `${rateLimit.reset} ms`,
         );
-        await (isGlobal ? this.globalRateLimit : rateLimit).sleep();
+        await rateLimit.sleep();
         continue;
       }
 
-      this.globalRateLimit.next();
       rateLimit.next();
+
       break;
     }
 
