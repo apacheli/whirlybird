@@ -618,7 +618,7 @@ export type DispatchPayloadGuildStickersUpdate = BaseDispatchPayload<
   DispatchPayloadGuildStickersUpdateData
 >;
 
-/** /** https://discord.dev/topics/gateway#guild-sticker-update-guild-sticker-update-event-fields */
+/** https://discord.dev/topics/gateway#guild-sticker-update-guild-sticker-update-event-fields */
 export interface DispatchPayloadGuildStickersUpdateData {
   /** id of the guild */
   guild_id: Snowflake;

@@ -16,7 +16,7 @@ export interface Invite {
   /** the guild this invite is for */
   guild?: Partial<Guild>;
   /** the channel this invite is for */
-  channel?: Partial<GuildChannel>;
+  channel: Partial<GuildChannel> | null;
   /** the user who created the invite */
   inviter?: User;
   /** the [type of target](https://discord.dev/resources/invite#invite-object-invite-target-types) for this voice channel invite */

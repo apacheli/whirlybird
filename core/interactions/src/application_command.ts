@@ -7,64 +7,64 @@ import type {
   CreateGlobalApplicationCommandData,
 } from "../../types/src/interactions/application_commands.ts";
 
-const a = (
-  type: ApplicationCommandTypes,
-  name: string,
-  description: string,
-  extra?: Omit<
-    CreateGlobalApplicationCommandData,
-    "name" | "description" | "type"
-  >,
-): CreateGlobalApplicationCommandData => ({
-  name,
-  description,
-  type,
-  ...extra,
-});
+const a = (type: ApplicationCommandTypes) =>
+  (
+    name: string,
+    description: string,
+    extra?: Omit<
+      CreateGlobalApplicationCommandData,
+      "name" | "description" | "type"
+    >,
+  ): CreateGlobalApplicationCommandData => ({
+    name,
+    description,
+    type,
+    ...extra,
+  });
 
 // deno-fmt-ignore
 export const
   /** Chat input application command (because the genuises at Discord did not call it "slash command") */
-  chatInputCommand = a.bind(null, ApplicationCommandTypes.ChatInput),
+  chatInputCommand = a(ApplicationCommandTypes.ChatInput),
   /** Message application command */
-  messageCommand = a.bind(null, ApplicationCommandTypes.Message),
+  messageCommand = a(ApplicationCommandTypes.Message),
   /** User application command */
-  userCommand = a.bind(null, ApplicationCommandTypes.User);
+  userCommand = a(ApplicationCommandTypes.User);
 
-const o = (
-  type: ApplicationCommandOptionType,
-  name: string,
-  description: string,
-  extra?: Omit<ApplicationCommandOption, "name" | "description" | "type">,
-): ApplicationCommandOption => ({
-  name,
-  description,
-  type,
-  ...extra,
-});
+const o = (type: ApplicationCommandOptionType) =>
+  (
+    name: string,
+    description: string,
+    extra?: Omit<ApplicationCommandOption, "name" | "description" | "type">,
+  ): ApplicationCommandOption => ({
+    name,
+    description,
+    type,
+    ...extra,
+  });
 
 // deno-fmt-ignore
 export const
   /** Application command sub command option */
-  subCommandOption = o.bind(null, ApplicationCommandOptionType.SubCommand),
+  subCommandOption = o(ApplicationCommandOptionType.SubCommand),
   /** Application command sub command group option */
-  subCommandGroupOption = o.bind(null, ApplicationCommandOptionType.SubCommandGroup),
+  subCommandGroupOption = o(ApplicationCommandOptionType.SubCommandGroup),
   /** Application command string option */
-  stringOption = o.bind(null, ApplicationCommandOptionType.String),
+  stringOption = o(ApplicationCommandOptionType.String),
   /** Application command integer option */
-  integerOption = o.bind(null, ApplicationCommandOptionType.Integer),
+  integerOption = o(ApplicationCommandOptionType.Integer),
   /** Application command boolean option */
-  booleanOption = o.bind(null, ApplicationCommandOptionType.Boolean),
+  booleanOption = o(ApplicationCommandOptionType.Boolean),
   /** Application command user option */
-  userOption = o.bind(null, ApplicationCommandOptionType.User),
+  userOption = o(ApplicationCommandOptionType.User),
   /** Application command channel option */
-  channelOption = o.bind(null, ApplicationCommandOptionType.Channel),
+  channelOption = o(ApplicationCommandOptionType.Channel),
   /** Application command role option */
-  roleOption = o.bind(null, ApplicationCommandOptionType.Role),
+  roleOption = o(ApplicationCommandOptionType.Role),
   /** Application command mentionable option */
-  mentionableOption = o.bind(null, ApplicationCommandOptionType.Mentionable),
+  mentionableOption = o(ApplicationCommandOptionType.Mentionable),
   /** Application command number option */
-  numberOption = o.bind(null, ApplicationCommandOptionType.Number);
+  numberOption = o(ApplicationCommandOptionType.Number);
 
 /** Application command option choice */
 export const optionChoice = (name: string, value: string | number) => ({

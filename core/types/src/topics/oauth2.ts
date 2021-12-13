@@ -36,6 +36,8 @@ export enum OAuth2Scopes {
   Guilds = "guilds",
   /** allows [/guilds/{guild.id}/members/{user.id}](https://discord.dev/resources/guild#add-guild-member) to be used for joining users to a guild */
   GuildsJoin = "guilds.join",
+  /** allows [/users/@me/guilds/{guild.id}/member](https://discord.dev/resources/user#get-current-user-guild-member) to return a user's member information in a guild */
+  GuildMembersRead = "guild.members.read",
   /** allows [/users/@me](https://discord.dev/resources/user#get-current-user) without email */
   Identify = "identify",
   /** for local rpc server api access, this allows you to read messages from all client channels (otherwise restricted to channels/guilds your app creates) */

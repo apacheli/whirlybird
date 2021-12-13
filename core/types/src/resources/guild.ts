@@ -14,6 +14,7 @@ import type {
   ThreadMember,
 } from "./channel.ts";
 import type { Emoji } from "./emoji.ts";
+import type { GuildScheduledEvent } from "./guild_scheduled_event.ts";
 import type { Invite } from "./invite.ts";
 import type { StageInstance } from "./stage_instance.ts";
 import type { Sticker } from "./sticker.ts";
@@ -118,10 +119,14 @@ export interface Guild {
   welcome_screen?: WelcomeScreen;
   /** [guild NSFW level](https://discord.dev/resources/guild#guild-object-guild-nsfw-level) */
   nsfw_level: GuildNSFWLevel;
-  /** array of [stage instance](https://discord.dev/resources/stage-instance#stage-instance-object) objects */
+  /** Stage instances in the guild */
   stage_instances?: StageInstance;
   /** custom guild stickers */
   stickers?: Sticker[];
+  /** the scheduled events in the guild */
+  guild_scheduled_events?: GuildScheduledEvent[];
+  /** whether the guild has the boost progress bar enabled */
+  premium_progress_bar_enabled?: boolean;
 }
 
 /** https://discord.dev/resources/guild#guild-object-default-message-notification-level */

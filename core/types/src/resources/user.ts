@@ -2,7 +2,7 @@
 
 import type { Snowflake } from "../reference.ts";
 import type { Channel } from "./channel.ts";
-import type { Guild, Integration } from "./guild.ts";
+import type { Guild, GuildMember, Integration } from "./guild.ts";
 
 // https://discord.dev/resources/user
 
@@ -140,6 +140,9 @@ export interface GetCurrentUserGuildsQuery {
 
 /** https://discord.dev/resources/user#get-current-user-guilds */
 export type GetCurrentUserGuildsBody = Partial<Guild>[];
+
+/** https://discord.dev/resources/user#get-current-user-guild-member */
+export type GetCurrentUserGuildMemberBody = GuildMember;
 
 /** https://discord.dev/resources/user#leave-guild */
 export type LeaveGuildBody = void;

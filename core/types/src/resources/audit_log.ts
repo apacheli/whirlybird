@@ -17,6 +17,7 @@ import type {
   VerificationLevel,
 } from "./guild.ts";
 import type {
+  GuildScheduledEvent,
   GuildScheduledEventEntityTypes,
   GuildScheduledEventStatus,
 } from "./guild_scheduled_event.ts";
@@ -31,14 +32,16 @@ import type { Webhook } from "./webhook.ts";
 export interface AuditLog {
   /** list of audit log entries */
   audit_log_entries: AuditLogEntry[];
+  /** list of guild scheduled events found in the audit log */
+  guild_scheduled_events: GuildScheduledEvent[];
   /** list of partial integration objects */
   integrations: Integration[];
   /** array of [channel](https://discord.dev/resources/channel#channel-object) objects */
   threads: ThreadChannel;
-  /** list of webhooks found in the audit log */
-  webhooks: Webhook[];
   /** list of users found in the audit log */
   users: User[];
+  /** list of webhooks found in the audit log */
+  webhooks: Webhook[];
 }
 
 /** https://discord.dev/resources/audit-log#audit-log-entry-object */
