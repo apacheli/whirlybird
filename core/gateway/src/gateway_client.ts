@@ -6,7 +6,7 @@ import {
 import { GatewayOpcodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
-import { SHARD_IDENTIFY_DELAY, ShardSocketCloseStates } from "./constants.ts";
+import { ShardSocketCloseStates } from "./constants.ts";
 import { Shard } from "./shard.ts";
 import type { ShardIdentifyData } from "./shard.ts";
 
@@ -43,6 +43,11 @@ export interface GatewayClientConnectOptions {
   shards?: number;
 }
 
+export const onExit = (client: GatewayClient) => () => {
+  logger.warn("Deno process was destroyed. Disconnecting shards");
+  client.disconnect();
+};
+
 export class GatewayClient {
   rateLimit;
   shards: Shard[] = [];
@@ -50,7 +55,7 @@ export class GatewayClient {
   #token: string;
 
   constructor(token: string, public data: GatewayClientData) {
-    this.rateLimit = new RateLimit(data.maxConcurrency, SHARD_IDENTIFY_DELAY);
+    this.rateLimit = new RateLimit(data.maxConcurrency, 5_000);
 
     this.#token = token;
   }
@@ -90,7 +95,7 @@ export class GatewayClient {
 
   async identifyShard(shard: Shard) {
     if (this.rateLimit.rateLimited) {
-      await this.rateLimit.sleep();
+      await this.rateLimit.sleep(true);
     }
 
     shard.identify({
@@ -163,7 +168,7 @@ export class GatewayClient {
             );
 
             if (this.shards.every((shard) => shard.ready)) {
-              logger.info("All shards are now ready");
+              logger.info("All shards are ready");
               this.data.allShardsReady?.(shard);
             }
             break;
