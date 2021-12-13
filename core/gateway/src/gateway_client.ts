@@ -6,7 +6,7 @@ import {
 import { GatewayOpcodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
-import { ShardSocketCloseStates } from "./constants.ts";
+import { SHARD_IDENTIFY_DELAY, ShardSocketCloseStates } from "./constants.ts";
 import { Shard } from "./shard.ts";
 import type { ShardIdentifyData } from "./shard.ts";
 
@@ -43,10 +43,11 @@ export interface GatewayClientConnectOptions {
   shards?: number;
 }
 
-export const onExit = (client: GatewayClient) => () => {
-  logger.warn("Deno process was destroyed. Disconnecting shards");
-  client.disconnect();
-};
+export const onExit = (client: GatewayClient) =>
+  () => {
+    logger.warn("Deno process was destroyed. Disconnecting shards");
+    client.disconnect();
+  };
 
 export class GatewayClient {
   rateLimit;
@@ -55,7 +56,7 @@ export class GatewayClient {
   #token: string;
 
   constructor(token: string, public data: GatewayClientData) {
-    this.rateLimit = new RateLimit(data.maxConcurrency, 5_000);
+    this.rateLimit = new RateLimit(data.maxConcurrency, SHARD_IDENTIFY_DELAY);
 
     this.#token = token;
   }
