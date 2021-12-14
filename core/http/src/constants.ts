@@ -1,4 +1,4 @@
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   HTTP_VERSION = 9,
   MAX_RETRIES = 3,

@@ -24,7 +24,6 @@ export const handleRequestEvent = async (
   { request, respondWith }: Deno.RequestEvent,
   handler: Handler,
 ) => {
-  const contentType = request.headers.get("Content-Type");
   const signature = request.headers.get(SIGNATURE);
   const timestamp = request.headers.get(TIMESTAMP);
 
@@ -34,7 +33,7 @@ export const handleRequestEvent = async (
   if (
     !signature ||
     !timestamp ||
-    contentType !== "application/json" ||
+    request.headers.get("Content-Type") !== "application/json" ||
     request.method !== "POST"
   ) {
     return respond("Bad Request", 400);

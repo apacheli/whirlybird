@@ -1,6 +1,6 @@
 import type { Snowflake } from "../../types/src/reference.ts";
 
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   APPLICATION_COMMAND                      = (applicationId: Snowflake, commandId: Snowflake) => `/applications/${applicationId}/commands/${commandId}`,
   APPLICATION_COMMANDS                     = (applicationId: Snowflake) => `/applications/${applicationId}/commands`,

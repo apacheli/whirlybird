@@ -166,7 +166,7 @@ export enum InteractionCallbackDataFlags {
   Ephemeral = 1 << 6,
 }
 
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   SIGNATURE = "X-Signature-Ed25519",
   TIMESTAMP = "X-Signature-Timestamp";

@@ -1,4 +1,4 @@
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   REQUEST_GUILD_MEMBERS_DELAY = 60_000,
   SHARD_IDENTIFY_DELAY = 5_000;

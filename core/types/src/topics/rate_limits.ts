@@ -1,6 +1,6 @@
 // deno-lint-ignore-file camelcase
 
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   /** The number of requests that can be made */
   X_RATELIMIT_LIMIT = "X-RateLimit-Limit",

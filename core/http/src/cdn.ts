@@ -31,7 +31,7 @@ export interface ImageOptions<I extends ImageFormats = ImageFormats> {
 }
 
 const request = async (path: string, options?: ImageOptions) => {
-  let url = `${ImageBaseUrl}/${path}`;
+  let url = ImageBaseUrl + path;
   if (options?.format) {
     url += `.${options.format}`;
   }
