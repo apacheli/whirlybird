@@ -3,6 +3,77 @@
 [![](https://github.com/apacheli/whirlybird/actions/workflows/ci.yaml/badge.svg?branch=dev)](https://github.com/apacheli/whirlybird/actions/workflows/ci.yaml)
 [![](https://canary.discord.com/api/guilds/812458966357377067/widget.png)](https://discord.gg/GtyB7gmx9Q)
 
+### About
+
+Whirlybird is a collection of low-level [Deno](https://deno.land/) modules for
+interacting with the [Discord API](https://discord.dev/). It aims to provide
+end-users as much control over their application as possible while also doing
+the complicated bits to improve the development experience.
+
+### Getting Started
+
+Run an [example](examples/ping_pong.ts) directly from the CLI:
+
+```sh
+$ BOT_TOKEN=""\
+  deno run --allow-env --allow-net\
+  https://github.com/apacheli/whirlybird/raw/dev/examples/ping_pong.ts
+```
+
+More examples are available [here](examples).
+
+An example showcasing the usage of [`core/gateway`](core/gateway) and
+[`core/http`](core/http) to power a Discord bot:
+
+```ts
+import { GatewayClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
+import type { HandleEvent } from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
+import { HttpClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
+import {
+  GatewayEvents,
+  GatewayIntents,
+} from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
+
+const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
+
+const http = new HttpClient(token);
+
+const handleEvent: HandleEvent = (payload) => {
+  switch (payload.t) {
+    case GatewayEvents.MessageCreate: {
+      if (payload.d.content === "!ping") {
+        http.createMessage(payload.d.channel_id, {
+          content: "pong!",
+        });
+      }
+      break;
+    }
+  }
+};
+
+const { url, shards } = await http.getGatewayBot();
+
+const gateway = new GatewayClient(token, {
+  allShardsReady: () => console.log("Hello, World!"),
+  handleEvent,
+  intents: GatewayIntents.GuildMessages,
+  url: `${url}?v=9`,
+});
+
+await gateway.connect({
+  shards,
+});
+```
+
+To run the program:
+
+```sh
+$ BOT_TOKEN="" deno run --allow-env --allow-net main.ts
+```
+
+A more detailed explanation for each of the core modules can be found in their
+respective READMEs.
+
 ### Resources
 
 - [Deno](https://deno.land/)
