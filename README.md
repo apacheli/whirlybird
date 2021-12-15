@@ -6,9 +6,9 @@
 ### About
 
 Whirlybird is a collection of low-level [Deno](https://deno.land/) modules for
-interacting with the [Discord API](https://discord.dev/). It aims to provide
-end-users as much control over their application as possible while also doing
-the complicated bits to improve the development experience.
+interacting with the [Discord API](https://discord.dev/). Whirlybird aims to
+provide end-users as much control over their application as possible while also
+doing the complicated bits to improve the overall development experience.
 
 ### Getting Started
 
@@ -22,7 +22,7 @@ $ BOT_TOKEN=""\
 
 More examples are available [here](examples).
 
-An example showcasing the usage of [`core/gateway`](core/gateway) and
+An example showcasing using [`core/gateway`](core/gateway) and
 [`core/http`](core/http) to power a Discord bot:
 
 ```ts
@@ -71,12 +71,25 @@ To run the program:
 $ BOT_TOKEN="" deno run --allow-env --allow-net main.ts
 ```
 
-A more detailed explanation for each of the core modules can be found in their
+A more in-depth explanation for the core modules is available in their
 respective READMEs.
+
+### Core Modules
+
+- [`core/gateway`](core/gateway)
+- [`core/http`](core/http)
+- [`core/interactions`](core/interactions)
+- [`core/types`](core/types)
+- [`core/util`](core/util)
 
 ### Resources
 
-- [Deno](https://deno.land/)
+- [Deno](https://deno.land/) ([Manual](https://deno.land/manual))
 - [Discord Developer Documentation](https://discord.dev/)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org/)
+
+Feel free to come hang out with us at the
+[Whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! All participating
+members must abide by the terms of the
+[Whirlybird code of conduct](CODE_OF_CONDUCT.md).
