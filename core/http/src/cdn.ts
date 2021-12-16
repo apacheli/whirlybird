@@ -1,8 +1,8 @@
-import { ImageBaseUrl } from "../../types/src/reference.ts";
-import type {
-  ImageFormats,
-  ImageSizes,
-  Snowflake,
+import {
+  ImageBaseUrl,
+  type ImageFormats,
+  type ImageSizes,
+  type Snowflake,
 } from "../../types/src/reference.ts";
 import {
   ACHIEVEMENT_ICON,

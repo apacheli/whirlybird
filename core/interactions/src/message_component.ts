@@ -1,10 +1,10 @@
-import { ComponentTypes } from "../../types/src/interactions/message_components.ts";
-import type {
-  ActionRow,
-  Button,
-  ButtonStyles,
-  SelectMenu,
-  SelectOption,
+import {
+  type ActionRow,
+  type Button,
+  type ButtonStyles,
+  ComponentTypes,
+  type SelectMenu,
+  type SelectOption,
 } from "../../types/src/interactions/message_components.ts";
 
 /** Action row message component */

@@ -256,8 +256,11 @@ import type {
   UnpinMessageBody,
 } from "../../types/mod.ts";
 //#endregion
-import { BaseUrl, Snowflake } from "../../types/src/reference.ts";
-import type { ApiVersions } from "../../types/src/reference.ts";
+import {
+  type ApiVersions,
+  BaseUrl,
+  Snowflake,
+} from "../../types/src/reference.ts";
 import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import {
   X_RATELIMIT_BUCKET,

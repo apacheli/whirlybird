@@ -1,13 +1,13 @@
 import type { GuildMember } from "../../types/src/resources/guild.ts";
-import { GatewayEvents } from "../../types/src/topics/gateway.ts";
-import type {
-  DispatchPayloadPresenceUpdateData,
-  GatewayPayload,
-  GuildRequestMembersPayloadData,
-  IdentifyPayloadData,
-  PresenceUpdatePayloadData,
-  ResumePayloadData,
-  VoiceStateUpdatePayloadData,
+import {
+  type DispatchPayloadPresenceUpdateData,
+  GatewayEvents,
+  type GatewayPayload,
+  type GuildRequestMembersPayloadData,
+  type IdentifyPayloadData,
+  type PresenceUpdatePayloadData,
+  type ResumePayloadData,
+  type VoiceStateUpdatePayloadData,
 } from "../../types/src/topics/gateway.ts";
 import {
   GatewayCloseEventCodes,

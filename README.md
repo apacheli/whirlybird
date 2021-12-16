@@ -26,8 +26,10 @@ An example showcasing using [`core/gateway`](core/gateway) and
 [`core/http`](core/http) to power a Discord bot:
 
 ```ts
-import { GatewayClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
-import type { HandleEvent } from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
+import {
+  GatewayClient,
+  type HandleEvent,
+} from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
 import { HttpClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
 import {
   GatewayEvents,
@@ -51,18 +53,14 @@ const handleEvent: HandleEvent = (payload) => {
   }
 };
 
-const { url, shards } = await http.getGatewayBot();
-
 const gateway = new GatewayClient(token, {
   allShardsReady: () => console.log("Hello, World!"),
   handleEvent,
   intents: GatewayIntents.GuildMessages,
-  url: `${url}?v=9`,
+  url: `wss://gateway.discord.gg?v=9`,
 });
 
-await gateway.connect({
-  shards,
-});
+await gateway.connect();
 ```
 
 To run the program:

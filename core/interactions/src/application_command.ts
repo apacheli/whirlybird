@@ -1,10 +1,8 @@
 import {
+  type ApplicationCommandOption,
   ApplicationCommandOptionType,
   ApplicationCommandTypes,
-} from "../../types/src/interactions/application_commands.ts";
-import type {
-  ApplicationCommandOption,
-  CreateGlobalApplicationCommandData,
+  type CreateGlobalApplicationCommandData,
 } from "../../types/src/interactions/application_commands.ts";
 
 const a = (type: ApplicationCommandTypes) =>

@@ -1,14 +1,13 @@
 import {
+  type Interaction,
+  type InteractionCallbackData,
   InteractionCallbackType,
   InteractionType,
   SIGNATURE,
   TIMESTAMP,
 } from "../../types/src/interactions/receiving_and_responding.ts";
-import type {
-  Interaction,
-  InteractionCallbackData,
-} from "../../types/src/interactions/receiving_and_responding.ts";
-import { hexDecode, utf8Encode } from "../../util/mod.ts";
+import { hexDecode } from "../../util/src/hex_endec.ts";
+import { utf8Encode } from "../../util/src/utf8_endec.ts";
 import { verify } from "../deps.ts";
 
 export type Callback = (

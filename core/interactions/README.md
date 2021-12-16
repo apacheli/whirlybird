@@ -10,8 +10,10 @@ An implementation for HTTP server interactions.
 ### Getting Started
 
 ```ts
-import { handleRequestEvent } from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts";
-import type { Handler } from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts";
+import {
+  type Handler,
+  handleRequestEvent,
+} from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts";
 import { InteractionCallbackType } from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
 
 const publicKey = Deno.env.get("PUBLIC_KEY")!;
