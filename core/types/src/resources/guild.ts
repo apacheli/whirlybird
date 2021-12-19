@@ -43,7 +43,7 @@ export interface Guild {
   owner_id: Snowflake;
   /** total permissions for [the user](https://discord.dev/resources/user#get-current-user-guilds) in the guild (excludes overwrites) */
   permissions?: Permissions;
-  /** [voice region](https://discord.dev/resources/voice#voice-region-object) id for the guild */
+  /** [voice region](https://discord.dev/resources/voice#voice-region-object) id for the guild (deprecated) */
   region: VoiceRegion;
   /** id of afk channel */
   afk_channel_id: Snowflake | null;

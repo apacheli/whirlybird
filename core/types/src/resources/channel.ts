@@ -231,13 +231,13 @@ export interface Message {
   /** [type of message](https://discord.dev/resources/channel#message-object-message-types) */
   type: MessageTypes;
   /** sent with Rich Presence-related chat embeds */
-  activity: MessageActivity;
+  activity?: MessageActivity;
   /** sent with Rich Presence-related chat embeds */
-  application: Partial<Application>;
+  application?: Partial<Application>;
   /** if the message is a response to an [Interaction](https://discord.dev/interactions/receiving-and-responding), this is the id of the interaction's application */
   application_id?: Snowflake;
   /** data showing the source of a crosspost, channel follow add, pin, or reply message */
-  message_reference: MessageReference;
+  message_reference?: MessageReference;
   /** [message flags](https://discord.dev/resources/channel#message-object-message-flags) combined as a [bitfield](https://en.wikipedia.org/wiki/Bit_field) */
   flags?: MessageFlags;
   /** the message associated with the message_reference */
