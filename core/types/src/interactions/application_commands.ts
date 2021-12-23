@@ -94,7 +94,7 @@ export interface ApplicationCommandInteractionDataOption {
   name: string;
   /** value of [application command option type](https://discord.dev/interactions/application-commands#application-command-object-application-command-option-type) */
   type: ApplicationCommandOptionType;
-  /** the value of the pair */
+  /** the value of the option resulting from user input */
   value?: string | number;
   /** present if this option is a group or subcommand */
   options?: ApplicationCommandInteractionDataOption[];

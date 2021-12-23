@@ -71,7 +71,7 @@ export interface StickerPack {
   /** description of the sticker pack */
   description: string;
   /** id of the sticker pack's [banner image](https://discord.dev/reference#image-formatting) */
-  banner_asset_id: Snowflake;
+  banner_asset_id?: Snowflake;
 }
 
 /** https://discord.dev/resources/sticker#get-sticker */

@@ -50,7 +50,7 @@ export interface Interaction {
   user?: User;
   /** a continuation token for responding to the interaction */
   token: string;
-  /** ead-only property, always `1` */
+  /** read-only property, always `1` */
   version: 1;
   /** for components, the message they were attached to */
   message?: Message;
@@ -151,13 +151,13 @@ export interface InteractionCallbackData {
   /** message components */
   components?: ActionRow<Button | SelectMenu>[];
   /** attachment objects with filename and description */
-  attachments?: Pick<Attachment, "description" | "filename">[];
+  attachments?: Pick<Attachment, "description" | "filename" | "id">[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-autocomplete */
 export interface Autocomplete {
   /** autocomplete choices (max of 25 choices) */
-  choices: ApplicationCommandOptionChoice;
+  choices: ApplicationCommandOptionChoice[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags */

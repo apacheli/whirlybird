@@ -1,17 +1,21 @@
-import { GatewayClient } from "../core/gateway/mod.ts";
-import type { HandleEvent } from "../core/gateway/mod.ts";
+import { CacheClient } from "../core/cache/mod.ts";
+import { GatewayClient, type HandleEvent } from "../core/gateway/mod.ts";
 import { HttpClient } from "../core/http/mod.ts";
 import { GatewayEvents, GatewayIntents } from "../core/types/mod.ts";
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
+const cache = new CacheClient();
+
 const http = new HttpClient(token);
 
-const handleEvent: HandleEvent = (payload) => {
+const handleEvent: HandleEvent = async (payload) => {
+  cache.update(payload);
+
   switch (payload.t) {
     case GatewayEvents.MessageCreate: {
       if (payload.d.content === "!ping") {
-        http.createMessage(payload.d.channel_id, {
+        await http.createMessage(payload.d.channel_id, {
           content: "pong!",
         });
       }
@@ -20,15 +24,11 @@ const handleEvent: HandleEvent = (payload) => {
   }
 };
 
-const { url, shards } = await http.getGatewayBot();
-
 const gateway = new GatewayClient(token, {
   allShardsReady: () => console.log("Hello, World!"),
   handleEvent,
   intents: GatewayIntents.GuildMessages,
-  url: `${url}?v=9`,
+  url: "wss://gateway.discord.gg?v=9",
 });
 
-await gateway.connect({
-  shards,
-});
+await gateway.connect();

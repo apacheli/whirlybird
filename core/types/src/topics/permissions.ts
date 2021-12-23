@@ -89,6 +89,8 @@ export const BitwisePermissionFlags = {
   SendMessagesInThreads: 1n << 38n,
   /** Allows for launching activities (applications with the `EMBEDDED` flag) in a voice channel */
   StartEmbeddedActivities: 1n << 39n,
+  /** Allows for timing out users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels */
+  ModerateMembers: 1n << 40n,
 } as const;
 
 /** https://discord.dev/topics/permissions#role-object */

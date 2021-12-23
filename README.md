@@ -22,29 +22,40 @@ $ BOT_TOKEN=""\
 
 More examples are available [here](examples).
 
-An example showcasing using [`core/gateway`](core/gateway) and
-[`core/http`](core/http) to power a Discord bot:
+`deps.ts`:
+
+```ts
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/cache/mod.ts";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
+```
+
+`main.ts`:
 
 ```ts
 import {
+  CacheClient,
   GatewayClient,
-  type HandleEvent,
-} from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
-import { HttpClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
-import {
   GatewayEvents,
   GatewayIntents,
-} from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
+  type HandleEvent,
+  HttpClient,
+} from "./deps.ts";
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
+const cache = new CacheClient();
+
 const http = new HttpClient(token);
 
-const handleEvent: HandleEvent = (payload) => {
+const handleEvent: HandleEvent = async (payload) => {
+  cache.update(payload);
+
   switch (payload.t) {
     case GatewayEvents.MessageCreate: {
       if (payload.d.content === "!ping") {
-        http.createMessage(payload.d.channel_id, {
+        await http.createMessage(payload.d.channel_id, {
           content: "pong!",
         });
       }
@@ -57,7 +68,7 @@ const gateway = new GatewayClient(token, {
   allShardsReady: () => console.log("Hello, World!"),
   handleEvent,
   intents: GatewayIntents.GuildMessages,
-  url: `wss://gateway.discord.gg?v=9`,
+  url: "wss://gateway.discord.gg?v=9",
 });
 
 await gateway.connect();
@@ -74,6 +85,7 @@ respective READMEs.
 
 ### Core Modules
 
+- [`core/cache`](core/cache)
 - [`core/gateway`](core/gateway)
 - [`core/http`](core/http)
 - [`core/interactions`](core/interactions)

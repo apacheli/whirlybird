@@ -66,7 +66,7 @@ export interface Guild {
   /** enabled guild features */
   features: GuildFeatures[];
   /** required [MFA level](https://discord.dev/resources/guild#guild-object-mfa-level) for the guild */
-  mfa_level: MFALevel;
+  mfa_level: MfaLevel;
   /** application id of the guild creator if it is bot-created */
   application_id: Snowflake | null;
   /** the id of the channel where guild notices such as welcome messages and boost events are posted */
@@ -82,7 +82,7 @@ export interface Guild {
   /** true if this guild is unavailable due to an outage */
   unavailable?: boolean;
   /** total number of members in this guild */
-  member_count?: boolean;
+  member_count?: number;
   /** states of members currently in voice channels; lacks the `guild_id` key */
   voice_states?: Partial<VoiceState>[];
   /** users in the guild */
@@ -148,7 +148,7 @@ export enum ExplicitContentFilterLevel {
 }
 
 /** https://discord.dev/resources/guild#guild-object-mfa-level */
-export enum MFALevel {
+export enum MfaLevel {
   /** guild has no MFA/2FA requirement for moderation actions */
   None,
   /** guild has a 2FA requirement for moderation actions */
@@ -309,6 +309,8 @@ export interface GuildMember {
   pending?: boolean;
   /** total permissions of the member in the channel, including overwrites, returned when in the interaction object */
   permissions?: Permissions;
+  /** when the user's [timeout](https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ) will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out */
+  communication_disabled_until?: string;
 }
 
 /** https://discord.dev/resources/guild#integration-object */
@@ -576,7 +578,7 @@ export type SearchGuildMembersBody = GuildMember[];
 export interface AddGuildMemberData {
   /** an oauth2 access token granted with the `guilds.join` to the bot's application for the user you want to add to the guild */
   access_token: string;
-  /** value to set users nickname to */
+  /** value to set user's nickname to */
   nick?: string;
   /** array of role ids the member is assigned */
   roles?: Snowflake[];
@@ -599,6 +601,8 @@ export interface ModifyGuildMemberData extends ModifyCurrentUserNickData {
   deaf?: boolean | null;
   /** id of channel to move user to (if they are connected to voice) */
   channel_id?: Snowflake | null;
+  /** when the user's [timeout](https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ) will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to null to remove timeout */
+  communication_disabled_until?: string;
 }
 
 /** https://discord.dev/resources/guild#modify-guild-member */
@@ -606,7 +610,7 @@ export type ModifyGuildMemberBody = GuildMember;
 
 /** https://discord.dev/resources/guild#modify-current-member */
 export interface ModifyCurrentMemberData {
-  /** value to set users nickname to */
+  /** value to set user's nickname to */
   nick?: string | null;
 }
 
@@ -615,7 +619,7 @@ export type ModifyCurrentMemberBody = GuildMember;
 
 /** https://discord.dev/resources/guild#modify-current-user-nick */
 export interface ModifyCurrentUserNickData {
-  /** value to set users nickname to */
+  /** value to set user's nickname to */
   nick?: string | null;
 }
 

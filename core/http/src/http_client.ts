@@ -118,6 +118,7 @@ import type {
   GetCurrentAuthorizationInformationBody,
   GetCurrentBotApplicationInformationBody,
   GetCurrentUserBody,
+  GetCurrentUserGuildMemberBody,
   GetCurrentUserGuildsBody,
   GetCurrentUserGuildsQuery,
   GetEntitlementBody,
@@ -371,6 +372,7 @@ import {
   USER_ME_CHANNELS,
   USER_ME_CONNECTIONS,
   USER_ME_GUILD,
+  USER_ME_GUILD_MEMBER,
   USER_ME_GUILDS,
   VOICE_REGIONS,
   WEBHOOK,
@@ -431,10 +433,11 @@ export class HttpClient {
     }
 
     let data;
-    if (options?.files) {
+    if (options?.files?.length) {
       data = new FormData();
-      for (const file of options.files) {
-        data.append(file.name, file, file.name);
+      for (let i = 0; i < options.files.length; i++) {
+        const file = options.files[i];
+        data.append(`files[${i}]`, file, file.name);
       }
       if (options.data) {
         data.append("payload_json", JSON.stringify(options.data));
@@ -505,7 +508,7 @@ export class HttpClient {
       rateLimit = this.rateLimits[bucketNew + parameters] ??= new RateLimit();
       rateLimit.update(
         parseInt(response.headers.get(X_RATELIMIT_LIMIT)!),
-        parseFloat(response.headers.get(X_RATELIMIT_RESET_AFTER)!) * 1_000,
+        resetAfter,
         parseInt(response.headers.get(X_RATELIMIT_REMAINING)!),
       );
 
@@ -601,10 +604,14 @@ export class HttpClient {
     guildId: Snowflake,
     userId: Snowflake,
     roleId: Snowflake,
+    reason?: string,
   ): Promise<AddGuildMemberRoleBody> {
     return this.put(
       GUILD_MEMBER_ROLE(guildId, userId, roleId),
       `addGuildMemberRole_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -670,9 +677,11 @@ export class HttpClient {
   beginGuildPrune(
     guildId: Snowflake,
     data: BeginGuildPruneData,
+    reason?: string,
   ): Promise<BeginGuildPruneBody> {
     return this.post(GUILD_PRUNE(guildId), `beginGuildPrune_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -694,12 +703,14 @@ export class HttpClient {
   bulkDeleteMessages(
     channelId: Snowflake,
     data: BulkDeleteMessagesData,
+    reason?: string,
   ): Promise<BulkDeleteMessagesBody> {
     return this.post(
       CHANNEL_MESSAGES_BULK_DELETE(channelId),
       `bulkDeleteMessages_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -783,12 +794,14 @@ export class HttpClient {
   createChannelInvite(
     channelId: Snowflake,
     data: CreateChannelInviteData,
+    reason?: string,
   ): Promise<CreateChannelInviteBody> {
     return this.post(
       CHANNEL_INVITES(channelId),
       `createChannelInvite_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -810,7 +823,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#create-followup-message
    *
-   * Create a followup message for an Interaction. Functions the same as [Execute Webhook](https://discord.dev/resources/webhook#execute-webhook), but `wait` is always true, and `flags` can be set to `64` in the body to send an ephemeral message. The `thread_id` query parameter is not required (and is furthermore ignored) when using this endpoint for interaction followups.
+   * Create a followup message for an Interaction. Functions the same as [Execute Webhook](https://discord.dev/resources/webhook#execute-webhook), but `wait` is always true, and `flags` can be set to `64` in the body to send an ephemeral message. The `thread_id`, `avatar_url`, and `username` parameters are not supported when using this endpoint for interaction followups.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -819,12 +832,14 @@ export class HttpClient {
     applicationId: Snowflake,
     interactionToken: string,
     data: CreateFollowupMessageData,
+    files?: File[],
   ): Promise<CreateFollowupMessageBody> {
     return this.post(
       WEBHOOK_TOKEN(applicationId, interactionToken),
       `createFollowupMessage_${interactionToken}`,
       {
         data,
+        files,
       },
     );
   }
@@ -920,9 +935,11 @@ export class HttpClient {
     guildId: Snowflake,
     userId: Snowflake,
     data: CreateGuildBanData,
+    reason?: string,
   ): Promise<CreateGuildBanBody> {
     return this.put(GUILD_BAN(guildId, userId), `createGuildBan_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -942,9 +959,11 @@ export class HttpClient {
   createGuildChannel(
     guildId: Snowflake,
     data: CreateGuildChannelData,
+    reason?: string,
   ): Promise<CreateGuildChannelBody> {
     return this.post(GUILD_CHANNELS(guildId), `createGuildChannel_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -964,9 +983,11 @@ export class HttpClient {
   createGuildEmoji(
     guildId: Snowflake,
     data: CreateGuildEmojiData,
+    reason?: string,
   ): Promise<CreateGuildEmojiBody> {
     return this.post(GUILD_EMOJIS(guildId), `createGuildEmoji_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -1006,9 +1027,11 @@ export class HttpClient {
   createGuildRole(
     guildId: Snowflake,
     data: CreateGuildRoleData,
+    reason?: string,
   ): Promise<CreateGuildRoleBody> {
     return this.post(GUILD_ROLES(guildId), `createGuildRole_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -1020,17 +1043,22 @@ export class HttpClient {
    * > info
    * > A guild can have a maximum of 100 events with `SCHEDULED` or `ACTIVE` status at any time.
    *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildScheduledEvent(
     guildId: Snowflake,
     data: CreateGuildScheduledEventData,
+    reason?: string,
   ): Promise<CreateGuildScheduledEventBody> {
     return this.post(
       GUILD_SCHEDULED_EVENTS(guildId),
       `createGuildScheduledEvent_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -1048,8 +1076,15 @@ export class HttpClient {
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
-  createGuildSticker(guildId: Snowflake): Promise<CreateGuildStickerBody> {
-    return this.post(GUILD_STICKERS(guildId), `createGuildSticker_${guildId}`);
+  createGuildSticker(
+    guildId: Snowflake,
+    files?: File[],
+    reason?: string,
+  ): Promise<CreateGuildStickerBody> {
+    return this.post(GUILD_STICKERS(guildId), `createGuildSticker_${guildId}`, {
+      files,
+      reason,
+    });
   }
 
   /**
@@ -1085,12 +1120,14 @@ export class HttpClient {
     interactionId: Snowflake,
     interactionToken: string,
     data: CreateInteractionResponseData,
+    files?: File[],
   ): Promise<CreateInteractionResponseBody> {
     return this.post(
       INTERACTION_TOKEN_CALLBACK(interactionId, interactionToken),
       `createInteractionResponse_${interactionToken}`,
       {
         data,
+        files,
       },
     );
   }
@@ -1112,12 +1149,14 @@ export class HttpClient {
   createMessage(
     channelId: Snowflake,
     data: CreateMessageData,
+    files?: File[],
   ): Promise<CreateMessageBody> {
     return this.post(
       CHANNEL_MESSAGES(channelId),
       `createMessage_${channelId}`,
       {
         data,
+        files,
       },
     );
   }
@@ -1177,9 +1216,11 @@ export class HttpClient {
    */
   createStageInstance(
     data: CreateStageInstanceData,
+    reason?: string,
   ): Promise<CreateStageInstanceBody> {
     return this.post(STAGE_INSTANCES, "createStageInstance", {
       data,
+      reason,
     });
   }
 
@@ -1278,17 +1319,21 @@ export class HttpClient {
   deleteChannelPermission(
     channelId: Snowflake,
     overwriteId: Snowflake,
+    reason?: string,
   ): Promise<DeleteChannelPermissionBody> {
     return this.delete(
       CHANNEL_PERMISSION(channelId, overwriteId),
       `deleteChannelPermission_${channelId}`,
+      {
+        reason,
+      },
     );
   }
 
   /**
    * https://discord.dev/interactions/receiving-and-responding#delete-followup-message
    *
-   * Deletes a followup message for an Interaction. Returns `204` on success. Does not support ephemeral followups.
+   * Deletes a followup message for an Interaction. Returns `204 No Content` on success. Does not support ephemeral followups.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -1308,7 +1353,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/application-commands#delete-global-application-command
    *
-   * Deletes a global command. Returns `204`.
+   * Deletes a global command. Returns `204 No Content` on success.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param commandId https://discord.dev/interactions/application-commands#application-command-object
@@ -1337,7 +1382,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/application-commands#delete-guild-application-command
    *
-   * Delete a guild command. Returns `204` on success.
+   * Delete a guild command. Returns `204 No Content` on success.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
@@ -1368,10 +1413,14 @@ export class HttpClient {
   deleteGuildEmoji(
     guildId: Snowflake,
     emojiId: Snowflake,
+    reason?: string,
   ): Promise<DeleteGuildEmojiBody> {
     return this.delete(
       GUILD_EMOJI(guildId, emojiId),
       `deleteGuildEmoji_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -1389,10 +1438,14 @@ export class HttpClient {
   deleteGuildIntegration(
     guildId: Snowflake,
     integrationId: Snowflake,
+    reason?: string,
   ): Promise<DeleteGuildIntegrationBody> {
     return this.delete(
       GUILD_INTEGRATION(guildId, integrationId),
       `deleteGuildIntegration_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -1410,10 +1463,14 @@ export class HttpClient {
   deleteGuildRole(
     guildId: Snowflake,
     roleId: Snowflake,
+    reason?: string,
   ): Promise<DeleteGuildRoleBody> {
     return this.delete(
       GUILD_ROLE(guildId, roleId),
       `deleteGuildRole_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -1449,10 +1506,14 @@ export class HttpClient {
   deleteGuildSticker(
     guildId: Snowflake,
     stickerId: Snowflake,
+    reason?: string,
   ): Promise<DeleteGuildStickerBody> {
     return this.delete(
       GUILD_STICKER(guildId, stickerId),
       `deleteGuildSticker_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -1484,8 +1545,10 @@ export class HttpClient {
    *
    * @param inviteCode https://discord.dev/resources/invite#invite-object
    */
-  deleteInvite(inviteCode: string): Promise<DeleteInviteBody> {
-    return this.delete(INVITE(inviteCode), "deleteInvite");
+  deleteInvite(inviteCode: string, reason?: string): Promise<DeleteInviteBody> {
+    return this.delete(INVITE(inviteCode), "deleteInvite", {
+      reason,
+    });
   }
 
   /**
@@ -1502,17 +1565,21 @@ export class HttpClient {
   deleteMessage(
     channelId: Snowflake,
     messageId: Snowflake,
+    reason?: string,
   ): Promise<DeleteMessageBody> {
     return this.delete(
       CHANNEL_MESSAGE(channelId, messageId),
       `deleteMessage_${channelId}`,
+      {
+        reason,
+      },
     );
   }
 
   /**
    * https://discord.dev/interactions/receiving-and-responding#delete-original-interaction-response
    *
-   * Deletes the initial Interaction response. Returns `204` on success.
+   * Deletes the initial Interaction response. Returns `204 No Content` on success.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -1578,10 +1645,16 @@ export class HttpClient {
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
-  deleteStageInstance(channelId: Snowflake): Promise<DeleteStageInstanceBody> {
+  deleteStageInstance(
+    channelId: Snowflake,
+    reason?: string,
+  ): Promise<DeleteStageInstanceBody> {
     return this.delete(
       STAGE_INSTANCE(channelId),
       `deleteStageInstance_${channelId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -1629,7 +1702,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/webhook#delete-webhook
    *
-   * Delete a webhook permanently. Requires the `MANAGE_WEBHOOKS` permission. Returns a 204 NO CONTENT response on success.
+   * Delete a webhook permanently. Requires the `MANAGE_WEBHOOKS` permission. Returns a `204 No Content` response on success.
    *
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
@@ -1640,7 +1713,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/webhook#delete-webhook-message
    *
-   * Deletes a message that was created by the webhook. Returns a 204 NO CONTENT response on success.
+   * Deletes a message that was created by the webhook. Returns a `204 No Content` response on success.
    *
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
@@ -1695,8 +1768,13 @@ export class HttpClient {
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
-  deleteChannel(channelId: Snowflake): Promise<DeleteChannelBody> {
-    return this.delete(CHANNEL(channelId), `deleteChannel_${channelId}`);
+  deleteChannel(
+    channelId: Snowflake,
+    reason?: string,
+  ): Promise<DeleteChannelBody> {
+    return this.delete(CHANNEL(channelId), `deleteChannel_${channelId}`, {
+      reason,
+    });
   }
 
   /**
@@ -1746,12 +1824,14 @@ export class HttpClient {
     channelId: Snowflake,
     overwriteId: Snowflake,
     data: EditChannelPermissionsData,
+    reason?: string,
   ): Promise<EditChannelPermissionsBody> {
     return this.put(
       CHANNEL_PERMISSION(channelId, overwriteId),
       `editChannelPermissions_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -1770,12 +1850,14 @@ export class HttpClient {
     interactionToken: string,
     messageId: Snowflake,
     data: EditFollowupMessageData,
+    files?: File[],
   ): Promise<EditFollowupMessageBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId),
       `editFollowupMessage_${interactionToken}`,
       {
         data,
+        files,
       },
     );
   }
@@ -1857,12 +1939,14 @@ export class HttpClient {
     channelId: Snowflake,
     messageId: Snowflake,
     data: EditMessageData,
+    files?: File[],
   ): Promise<EditMessageBody> {
     return this.patch(
       CHANNEL_MESSAGE(channelId, messageId),
       `editMessage_${channelId}`,
       {
         data,
+        files,
       },
     );
   }
@@ -1879,12 +1963,14 @@ export class HttpClient {
     applicationId: Snowflake,
     interactionToken: string,
     data: EditOriginalInteractionResponseData,
+    files?: File[],
   ): Promise<EditOriginalInteractionResponseBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken),
       `editOriginalInteractionResponse_${interactionToken}`,
       {
         data,
+        files,
       },
     );
   }
@@ -1915,6 +2001,7 @@ export class HttpClient {
     messageId: Snowflake,
     data: EditWebhookMessageData,
     query: EditWebhookMessageQuery,
+    files?: File[],
   ): Promise<EditWebhookMessageBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId),
@@ -1922,6 +2009,7 @@ export class HttpClient {
       {
         data,
         query,
+        files,
       },
     );
   }
@@ -1986,6 +2074,7 @@ export class HttpClient {
     webhookToken: string,
     data: ExecuteWebhookData,
     query: ExecuteWebhookQuery,
+    files?: File[],
   ): Promise<ExecuteWebhookBody> {
     return this.post(
       WEBHOOK_TOKEN(webhookId, webhookToken),
@@ -1993,6 +2082,7 @@ export class HttpClient {
       {
         data,
         query,
+        files,
       },
     );
   }
@@ -2149,6 +2239,22 @@ export class HttpClient {
    */
   getCurrentUser(): Promise<GetCurrentUserBody> {
     return this.get(USER_ME, "getCurrentUser");
+  }
+
+  /**
+   * https://discord.dev/resources/user#get-current-user-guild-member
+   *
+   * Returns a [guild member](https://discord.dev/resources/guild#guild-member-object) object for the current user. Requires the `guilds.members.read` OAuth2 scope.
+   *
+   * @param guildId https://discord.dev/resources/guild#guild-object
+   */
+  getCurrentUserGuildMember(
+    guildId: Snowflake,
+  ): Promise<GetCurrentUserGuildMemberBody> {
+    return this.get(
+      USER_ME_GUILD_MEMBER(guildId),
+      `getCurrentUserGuildMember_${guildId}`,
+    );
   }
 
   /**
@@ -2461,7 +2567,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#get-guild-preview
    *
-   * Returns the [guild preview](https://discord.dev/resources/guild#guild-preview-object) object for the given id. If the user is not in the guild, then the guild must be lurkable (it must be Discoverable or have a [live public stage](https://discord.dev/resources/stage/instance#definitions)).
+   * Returns the [guild preview](https://discord.dev/resources/guild#guild-preview-object) object for the given id. If the user is not in the guild, then the guild must be lurkable.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -2522,9 +2628,6 @@ export class HttpClient {
 
   /**
    * https://discord.dev/resources/guild-scheduled-event#get-guild-scheduled-event-users
-   *
-   * > warn
-   * > A breaking change was introduced for this endpoint on Thursday Nov 18, 2021 after the initial publication of this documentation in which the return type was changed in response to developer feedback. We apologize for the inconvenience and additional work this creates for developers.
    *
    * Get a list of guild scheduled event users subscribed to a guild scheduled event. Returns a list of [guild scheduled event user](https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-user-object) objects on success. Guild member data, if it exists, is included if the `with_member` query parameter is set.
    *
@@ -3137,9 +3240,11 @@ export class HttpClient {
   modifyChannel(
     channelId: Snowflake,
     data: ModifyChannelData,
+    reason?: string,
   ): Promise<ModifyChannelBody> {
     return this.patch(CHANNEL(channelId), `modifyChannel_${channelId}`, {
       data,
+      reason,
     });
   }
 
@@ -3156,12 +3261,14 @@ export class HttpClient {
   modifyCurrentMember(
     guildId: Snowflake,
     data: ModifyCurrentMemberData,
+    reason?: string,
   ): Promise<ModifyCurrentMemberBody> {
     return this.patch(
       GUILD_MEMBER_ME(guildId),
       `modifyCurrentMember_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3198,12 +3305,14 @@ export class HttpClient {
   modifyCurrentUserNick(
     guildId: Snowflake,
     data: ModifyCurrentUserNickData,
+    reason?: string,
   ): Promise<ModifyCurrentUserNickBody> {
     return this.patch(
       GUILD_MEMBER_ME_NICK(guildId),
       `modifyCurrentUserNick_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3244,9 +3353,11 @@ export class HttpClient {
   modifyGuild(
     guildId: Snowflake,
     data: ModifyGuildData,
+    reason?: string,
   ): Promise<ModifyGuildBody> {
     return this.patch(GUILD(guildId), `modifyGuild_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -3268,12 +3379,14 @@ export class HttpClient {
   modifyGuildChannelPositions(
     guildId: Snowflake,
     data: ModifyGuildChannelPositionsData,
+    reason?: string,
   ): Promise<ModifyGuildChannelPositionsBody> {
     return this.patch(
       GUILD_CHANNELS(guildId),
       `modifyGuildChannelPositions_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3296,12 +3409,14 @@ export class HttpClient {
     guildId: Snowflake,
     emojiId: Snowflake,
     data: ModifyGuildEmojiData,
+    reason?: string,
   ): Promise<ModifyGuildEmojiBody> {
     return this.patch(
       GUILD_EMOJI(guildId, emojiId),
       `modifyGuildEmoji_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3324,12 +3439,14 @@ export class HttpClient {
     guildId: Snowflake,
     userId: Snowflake,
     data: ModifyGuildMemberData,
+    reason?: string,
   ): Promise<ModifyGuildMemberBody> {
     return this.patch(
       GUILD_MEMBER(guildId, userId),
       `modifyGuildMember_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3352,12 +3469,14 @@ export class HttpClient {
     guildId: Snowflake,
     roleId: Snowflake,
     data: ModifyGuildRoleData,
+    reason?: string,
   ): Promise<ModifyGuildRoleBody> {
     return this.patch(
       GUILD_ROLE(guildId, roleId),
       `modifyGuildRole_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3377,12 +3496,14 @@ export class HttpClient {
   modifyGuildRolePositions(
     guildId: Snowflake,
     data: ModifyGuildRolePositionsData,
+    reason?: string,
   ): Promise<ModifyGuildRolePositionsBody> {
     return this.patch(
       GUILD_ROLES(guildId),
       `modifyGuildRolePositions_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3395,6 +3516,9 @@ export class HttpClient {
    * > info
    * > To start or end an event, use this endpoint to modify the event's [status](https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-status) field.
    *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
    * @param guildId https://discord.dev/resources/guild#guild-object
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
@@ -3402,12 +3526,14 @@ export class HttpClient {
     guildId: Snowflake,
     guildScheduledEventId: Snowflake,
     data: ModifyGuildScheduledEventData,
+    reason?: string,
   ): Promise<ModifyGuildScheduledEventBody> {
     return this.patch(
       GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId),
       `modifyGuildScheduledEvent_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3430,12 +3556,14 @@ export class HttpClient {
     guildId: Snowflake,
     stickerId: Snowflake,
     data: ModifyGuildStickerData,
+    reason?: string,
   ): Promise<ModifyGuildStickerBody> {
     return this.patch(
       GUILD_STICKER(guildId, stickerId),
       `modifyGuildSticker_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3478,12 +3606,14 @@ export class HttpClient {
   modifyGuildWelcomeScreen(
     guildId: Snowflake,
     data: ModifyGuildWelcomeScreenData,
+    reason?: string,
   ): Promise<ModifyGuildWelcomeScreenBody> {
     return this.patch(
       GUILD_WELCOME_SCREEN(guildId),
       `modifyGuildWelcomeScreen_${guildId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3501,9 +3631,11 @@ export class HttpClient {
   modifyGuildWidget(
     guildId: Snowflake,
     data: ModifyGuildWidgetData,
+    reason?: string,
   ): Promise<ModifyGuildWidgetBody> {
     return this.patch(GUILD_WIDGET(guildId), `modifyGuildWidget_${guildId}`, {
       data,
+      reason,
     });
   }
 
@@ -3522,12 +3654,14 @@ export class HttpClient {
   modifyStageInstance(
     channelId: Snowflake,
     data: ModifyStageInstanceData,
+    reason?: string,
   ): Promise<ModifyStageInstanceBody> {
     return this.patch(
       STAGE_INSTANCE(channelId),
       `modifyStageInstance_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3612,10 +3746,14 @@ export class HttpClient {
   pinMessage(
     channelId: Snowflake,
     messageId: Snowflake,
+    reason?: string,
   ): Promise<PinMessageBody> {
     return this.put(
       CHANNEL_PIN(channelId, messageId),
       `pinMessage_${channelId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -3633,8 +3771,15 @@ export class HttpClient {
   removeGuildBan(
     guildId: Snowflake,
     userId: Snowflake,
+    reason?: string,
   ): Promise<RemoveGuildBanBody> {
-    return this.delete(GUILD_BAN(guildId, userId), `removeGuildBan_${guildId}`);
+    return this.delete(
+      GUILD_BAN(guildId, userId),
+      `removeGuildBan_${guildId}`,
+      {
+        reason,
+      },
+    );
   }
 
   /**
@@ -3651,10 +3796,14 @@ export class HttpClient {
   removeGuildMember(
     guildId: Snowflake,
     userId: Snowflake,
+    reason?: string,
   ): Promise<RemoveGuildMemberBody> {
     return this.delete(
       GUILD_MEMBER(guildId, userId),
       `removeGuildMember_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -3674,10 +3823,14 @@ export class HttpClient {
     guildId: Snowflake,
     userId: Snowflake,
     roleId: Snowflake,
+    reason?: string,
   ): Promise<RemoveGuildMemberRoleBody> {
     return this.delete(
       GUILD_MEMBER_ROLE(guildId, userId, roleId),
       `removeGuildMemberRole_${guildId}`,
+      {
+        reason,
+      },
     );
   }
 
@@ -3739,12 +3892,14 @@ export class HttpClient {
     channelId: Snowflake,
     messageId: Snowflake,
     data: StartThreadWithMessageData,
+    reason?: string,
   ): Promise<StartThreadWithMessageBody> {
     return this.post(
       CHANNEL_MESSAGE_THREADS(channelId, messageId),
       `startThreadWithMessage_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3762,12 +3917,14 @@ export class HttpClient {
   startThreadWithoutMessage(
     channelId: Snowflake,
     data: StartThreadWithoutMessageData,
+    reason?: string,
   ): Promise<StartThreadWithoutMessageBody> {
     return this.post(
       CHANNEL_THREADS(channelId),
       `startThreadWithoutMessage_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -3820,10 +3977,14 @@ export class HttpClient {
   unpinMessage(
     channelId: Snowflake,
     messageId: Snowflake,
+    reason?: string,
   ): Promise<UnpinMessageBody> {
     return this.delete(
       CHANNEL_PIN(channelId, messageId),
       `unpinMessage_${channelId}`,
+      {
+        reason,
+      },
     );
   }
   //#endregion methods

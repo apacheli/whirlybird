@@ -1,5 +1,6 @@
 // deno-lint-ignore-file camelcase
 
+import type { PartialExcept } from "../../../util/src/types.ts";
 import type { ApplicationCommand } from "../interactions/application_commands.ts";
 import type { Interaction } from "../interactions/receiving_and_responding.ts";
 import type { Snowflake } from "../reference.ts";
@@ -521,7 +522,10 @@ export type DispatchPayloadThreadMemberUpdate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#thread-member-update */
-export type DispatchPayloadThreadMemberUpdateData = ThreadMember;
+export type DispatchPayloadThreadMemberUpdateData = ThreadMember & {
+  /** the id of the guild */
+  guild_id?: Snowflake;
+};
 
 /** https://discord.dev/topics/gateway#thread-members-update */
 export type DispatchPayloadThreadMembersUpdate = BaseDispatchPayload<
@@ -886,7 +890,10 @@ export type DispatchPayloadMessageUpdate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#message-update */
-export type DispatchPayloadMessageUpdateData = Message;
+export type DispatchPayloadMessageUpdateData = PartialExcept<
+  Message,
+  "id" | "channel_id"
+>;
 
 /** https://discord.dev/topics/gateway#message-delete */
 export type DispatchPayloadMessageDelete = BaseDispatchPayload<

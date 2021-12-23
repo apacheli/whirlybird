@@ -400,6 +400,8 @@ export enum DataErrorCodes {
   ActionNeedsServerMonetization = 50097,
   /** This server needs more boosts to perform this action */
   ActionNeedsMoreBoosts = 50101,
+  /** The request body contains invalid JSON. */
+  InvalidJson = 50109,
   //#endregion 5xxxx
 
   //#region 6xxxx
@@ -442,7 +444,7 @@ export enum DataErrorCodes {
 
   //#region 17xxxx
   /** Invalid JSON for uploaded Lottie file */
-  InvalidLottieJSON = 170001,
+  InvalidLottieJson = 170001,
   /** Uploaded Lotties cannot contain rasterized images such as PNG or JPEG */
   LottieRasterized,
   /** Sticker maximum framerate exceeded */

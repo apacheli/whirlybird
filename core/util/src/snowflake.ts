@@ -12,6 +12,5 @@ export const internalProcessId = (snowflake: bigint) =>
 export const increment = (snowflake: bigint) => snowflake & 0xFFFn;
 
 /** Generate a snowflake */
-export const generate = (
-  timestamp = BigInt(Date.now()),
-) => ((timestamp - DISCORD_EPOCH) << 22n);
+export const generate = (timestamp = BigInt(Date.now())) =>
+  (timestamp - DISCORD_EPOCH) << 22n;

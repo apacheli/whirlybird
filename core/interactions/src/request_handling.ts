@@ -6,6 +6,7 @@ import {
   SIGNATURE,
   TIMESTAMP,
 } from "../../types/src/interactions/receiving_and_responding.ts";
+import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import { hexDecode } from "../../util/src/hex_endec.ts";
 import { utf8Encode } from "../../util/src/utf8_endec.ts";
 import { verify } from "../deps.ts";
@@ -35,19 +36,19 @@ export const handleRequestEvent = async (
     request.headers.get("Content-Type") !== "application/json" ||
     request.method !== "POST"
   ) {
-    return respond("Bad Request", 400);
+    return respond("Bad Request", HttpResponseCodes.BadRequest);
   }
 
   const body = await request.text();
 
   if (!validateRequest(publicKey, signature, timestamp, body)) {
-    return respond("Unauthorized", 401);
+    return respond("Unauthorized", HttpResponseCodes.Unauthorized);
   }
 
   const interaction: Interaction = JSON.parse(body);
 
   const callback: Callback = (type, data) =>
-    respond(JSON.stringify({ data, type }), 200, {
+    respond(JSON.stringify({ data, type }), HttpResponseCodes.Ok, {
       "Content-Type": "application/json",
     });
 
@@ -64,7 +65,7 @@ export const handleRequestEvent = async (
   }
 };
 
-/** Check the validity of a request */
+/** Check if a request is valid */
 export const validateRequest = (
   publicKey: string,
   signature: string,
