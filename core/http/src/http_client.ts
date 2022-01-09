@@ -408,8 +408,8 @@ export const encodeQuery = (query?: Record<string, string>) => {
 };
 
 export class HttpClient {
-  buckets: Record<string, string | undefined> = Object.create(null);
-  rateLimits: Record<string, RateLimit | undefined> = Object.create(null);
+  buckets = new Map<string, string>();
+  rateLimits = new Map<string, RateLimit>();
 
   #token;
 
@@ -454,9 +454,9 @@ export class HttpClient {
 
     const index = bucketKey.indexOf("_");
     const parameters = index > -1 ? bucketKey.substring(index) : "";
-    const bucket = this.buckets[bucketKey];
+    const bucket = this.buckets.get(bucketKey);
 
-    let rateLimit = bucket ? this.rateLimits[bucket + parameters] : void 0;
+    let rateLimit = bucket ? this.rateLimits.get(bucket + parameters) : void 0;
 
     if (rateLimit?.rateLimited) {
       await rateLimit.sleep();
@@ -504,8 +504,11 @@ export class HttpClient {
         );
       }
 
-      this.buckets[bucketKey] = bucketNew;
-      rateLimit = this.rateLimits[bucketNew + parameters] ??= new RateLimit();
+      this.buckets.set(bucketKey, bucketNew);
+      this.rateLimits.set(
+        bucketNew + parameters,
+        rateLimit ??= new RateLimit(),
+      );
       rateLimit.update(
         parseInt(response.headers.get(X_RATELIMIT_LIMIT)!),
         resetAfter,
@@ -522,7 +525,6 @@ export class HttpClient {
       }
 
       rateLimit.next();
-
       break;
     }
 

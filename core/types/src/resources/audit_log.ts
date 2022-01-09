@@ -13,7 +13,7 @@ import type {
   DefaultMessageNotificationLevel,
   ExplicitContentFilterLevel,
   Integration,
-  MFALevel,
+  MfaLevel,
   VerificationLevel,
 } from "./guild.ts";
 import type {
@@ -220,7 +220,7 @@ export interface AuditLogChangeKey {
   /** role is now mentionable/unmentionable */
   mentionable: boolean;
   /** two-factor auth requirement changed */
-  mfa_level: MFALevel;
+  mfa_level: MfaLevel;
   /** user server muted/unmuted */
   mute: boolean;
   /** name changed */

@@ -22,20 +22,16 @@ $ BOT_TOKEN=""\
 
 More examples are available [here](examples).
 
-`deps.ts`:
+Importing the Whirlybird core modules into your program:
 
 ```ts
-export * from "https://github.com/apacheli/whirlybird/raw/dev/core/cache/mod.ts";
 export * from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
 export * from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
 export * from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
 ```
 
-`main.ts`:
-
 ```ts
 import {
-  CacheClient,
   GatewayClient,
   GatewayEvents,
   GatewayIntents,
@@ -45,13 +41,9 @@ import {
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
-const cache = new CacheClient();
-
 const http = new HttpClient(token);
 
 const handleEvent: HandleEvent = async (payload) => {
-  cache.update(payload);
-
   switch (payload.t) {
     case GatewayEvents.MessageCreate: {
       if (payload.d.content === "!ping") {
@@ -98,8 +90,9 @@ respective READMEs.
 - [Discord Developer Documentation](https://discord.dev/)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org/)
+- [Whirlybird Wiki](https://github.com/apacheli/whirlybird/wiki)
 
 Feel free to come hang out with us at the
-[Whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! All participating
+[Whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! (All participating
 members must abide by the terms of the
-[Whirlybird code of conduct](CODE_OF_CONDUCT.md).
+[Whirlybird code of conduct](CODE_OF_CONDUCT.md).)
