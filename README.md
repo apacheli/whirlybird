@@ -38,9 +38,7 @@ import {
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
-const cache = new CacheClient({
-  messages: true,
-});
+const cache = new CacheClient();
 const http = new HttpClient(token);
 
 const handleEvent: HandleEvent = async (payload) => {
