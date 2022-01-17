@@ -6,7 +6,6 @@ import { GatewayEvents, GatewayIntents } from "../core/types/mod.ts";
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
 const cache = new CacheClient();
-
 const http = new HttpClient(token);
 
 const handleEvent: HandleEvent = async (payload) => {
@@ -25,9 +24,9 @@ const handleEvent: HandleEvent = async (payload) => {
 };
 
 const gateway = new GatewayClient(token, {
-  allShardsReady: () => console.log("Hello, World!"),
   handleEvent,
   intents: GatewayIntents.GuildMessages,
+  ready: () => console.log("Hello, World!"),
   url: "wss://gateway.discord.gg?v=9",
 });
 

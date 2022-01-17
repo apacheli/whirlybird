@@ -95,6 +95,8 @@ export interface Guild {
   presences?: DispatchPayloadPresenceUpdateData[];
   /** the maximum number of presences for the guild (the default value, currently 25000, is in effect when `null` is returned) */
   max_presences?: number | null;
+  /** the maximum number of members for the guild */
+  max_members?: number;
   /** the vanity url code for the guild */
   vanity_url_code: string | null;
   /** the description of a Community guild */

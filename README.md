@@ -22,28 +22,30 @@ $ BOT_TOKEN=""\
 
 More examples are available [here](examples).
 
-Importing the Whirlybird core modules into your program:
+Using Whirlybird to power a Discord bot:
 
 ```ts
-export * from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
-export * from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
-export * from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
-```
-
-```ts
+import { CacheClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/cache/mod.ts";
 import {
   GatewayClient,
+  type HandleEvent,
+} from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts";
+import { HttpClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts";
+import {
   GatewayEvents,
   GatewayIntents,
-  type HandleEvent,
-  HttpClient,
-} from "./deps.ts";
+} from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
+const cache = new CacheClient({
+  messages: true,
+});
 const http = new HttpClient(token);
 
 const handleEvent: HandleEvent = async (payload) => {
+  cache.update(payload);
+
   switch (payload.t) {
     case GatewayEvents.MessageCreate: {
       if (payload.d.content === "!ping") {
@@ -57,9 +59,9 @@ const handleEvent: HandleEvent = async (payload) => {
 };
 
 const gateway = new GatewayClient(token, {
-  allShardsReady: () => console.log("Hello, World!"),
   handleEvent,
   intents: GatewayIntents.GuildMessages,
+  ready: () => console.log("Hello, World!"),
   url: "wss://gateway.discord.gg?v=9",
 });
 

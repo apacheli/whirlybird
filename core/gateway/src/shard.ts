@@ -13,6 +13,7 @@ import {
   GatewayCloseEventCodes,
   GatewayOpcodes,
 } from "../../types/src/topics/opcodes_and_status_codes.ts";
+import * as logger from "../../util/src/logger.ts";
 import { DiscordSocket } from "../../util/src/discord_socket.ts";
 import {
   REQUEST_GUILD_MEMBERS_DELAY,
@@ -57,8 +58,7 @@ export class Shard extends DiscordSocket {
   lastHeartbeatSentAt = -1;
   latency = -1;
   ready = false;
-  requestGuildMembersMap: Record<string, RequestGuildMembersMapEntry> = Object
-    .create(null);
+  requestGuildMembersMap = new Map<string, RequestGuildMembersMapEntry>();
   requestGuildMembersNonce = 0;
   seq = 0;
   sessionId?: string;
@@ -77,7 +77,18 @@ export class Shard extends DiscordSocket {
     this.#token = token;
   }
 
+  connect(url: string) {
+    logger.debug(`Shard ${this.id ?? "unknown"} is connecting to "${url}"`);
+
+    return super.connect(url);
+  }
+
   onSocketClose(event: CloseEvent) {
+    logger.error(
+      `Shard ${this.id} closed with code ${event.code} and`,
+      event.reason ? `with reason "${event.reason}"` : "no reason",
+    );
+
     clearInterval(this.heartbeatInterval);
     this.ready = false;
 
@@ -101,17 +112,21 @@ export class Shard extends DiscordSocket {
       }
     }
 
-    for (const nonce in this.requestGuildMembersMap) {
-      const entry = this.requestGuildMembersMap[nonce];
-      delete this.requestGuildMembersMap[nonce];
+    for (const entry of this.requestGuildMembersMap.values()) {
       clearTimeout(entry.timeout);
       entry.resolve(entry);
     }
+    this.requestGuildMembersMap.clear();
 
     this.options?.socketClose?.(event, state);
   }
 
-  onSocketError(event: Event) {
+  onSocketError(event: Event | ErrorEvent) {
+    logger.error(
+      `Shard ${this.id} encountered a socket error with`,
+      "message" in event ? `message "${event.message}"` : "no message",
+    );
+
     this.options?.socketError?.(event);
   }
 
@@ -127,7 +142,7 @@ export class Shard extends DiscordSocket {
             if (!payload.d.nonce) {
               break;
             }
-            const entry = this.requestGuildMembersMap[payload.d.nonce];
+            const entry = this.requestGuildMembersMap.get(payload.d.nonce);
             if (!entry) {
               break;
             }
@@ -140,7 +155,7 @@ export class Shard extends DiscordSocket {
             }
             if (payload.d.chunk_index + 1 === payload.d.chunk_count) {
               entry.done = true;
-              delete this.requestGuildMembersMap[payload.d.nonce];
+              this.requestGuildMembersMap.delete(payload.d.nonce);
               clearTimeout(entry.timeout);
               entry.resolve(entry);
             }
@@ -149,14 +164,23 @@ export class Shard extends DiscordSocket {
 
           case GatewayEvents.Ready: {
             this.id = payload.d.shard?.[0];
+            this.ready = true;
             this.sessionId = payload.d.session_id;
-          } /* falls through */
+
+            logger.info(
+              `Shard ${this.id} is authorized as application`,
+              `"${payload.d.application.id}" (${payload.d.guilds.length} guilds)`,
+            );
+            break;
+          }
 
           case GatewayEvents.Resumed: {
             this.ready = true;
+            logger.info(`Shard ${this.id} resumed their session`);
             break;
           }
         }
+
         break;
       }
 
@@ -278,10 +302,10 @@ export class Shard extends DiscordSocket {
     this.sendPayload(GatewayOpcodes.RequestGuildMembers, payload);
     return new Promise<RequestGuildMembersMapEntry>((resolve) => {
       const timeout = setTimeout(() => {
-        delete this.requestGuildMembersMap[nonce];
+        this.requestGuildMembersMap.delete(nonce);
         resolve(entry);
       }, delay ?? REQUEST_GUILD_MEMBERS_DELAY);
-      const entry = this.requestGuildMembersMap[nonce] = {
+      const entry = {
         done: false,
         members: [],
         presences: [],
@@ -289,6 +313,7 @@ export class Shard extends DiscordSocket {
         resolve,
         timeout,
       };
+      this.requestGuildMembersMap.set(nonce, entry);
     });
   }
 }

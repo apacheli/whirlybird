@@ -9,8 +9,8 @@ import { RateLimit } from "../../util/src/rate_limit.ts";
 import { SHARD_IDENTIFY_DELAY, ShardSocketCloseStates } from "./constants.ts";
 import { Shard, type ShardIdentifyData } from "./shard.ts";
 
-export type AllShardsReady = (shard: Shard) => void;
 export type HandleEvent = (payload: DispatchPayload, shard: Shard) => void;
+export type Ready = (shard: Shard) => void;
 export type ShardSocketClose = (
   event: CloseEvent,
   state: ShardSocketCloseStates,
@@ -22,12 +22,12 @@ export type ShardSocketError = (
 ) => void;
 
 export interface GatewayClientData extends ShardIdentifyData {
-  /** Call this function whenever all shards are ready. */
-  allShardsReady?: AllShardsReady;
   /** Handle an event */
   handleEvent?: HandleEvent;
   /** The number of shards allowed to identify every 5 seconds. */
   maxConcurrency?: number;
+  /** Call this function whenever all shards are ready. */
+  ready?: Ready;
   shardSocketClose?: ShardSocketClose;
   shardSocketError?: ShardSocketError;
   url: string;
@@ -71,7 +71,7 @@ export class GatewayClient {
 
     for (let i = 0; i < subtracted; i++) {
       const shard = this.shards[this.shards.length - subtracted + i];
-      await this.connectShard(shard);
+      await shard.connect(this.data.url);
       await this.identifyShard(shard);
     }
   }
@@ -80,11 +80,6 @@ export class GatewayClient {
     for (let i = 0; i < this.shards.length; i++) {
       this.shards[i].disconnect(code, reason);
     }
-  }
-
-  connectShard(shard: Shard) {
-    logger.debug(`Shard ${shard.id} is connecting`);
-    return shard.connect(this.data.url);
   }
 
   async identifyShard(shard: Shard) {
@@ -119,20 +114,15 @@ export class GatewayClient {
     state: ShardSocketCloseStates,
     shard: Shard,
   ) {
-    logger.error(
-      `Shard ${shard.id} closed with code ${event.code} and`,
-      event.reason ? `with reason "${event.reason}"` : "no reason",
-    );
-
     switch (state) {
       case ShardSocketCloseStates.Reconnectable: {
-        await this.connectShard(shard);
+        await shard.connect(this.data.url);
         await this.identifyShard(shard);
         break;
       }
 
       case ShardSocketCloseStates.Resumable: {
-        await this.connectShard(shard);
+        await shard.connect(this.data.url);
         shard.resume();
         break;
       }
@@ -141,29 +131,19 @@ export class GatewayClient {
     this.data.shardSocketClose?.(event, state, shard);
   }
 
-  onShardSocketError(event: Event | ErrorEvent, shard: Shard) {
-    logger.error(
-      `Shard ${shard.id} encountered a socket error with`,
-      "message" in event ? `message "${event.message}"` : "no message",
-    );
-
+  onShardSocketError(event: Event, shard: Shard) {
     this.data.shardSocketError?.(event, shard);
   }
 
-  /* async */ onShardPayload(payload: GatewayPayload, shard: Shard) {
+  onShardPayload(payload: GatewayPayload, shard: Shard) {
     switch (payload.op) {
       case GatewayOpcodes.Dispatch: {
         switch (payload.t) {
           case GatewayEvents.Ready:
           case GatewayEvents.Resumed: {
-            logger.info(
-              `Shard ${shard.id}`,
-              payload.t === GatewayEvents.Ready ? "is ready" : "resumed",
-            );
-
             if (this.shards.every((shard) => shard.ready)) {
-              logger.info("All shards are ready");
-              this.data.allShardsReady?.(shard);
+              logger.info("All shards are now ready");
+              this.data.ready?.(shard);
             }
             break;
           }
@@ -178,10 +158,11 @@ export class GatewayClient {
           `Shard ${shard.id} encountered an invalid session. Attempting to`,
           `${payload.d ? "resume the" : "identify a new"} session`,
         );
+
         if (payload.d) {
           shard.resume();
         } else {
-          /* await */ this.identifyShard(shard);
+          this.identifyShard(shard);
         }
         break;
       }
