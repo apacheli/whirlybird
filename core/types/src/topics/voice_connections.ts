@@ -54,14 +54,20 @@ export interface VoiceHelloPayloadData {
   heartbeat_interval: number;
 }
 
-/** https://discord.dev/topics/voice-connections#establishing-a-voice-udp-connection-example-select-protocol-payload */
-export type SelectProtocolPayload = BasePayload<
-  VoiceOpcodes.SelectProtocol,
-  SelectProtocolPayloadData
+export type VoiceHeartbeatPayload = BasePayload<VoiceOpcodes.Heartbeat, number>;
+export type VoiceHeartbeatAckPayload = BasePayload<
+  VoiceOpcodes.HeartbeatACK,
+  number
 >;
 
 /** https://discord.dev/topics/voice-connections#establishing-a-voice-udp-connection-example-select-protocol-payload */
-export interface SelectProtocolPayloadData {
+export type VoiceSelectProtocolPayload = BasePayload<
+  VoiceOpcodes.SelectProtocol,
+  VoiceSelectProtocolPayloadData
+>;
+
+/** https://discord.dev/topics/voice-connections#establishing-a-voice-udp-connection-example-select-protocol-payload */
+export interface VoiceSelectProtocolPayloadData {
   protocol: string;
   data: {
     address: string;
@@ -71,19 +77,19 @@ export interface SelectProtocolPayloadData {
 }
 
 /** https://discord.dev/topics/voice-connections#establishing-a-voice-udp-connection-example-session-description-payload */
-export type SessionDescriptionPayload = BasePayload<
+export type VoiceSessionDescriptionPayload = BasePayload<
   VoiceOpcodes.SessionDescription,
-  SessionDescriptionPayloadData
+  VoiceSessionDescriptionPayloadData
 >;
 
 /** https://discord.dev/topics/voice-connections#establishing-a-voice-udp-connection-example-session-description-payload */
-export interface SessionDescriptionPayloadData {
+export interface VoiceSessionDescriptionPayloadData {
   mode: EncryptionModes;
   secret_key: number[]; // 32 byte array
 }
 
 /** https://discord.dev/topics/voice-connections#speaking */
-export enum SpeakingFlags {
+export enum VoiceSpeakingFlags {
   /** Normal transmission of voice audio */
   Microphone = 1 << 0,
   /** Transmission of context audio for video, no speaking indicator */
@@ -93,14 +99,14 @@ export enum SpeakingFlags {
 }
 
 /** https://discord.dev/topics/voice-connections#speaking-example-speaking-payload */
-export type SpeakingPayload = BasePayload<
+export type VoiceSpeakingPayload = BasePayload<
   VoiceOpcodes.Speaking,
-  SpeakingPayloadData
+  VoiceSpeakingPayloadData
 >;
 
 /** https://discord.dev/topics/voice-connections#speaking-example-speaking-payload */
-export interface SpeakingPayloadData {
-  speaking: SpeakingFlags;
+export interface VoiceSpeakingPayloadData {
+  speaking: VoiceSpeakingFlags;
   delay: number;
   ssrc: number;
 }
@@ -122,3 +128,23 @@ export interface VoiceResumePayloadData {
   /** DispatchPayloadVoiceServerUpdateData.token */
   token: Snowflake;
 }
+
+/** This is `RESUMED` not `RESUME` just check in case */
+export type VoiceResumedPayload = BasePayload<VoiceOpcodes.Resumed, unknown>;
+export type VoiceClientDisconnectPayload = BasePayload<
+  VoiceOpcodes.ClientDisconnect,
+  unknown
+>;
+
+export type VoicePayload =
+  | VoiceIdentifyPayload
+  | VoiceSelectProtocolPayload
+  | VoiceReadyPayload
+  | VoiceHeartbeatPayload
+  | VoiceSessionDescriptionPayload
+  | VoiceSpeakingPayload
+  | VoiceHeartbeatAckPayload
+  | VoiceResumePayload
+  | VoiceHelloPayload
+  | VoiceResumedPayload
+  | VoiceClientDisconnectPayload;
