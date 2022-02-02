@@ -1,3 +1,4 @@
+import { requestData } from "../../http/src/request_data.ts";
 import {
   type Interaction,
   type InteractionCallbackData,
@@ -14,6 +15,7 @@ import { verify } from "../deps.ts";
 export type Callback = (
   type: InteractionCallbackType,
   data?: InteractionCallbackData,
+  files?: File[],
 ) => Promise<void>;
 
 export type Handler = (callback: Callback, interaction: Interaction) => void;
@@ -27,7 +29,7 @@ export const handleRequestEvent = async (
   const signature = request.headers.get(SIGNATURE);
   const timestamp = request.headers.get(TIMESTAMP);
 
-  const respond = (body: string, status: number, headers?: HeadersInit) =>
+  const respond = (body: BodyInit, status: number, headers?: HeadersInit) =>
     respondWith(new Response(body, { headers, status }));
 
   if (
@@ -47,10 +49,11 @@ export const handleRequestEvent = async (
 
   const interaction: Interaction = JSON.parse(body);
 
-  const callback: Callback = (type, data) =>
-    respond(JSON.stringify({ data, type }), HttpResponseCodes.Ok, {
-      "Content-Type": "application/json",
-    });
+  const callback: Callback = (type, data, files) => {
+    const { data: _data, contentType } = requestData({ data, type }, files);
+    const headers = contentType ? { "Content-Type": contentType } : undefined;
+    return respond(_data, HttpResponseCodes.Ok, headers);
+  };
 
   switch (interaction.type) {
     case InteractionType.Ping: {

@@ -280,6 +280,7 @@ import {
   USER_AGENT,
 } from "./constants.ts";
 import { HttpError } from "./http_error.ts";
+import { requestData } from "./request_data.ts";
 //#region
 import {
   APPLICATION_COMMAND,
@@ -433,19 +434,9 @@ export class HttpClient {
       headers["X-Audit-Log-Reason"] = options.reason;
     }
 
-    let data;
-    if (options?.files?.length) {
-      data = new FormData();
-      for (let i = 0; i < options.files.length; i++) {
-        const file = options.files[i];
-        data.append(`files[${i}]`, file, file.name);
-      }
-      if (options.data) {
-        data.append("payload_json", JSON.stringify(options.data));
-      }
-    } else if (options?.data) {
-      data = JSON.stringify(options.data);
-      headers["Content-Type"] = "application/json";
+    const { data, contentType } = requestData(options?.data, options?.files);
+    if (contentType !== undefined) {
+      headers["Content-Type"] = contentType;
     }
 
     const baseUrl = this.options?.baseUrl ?? BaseUrl;
