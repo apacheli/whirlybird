@@ -385,6 +385,7 @@ import {
 //#endregion
 
 export interface HttpClientOptions {
+  baseUrl?: string;
   delay?: number;
   maxRetries?: number;
   userAgent?: string;
@@ -447,7 +448,8 @@ export class HttpClient {
       headers["Content-Type"] = "application/json";
     }
 
-    let url = `${BaseUrl}/v${this.options?.version ?? HTTP_VERSION}${path}`;
+    const baseUrl = this.options?.baseUrl ?? BaseUrl;
+    let url = `${baseUrl}/v${this.options?.version ?? HTTP_VERSION}${path}`;
     if (options?.query) {
       url += encodeQuery(options.query as Record<string, string>);
     }

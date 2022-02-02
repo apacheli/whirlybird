@@ -168,8 +168,8 @@ export class Shard extends DiscordSocket {
             this.sessionId = payload.d.session_id;
 
             logger.info(
-              `Shard ${this.id} is authorized as application`,
-              `"${payload.d.application.id}" (${payload.d.guilds.length} guilds)`,
+              `Shard ${this.id} is authorized as application "${payload.d.application.id}"`,
+              `("${payload.d.user.username}#${payload.d.user.discriminator}")`,
             );
             break;
           }
