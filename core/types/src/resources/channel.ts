@@ -116,7 +116,7 @@ export interface GroupDMChannel
   name: string;
   /** the recipients of the DM */
   recipients: User[];
-  /** icon hash */
+  /** icon hash of the group DM */
   icon: string | null;
   /** id of the creator of the group DM or thread */
   owner_id: Snowflake;
@@ -314,6 +314,8 @@ export enum MessageFlags {
   Ephemeral = 1 << 6,
   /** this message is an Interaction Response and the bot is "thinking" */
   Loading = 1 << 7,
+  /** this message failed to mention some roles and add their members to the thread */
+  FailedToMentionSomeRolesInThread = 1 << 8,
 }
 
 /** https://discord.dev/resources/channel#message-reference-object */
@@ -644,6 +646,8 @@ export interface CreateMessageData {
   sticker_ids?: Snowflake[];
   /** attachment objects with filename and description */
   attachments?: Pick<Attachment, "description" | "filename" | "id">[];
+  /** [message flags](https://discord.dev/resources/channel#message-object-message-flags) combined as a [bitfield](https://en.wikipedia.org/wiki/Bit_field) (only `SUPPRESS_EMBEDS` and `EPHEMERAL` can be set) */
+  flags?: MessageFlags;
 }
 
 /** https://discord.dev/resources/channel#create-message */
@@ -707,9 +711,9 @@ export type BulkDeleteMessagesBody = void;
 /** https://discord.dev/resources/channel#edit-channel-permissions */
 export interface EditChannelPermissionsData {
   /** the bitwise value of all allowed permissions */
-  allow: Permissions;
+  allow?: Permissions | null;
   /** the bitwise value of all disallowed permissions */
-  deny: Permissions;
+  deny?: Permissions | null;
   /** 0 for a role or 1 for a member */
   type: OverwriteTypes;
 }

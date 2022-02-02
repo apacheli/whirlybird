@@ -292,6 +292,8 @@ export enum DataErrorCodes {
   MaximumPruneRequests,
   /** Maximum number of guild widget settings updates has been reached. Try again later */
   MaximumGuildWidgetSettingsUpdated = 30042,
+  /** Maximum number of edits to messages older than 1 hour reached. Try again later */
+  MaximumMessageEdits = 30046,
   //#endregion 3xxxx
 
   //#region 4xxxx
@@ -382,6 +384,8 @@ export enum DataErrorCodes {
   CannotRedeemGift = 50054,
   /** Invalid Guild */
   InvalidGuild,
+  /** Invalid message type */
+  InvalidMessageType = 50068,
   /** Payment source required to redeem gift */
   PaymentSourceRequiredToRedeemGift = 50070,
   /** Cannot delete a channel required for Community guilds */
@@ -394,6 +398,8 @@ export enum DataErrorCodes {
   InvalidThreadNotificationSettings,
   /** `before` value is earlier than the thread creation date */
   BeforeValueEarlierThanThread,
+  /** Community server channels must be text channels */
+  CommunityChannelsMustBeGuildText,
   /** This server is not available in your location */
   ServerNotAvailableInLocation = 50095,
   /** This server needs monetization enabled in order to perform this action */

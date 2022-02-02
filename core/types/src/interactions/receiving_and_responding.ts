@@ -7,6 +7,7 @@ import type {
   Channel,
   Embed,
   Message,
+  MessageFlags,
 } from "../resources/channel.ts";
 import type { GuildMember } from "../resources/guild.ts";
 import type { User } from "../resources/user.ts";
@@ -110,6 +111,8 @@ export interface MessageInteraction {
   name: string;
   /** the user who invoked the interaction */
   user: User;
+  /** the member who invoked the interaction in the guild */
+  member?: Partial<GuildMember>;
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object */
@@ -146,8 +149,8 @@ export interface InteractionCallbackData {
   embeds?: Embed[];
   /** [allowed mentions](https://discord.dev/resources/channel#allowed-mentions-object) object */
   allowed_mentions?: AllowedMentions;
-  /** [interaction application command callback data flags](https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags) */
-  flags?: InteractionCallbackDataFlags;
+  /** (https://discord.dev/resources/channel#message-object-message-flags) combined as a [bitfield](https://en.wikipedia.org/wiki/Bit_field) (only `SUPPRESS_EMBEDS` can be set) */
+  flags?: MessageFlags;
   /** message components */
   components?: ActionRow<Button | SelectMenu>[];
   /** attachment objects with filename and description */
@@ -158,12 +161,6 @@ export interface InteractionCallbackData {
 export interface Autocomplete {
   /** autocomplete choices (max of 25 choices) */
   choices: ApplicationCommandOptionChoice[];
-}
-
-/** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-flags */
-export enum InteractionCallbackDataFlags {
-  /** only the user receiving the message can see it */
-  Ephemeral = 1 << 6,
 }
 
 // deno-fmt-ignore-next-line

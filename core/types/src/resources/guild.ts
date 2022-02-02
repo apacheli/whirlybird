@@ -279,6 +279,8 @@ export interface GuildPreview {
   approximate_presence_count: number;
   /** the description for the guild, if the guild is discoverable */
   description: string | null;
+  /** custom guild stickers */
+  stickers: Sticker[];
 }
 
 /** https://discord.dev/resources/guild#guild-widget-object */
@@ -597,13 +599,13 @@ export type AddGuildMemberBody = GuildMember | void;
 export interface ModifyGuildMemberData extends ModifyCurrentUserNickData {
   /** array of role ids the member is assigned */
   roles?: Snowflake[] | null;
-  /** whether the user is muted in voice channels. Will throw a 400 if the user is not in a voice channel */
+  /** whether the user is muted in voice channels. Will throw a 400 error if the user is not in a voice channel */
   mute?: boolean | null;
-  /** whether the user is deafened in voice channels. Will throw a 400 if the user is not in a voice channel */
+  /** whether the user is deafened in voice channels. Will throw a 400 error if the user is not in a voice channel */
   deaf?: boolean | null;
   /** id of channel to move user to (if they are connected to voice) */
   channel_id?: Snowflake | null;
-  /** when the user's [timeout](https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ) will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to null to remove timeout */
+  /** when the user's [timeout](https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ) will expire and the user will be able to communicate in the guild again (up to 28 days in the future), set to null to remove timeout. Will throw a 403 error if the user has the ADMINISTRATOR permission or is the owner of the guild */
   communication_disabled_until?: string;
 }
 
@@ -735,11 +737,17 @@ export type ModifyGuildWidgetBody = GuildWidget;
 
 /** https://discord.dev/resources/guild#get-guild-widget */
 export interface GetGuildWidgetBody {
+  /** guild id */
   id: Snowflake;
+  /** guild name (2-100 characters) */
   name: string;
-  instant_invite: string;
+  /** instant invite for the guilds specified widget invite channel */
+  instant_invite: string | null;
+  /** voice and stage channels which are accessible by @everyone */
   channels: Partial<GuildChannel>[];
+  /** special widget user objects that includes users presence (Limit 100) */
   members: (User & { status: string; avatar_url: string })[];
+  /** number of online members in this guild */
   presence_count: number;
 }
 

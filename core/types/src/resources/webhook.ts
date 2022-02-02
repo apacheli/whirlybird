@@ -8,6 +8,7 @@ import type {
   Channel,
   Embed,
   Message,
+  MessageFlags,
 } from "./channel.ts";
 import type { Guild } from "./guild.ts";
 import type { User } from "./user.ts";
@@ -124,6 +125,8 @@ export interface ExecuteWebhookData {
   components?: Component[];
   /** attachment objects with filename and description */
   attachments?: Pick<Attachment, "description" | "filename">[];
+  /** [message flags](https://discord.dev/resources/channel#message-object-message-flags) combined as a [bitfield](https://en.wikipedia.org/wiki/Bit_field) (only `SUPPRESS_EMBEDS` can be set) */
+  flags?: MessageFlags;
 }
 
 /** https://discord.dev/resources/webhook#execute-webhook */

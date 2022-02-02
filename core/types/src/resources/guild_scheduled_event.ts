@@ -38,6 +38,8 @@ export interface GuildScheduledEvent {
   creator?: User;
   /** the number of users subscribed to the scheduled event */
   user_count?: number;
+  /** the [cover image hash](https://discord.dev/reference#image-formatting) of the scheduled event */
+  image: string | null;
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level */
@@ -103,6 +105,8 @@ export interface CreateGuildScheduledEventData {
   description: string;
   /** the entity type of the scheduled event */
   entity_type: GuildScheduledEventEntityTypes;
+  /** the cover image of the scheduled event */
+  image?: string;
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#create-guild-scheduled-event */

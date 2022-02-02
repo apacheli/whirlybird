@@ -79,7 +79,7 @@ export const BitwisePermissionFlags = {
   ManageEvents: 1n << 33n,
   /** Allows for deleting and archiving threads, and viewing all private threads */
   ManageThreads: 1n << 34n,
-  /** Allows for creating threads */
+  /** Allows for creating public and announcement threads */
   CreatePublicThreads: 1n << 35n,
   /** Allows for creating private threads */
   CreatePrivateThreads: 1n << 36n,
