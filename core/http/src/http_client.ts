@@ -273,6 +273,7 @@ import {
 import * as logger from "../../util/src/logger.ts";
 import { RateLimit } from "../../util/src/rate_limit.ts";
 import { sleep } from "../../util/src/sleep.ts";
+import { buildRequestBody } from "./build_request_body.ts";
 import {
   HTTP_VERSION,
   MAX_RETRIES,
@@ -280,7 +281,6 @@ import {
   USER_AGENT,
 } from "./constants.ts";
 import { HttpError } from "./http_error.ts";
-import { requestData } from "./request_data.ts";
 //#region
 import {
   APPLICATION_COMMAND,
@@ -434,13 +434,14 @@ export class HttpClient {
       headers["X-Audit-Log-Reason"] = options.reason;
     }
 
-    const { data, contentType } = requestData(options?.data, options?.files);
-    if (contentType !== undefined) {
-      headers["Content-Type"] = contentType;
+    const data = buildRequestBody(options?.data, options?.files);
+    if (!options?.files?.length) {
+      headers["Content-Type"] = "application/json";
     }
 
     const baseUrl = this.options?.baseUrl ?? BaseUrl;
-    let url = `${baseUrl}/v${this.options?.version ?? HTTP_VERSION}${path}`;
+    const version = this.options?.version ?? HTTP_VERSION;
+    let url = `${baseUrl}/v${version}${path}`;
     if (options?.query) {
       url += encodeQuery(options.query as Record<string, string>);
     }

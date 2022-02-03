@@ -16,27 +16,32 @@ import {
 } from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts";
 import { InteractionCallbackType } from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
 
-const publicKey = Deno.env.get("PUBLIC_KEY")!;
+const publicKey = Deno.env.get("PUBLIC_KEY") ?? prompt("public key:");
+if (!publicKey) {
+  throw new Error("Missing public key");
+}
 
-const handler: Handler = (callback, interaction) => {
+const handler: Handler = async (callback, interaction) => {
   if (interaction.data?.name === "ping") {
-    callback(InteractionCallbackType.ChannelMessageWithSource, {
+    await callback(InteractionCallbackType.ChannelMessageWithSource, {
       content: "pong",
     });
   }
 };
 
+const serve = async () => {
+  for await (const event of Deno.serveHttp(conn)) {
+    handleRequestEvent(publicKey, event, handler);
+  }
+};
+
 for await (const conn of Deno.listen({ port: 1337 })) {
-  (async () => {
-    for await (const event of Deno.serveHttp(conn)) {
-      handleRequestEvent(publicKey, event, handler);
-    }
-  })();
+  serve(conn);
 }
 ```
 
-Whirlybird also has built-in utilities that make building commands and
-components easier. It's entirely optional if you prefer them.
+Whirlybird also provides built-in utilities to help make building commands and
+message components easier. It's entirely optional if you prefer them.
 
 Application command utility example:
 

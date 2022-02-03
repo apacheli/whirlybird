@@ -22,6 +22,9 @@ const gateway = new GatewayClient(token, {
     console.log(`Got an event: ${payload.t}`);
   },
   intents: GatewayIntents.GuildMessages,
+  ready: () => {
+    console.log("All shards on this client are now ready");
+  },
   url: "wss://gateway.discord.gg?v=9",
 });
 

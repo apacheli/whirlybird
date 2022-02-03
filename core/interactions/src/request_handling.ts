@@ -1,4 +1,4 @@
-import { requestData } from "../../http/src/request_data.ts";
+import { buildRequestBody } from "../../http/src/build_request_body.ts";
 import {
   type Interaction,
   type InteractionCallbackData,
@@ -49,15 +49,16 @@ export const handleRequestEvent = async (
 
   const interaction: Interaction = JSON.parse(body);
 
-  const callback: Callback = (type, data, files) => {
-    const { data: _data, contentType } = requestData({ data, type }, files);
-    const headers = contentType ? { "Content-Type": contentType } : undefined;
-    return respond(_data, HttpResponseCodes.Ok, headers);
-  };
+  const callback: Callback = (type, data, files) =>
+    respond(
+      buildRequestBody({ data, type }, files),
+      HttpResponseCodes.Ok,
+      files?.length ? undefined : { "Content-Type": "application/json" },
+    );
 
   switch (interaction.type) {
     case InteractionType.Ping: {
-      callback(InteractionCallbackType.Pong);
+      await callback(InteractionCallbackType.Pong);
       break;
     }
 

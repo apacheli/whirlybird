@@ -36,7 +36,11 @@ import {
   GatewayIntents,
 } from "https://github.com/apacheli/whirlybird/raw/dev/core/types/mod.ts";
 
-const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
+let token = Deno.env.get("BOT_TOKEN") ?? prompt("bot token:");
+if (!token) {
+  throw new Error("Missing token");
+}
+token = `Bot ${token}`;
 
 const cache = new CacheClient();
 const http = new HttpClient(token);
