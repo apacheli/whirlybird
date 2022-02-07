@@ -5,10 +5,11 @@
 
 ### About
 
-Whirlybird is a collection of low-level [Deno](https://deno.land/) modules for
-interacting with the [Discord API](https://discord.dev/). Whirlybird aims to
-provide end-users as much control over their application as possible while also
-doing the complicated bits to improve the overall development experience.
+_whirlybird_ ([/wɜrlibɜrd/](http://ipa-reader.xyz/?text=w%C9%9Crlib%C9%9Crd)) is
+a collection of low-level [Deno](https://deno.land/) modules for interacting
+with the [Discord API](https://discord.dev/). whirlybird aims to provide
+end-users as much control over their application as possible while also doing
+the complicated bits to improve the overall development experience.
 
 ### Getting Started
 
@@ -22,7 +23,7 @@ $ BOT_TOKEN=""\
 
 More examples are available [here](examples).
 
-Using Whirlybird to power a Discord bot:
+Using whirlybird to power a Discord bot:
 
 ```ts
 import { CacheClient } from "https://github.com/apacheli/whirlybird/raw/dev/core/cache/mod.ts";
@@ -87,6 +88,7 @@ respective READMEs.
 - [`core/interactions`](core/interactions)
 - [`core/types`](core/types)
 - [`core/util`](core/util)
+- [`core/voice`](core/voice)
 
 ### Resources
 

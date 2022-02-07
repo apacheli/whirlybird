@@ -3,7 +3,11 @@ import { GatewayClient, type HandleEvent } from "../core/gateway/mod.ts";
 import { HttpClient } from "../core/http/mod.ts";
 import { GatewayEvents, GatewayIntents } from "../core/types/mod.ts";
 
-const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
+let token = Deno.env.get("BOT_TOKEN") ?? prompt("bot token:");
+if (!token) {
+  throw new Error("Missing token");
+}
+token = `Bot ${token}`;
 
 const cache = new CacheClient();
 const http = new HttpClient(token);

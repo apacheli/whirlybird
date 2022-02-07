@@ -9,6 +9,7 @@ import {
 } from "../../types/src/interactions/receiving_and_responding.ts";
 import { HttpResponseCodes } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import { hexDecode } from "../../util/src/hex_endec.ts";
+import type { Awaitable } from "../../util/src/types.ts";
 import { utf8Encode } from "../../util/src/utf8_endec.ts";
 import { verify } from "../deps.ts";
 
@@ -18,7 +19,10 @@ export type Callback = (
   files?: File[],
 ) => Promise<void>;
 
-export type Handler = (callback: Callback, interaction: Interaction) => void;
+export type Handler = (
+  callback: Callback,
+  interaction: Interaction,
+) => Awaitable<void>;
 
 /** Handle a request event */
 export const handleRequestEvent = async (
@@ -38,13 +42,13 @@ export const handleRequestEvent = async (
     request.headers.get("Content-Type") !== "application/json" ||
     request.method !== "POST"
   ) {
-    return respond("Bad Request", HttpResponseCodes.BadRequest);
+    return respond("400 Bad Request", HttpResponseCodes.BadRequest);
   }
 
   const body = await request.text();
 
   if (!validateRequest(publicKey, signature, timestamp, body)) {
-    return respond("Unauthorized", HttpResponseCodes.Unauthorized);
+    return respond("401 Unauthorized", HttpResponseCodes.Unauthorized);
   }
 
   const interaction: Interaction = JSON.parse(body);
@@ -56,16 +60,10 @@ export const handleRequestEvent = async (
       files?.length ? undefined : { "Content-Type": "application/json" },
     );
 
-  switch (interaction.type) {
-    case InteractionType.Ping: {
-      await callback(InteractionCallbackType.Pong);
-      break;
-    }
-
-    default: {
-      handler(callback, interaction);
-      break;
-    }
+  if (interaction.type === InteractionType.Ping) {
+    await callback(InteractionCallbackType.Pong);
+  } else {
+    await handler(callback, interaction);
   }
 };
 

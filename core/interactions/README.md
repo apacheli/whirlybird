@@ -29,7 +29,7 @@ const handler: Handler = async (callback, interaction) => {
   }
 };
 
-const serve = async () => {
+const serve = async (conn: Deno.Conn) => {
   for await (const event of Deno.serveHttp(conn)) {
     handleRequestEvent(publicKey, event, handler);
   }
