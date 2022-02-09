@@ -1,7 +1,6 @@
 // deno-lint-ignore-file camelcase
 
-import type { AcceptedLocales } from "../dispatch/field_values.ts";
-import type { Snowflake } from "../reference.ts";
+import type { AcceptedLocales, Snowflake } from "../reference.ts";
 
 // https://discord.dev/game-sdk/achievements
 

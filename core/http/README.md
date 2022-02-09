@@ -7,7 +7,7 @@
 
 An implementation for the Discord HTTP API. This allows end-users to execute
 most actions (such as creating and deleting messages) programmatically.
-Whirlybird will also automatically handles rate limits.
+whirlybird will also automatically handles rate limits.
 
 ### Getting Started
 
@@ -26,6 +26,8 @@ await http.createMessage("826605722397442089", {
   content: "Hello, World!",
 });
 ```
+
+### Documentation
 
 The generated documentation is available
 [here](https://doc.deno.land/https://github.com/apacheli/whirlybird/raw/dev/core/http/mod.ts).

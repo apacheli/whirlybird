@@ -1,5 +1,4 @@
-import type { AcceptedLocales } from "../../types/src/dispatch/field_values.ts";
-import type { Snowflake } from "../../types/src/reference.ts";
+import type { AcceptedLocales, Snowflake } from "../../types/src/reference.ts";
 import type {
   GuildChannel,
   ThreadChannel,

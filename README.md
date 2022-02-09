@@ -96,9 +96,9 @@ respective READMEs.
 - [Discord Developer Documentation](https://discord.dev/)
 - [JavaScript](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Whirlybird Wiki](https://github.com/apacheli/whirlybird/wiki)
+- [whirlybird Wiki](https://github.com/apacheli/whirlybird/wiki)
 
 Feel free to come hang out with us at the
-[Whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! (All participating
+[whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! (All participating
 members must abide by the terms of the
-[Whirlybird code of conduct](CODE_OF_CONDUCT.md).)
+[whirlybird code of conduct](CODE_OF_CONDUCT.md).)

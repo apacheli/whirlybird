@@ -76,7 +76,7 @@ export class GatewayClient {
     }
   }
 
-  disconnect(code = 3000, reason = "Whirlybird disconnect") {
+  disconnect(code = 3000, reason = "whirlybird disconnect") {
     for (let i = 0; i < this.shards.length; i++) {
       this.shards[i].disconnect(code, reason);
     }

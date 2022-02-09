@@ -33,8 +33,8 @@ await gateway.connect();
 
 ### Sharding
 
-Although Whirlybird does support sharding, the current implementation is very
-bare-bones. Whirlybird will support clusters and make integrating with
+Although whirlybird does support sharding, the current implementation is very
+bare-bones. whirlybird will support clusters and make integrating with
 [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers)
 easier sometime in the future.
 
@@ -47,7 +47,7 @@ await gateway.connect({
 ```
 
 Connect 4 shards with identifiers ranging from 0-3 to the Discord gateway.
-Whirlybird will automatically tell Discord that 4 shards are to connecting:
+whirlybird will automatically tell Discord that 4 shards are to connecting:
 
 ```ts
 await gateway.connect({
@@ -66,6 +66,8 @@ await gateway.connect({
   shards: 6,
 });
 ```
+
+### Documentation
 
 The generated documentation is available
 [here](https://doc.deno.land/https://github.com/apacheli/whirlybird/raw/dev/core/gateway/mod.ts).

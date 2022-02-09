@@ -40,7 +40,7 @@ for await (const conn of Deno.listen({ port: 1337 })) {
 }
 ```
 
-Whirlybird also provides built-in utilities to help make building commands and
+whirlybird also provides built-in utilities to help make building commands and
 message components easier. It's entirely optional if you prefer them.
 
 Application command utility example:
@@ -91,6 +91,8 @@ await callback(InteractionCallbackType.ChannelMessageWithSource, {
   content: "wow components are so cool",
 });
 ```
+
+### Documentation
 
 The generated documentation is available
 [here](https://doc.deno.land/https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts).

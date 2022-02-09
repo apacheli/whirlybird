@@ -1,8 +1,7 @@
 // deno-lint-ignore-file camelcase
 
 import type { Nullable } from "../../../util/mod.ts";
-import type { AcceptedLocales } from "../dispatch/field_values.ts";
-import type { Snowflake } from "../reference.ts";
+import type { AcceptedLocales, Snowflake } from "../reference.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../topics/gateway.ts";
 import type { Permissions, Role } from "../topics/permissions.ts";
 import type { Application } from "./application.ts";

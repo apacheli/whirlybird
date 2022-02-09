@@ -110,7 +110,7 @@ export interface Role {
   /** position of this role */
   position: number;
   /** permission bit set */
-  permissions: string;
+  permissions: Permissions;
   /** whether this role is managed by an integration */
   managed: boolean;
   /** whether this role is mentionable */
