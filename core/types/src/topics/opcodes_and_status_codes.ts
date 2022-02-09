@@ -303,6 +303,8 @@ export enum DataErrorCodes {
   ActionAccountRequiresVerification,
   /** You are opening direct messages too fast */
   DirectMessagesOpenTooQuickly,
+  /** Send messages has been temporarily disabled */
+  SendingMessagesTemporarilyDisabled,
   /** Request entity too large. Try sending something smaller in size */
   RequestEntityTooLarge = 40005,
   /** This feature has been temporarily disabled server-side */

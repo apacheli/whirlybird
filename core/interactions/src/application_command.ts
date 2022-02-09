@@ -62,7 +62,9 @@ export const
   /** Application command mentionable option */
   mentionableOption = o(ApplicationCommandOptionType.Mentionable),
   /** Application command number option */
-  numberOption = o(ApplicationCommandOptionType.Number);
+  numberOption = o(ApplicationCommandOptionType.Number),
+  /** Application command attachment option */
+  attachmentOption = o(ApplicationCommandOptionType.Attachment);
 
 /** Application command option choice */
 export const optionChoice = (name: string, value: string | number) => ({

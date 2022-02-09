@@ -78,6 +78,8 @@ export enum ApplicationCommandOptionType {
   Mentionable,
   /** Any double between -2^53 and 2^53 */
   Number,
+  /** [attachment](https://discord.dev/resources/channel#attachment-object) object */
+  Attachment,
 }
 
 /** https://discord.dev/interactions/application-commands#application-command-object-application-command-option-choice-structure */

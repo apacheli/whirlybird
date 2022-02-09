@@ -29,7 +29,7 @@ export const BitwisePermissionFlags = {
   PrioritySpeaker: 1n << 8n,
   /** Allows the user to go live */
   Stream: 1n << 9n,
-  /** Allows guild members to view a channel, which includes reading messages in text channels */
+  /** Allows guild members to view a channel, which includes reading messages in text channels and joining voice channels */
   ViewChannel: 1n << 10n,
   /** Allows for sending messages in a channel (does not allow sending messages in threads) */
   SendMessages: 1n << 11n,

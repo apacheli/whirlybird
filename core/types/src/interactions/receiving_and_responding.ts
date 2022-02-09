@@ -25,6 +25,7 @@ import type {
 import type {
   ActionRow,
   Button,
+  Component,
   ComponentTypes,
   SelectMenu,
 } from "./message_components.ts";
@@ -63,6 +64,7 @@ export enum InteractionType {
   ApplicationCommand,
   MessageComponent,
   ApplicationCommandAutocomplete,
+  ModalSubmit,
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-object-interaction-data-structure */
@@ -85,6 +87,8 @@ export interface InteractionData {
   values?: string[];
   /** id the of user or message targetted by a [user](https://discord.dev/interactions/application-commands#user-commands) or [message](https://discord.dev/interactions/application-commands#message-commands) command */
   target_id?: Snowflake;
+  /** the values submitted by the user */
+  components?: Component[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-object-resolved-data-structure */
@@ -137,6 +141,8 @@ export enum InteractionCallbackType {
   UpdateMessage,
   /** respond to an autocomplete interaction with suggested choices */
   ApplicationCommandAutocompleteResult,
+  /** respond to an interaction with a popup modal */
+  Modal,
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-structure */
@@ -161,6 +167,16 @@ export interface InteractionCallbackData {
 export interface Autocomplete {
   /** autocomplete choices (max of 25 choices) */
   choices: ApplicationCommandOptionChoice[];
+}
+
+/** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-modal */
+export interface Modal {
+  /** a developer-defined identifier for the component, max 100 characters */
+  custom_id: string;
+  /** the title of the popup modal */
+  title: string;
+  /** between 1 and 5 (inclusive) components that make up the modal */
+  components: Component[];
 }
 
 // deno-fmt-ignore-next-line

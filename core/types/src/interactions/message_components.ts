@@ -4,8 +4,10 @@ import type { Emoji } from "../resources/emoji.ts";
 
 // https://discord.dev/interactions/message-components
 
+type NotActionRow = Button | SelectMenu | TextInput;
+
 /** https://discord.dev/interactions/message-components#component-object */
-export type Component = ActionRow<Button | SelectMenu> | Button | SelectMenu;
+export type Component = ActionRow<NotActionRow> | NotActionRow;
 
 /** https://discord.dev/interactions/message-components#component-object-component-types */
 export enum ComponentTypes {
@@ -15,10 +17,12 @@ export enum ComponentTypes {
   Button,
   /** A select menu for picking from choices */
   SelectMenu,
+  /** A text input object */
+  TextInput,
 }
 
 /** https://discord.dev/interactions/message-components#action-rows */
-export interface ActionRow<T extends Button | SelectMenu> {
+export interface ActionRow<T extends NotActionRow> {
   /** `1` for an action row */
   type: ComponentTypes.ActionRow;
   /** a list of child components */
@@ -87,4 +91,34 @@ export interface SelectOption {
   emoji?: Pick<Emoji, "name" | "id" | "animated">;
   /** will render this option as selected by default */
   default?: boolean;
+}
+
+/** https://discord.com/developers/docs/interactions/message-components#text-inputs */
+export interface TextInput {
+  /** `4` for a text input */
+  type: ComponentTypes.TextInput;
+  /** a developer-defined identifier for the input, max 100 characters */
+  custom_id: string;
+  /** the [Text Input Style](https://discord.dev/interactions/message-components#text-inputs-text-input-styles) */
+  style: TextInputStyles;
+  /** the label for this component */
+  label?: string;
+  /** the minimum input length for a text input, min 0, max 4000 */
+  min_length?: number;
+  /** the maximum input length for a text input, min 1, max 4000 */
+  max_length?: number;
+  /** whether this component is required to be filled, default false */
+  required?: boolean;
+  /** a pre-filled value for this component, max 4000 characters */
+  value?: string;
+  /** custom placeholder text if the input is empty, max 100 characters */
+  placeholder?: string;
+}
+
+/** https://discord.com/developers/docs/interactions/message-components#text-inputs-text-input-styles */
+export enum TextInputStyles {
+  /** A single-line input */
+  Short = 1,
+  /** A multi-line input */
+  Paragraph,
 }
