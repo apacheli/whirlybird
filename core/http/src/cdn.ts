@@ -15,6 +15,7 @@ import {
   GUILD_DISCOVERY_SPLASH,
   GUILD_ICON,
   GUILD_MEMBER_AVATAR,
+  GUILD_SCHEDULED_EVENT_COVER,
   GUILD_SPLASH,
   ROLE_ICON,
   STICKER,
@@ -155,6 +156,20 @@ export const guildMemberAvatar = (
   memberAvatar: string,
   options?: ImageOptions<"png" | "jpeg" | "webp" | "gif">,
 ) => request(GUILD_MEMBER_AVATAR(guildId, userId, memberAvatar), options);
+
+/**
+ * @param scheduledEventId https://discord.dev/resources/guild/scheduled/event#guild-scheduled-event-object
+ * @param scheduledEventCoverImage https://discord.dev/resources/guild/scheduled/event#guild-scheduled-event-object
+ */
+export const guildScheduledEventCover = (
+  scheduledEventId: Snowflake,
+  scheduledEventCoverImage: string,
+  options?: ImageOptions<"png" | "jpeg" | "webp">,
+) =>
+  request(
+    GUILD_SCHEDULED_EVENT_COVER(scheduledEventId, scheduledEventCoverImage),
+    options,
+  );
 
 /**
  * @param guildId https://discord.dev/resources/guild#guild-object
