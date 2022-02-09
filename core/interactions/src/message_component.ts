@@ -1,14 +1,17 @@
-import {
-  type ActionRow,
-  type Button,
-  type ButtonStyles,
-  ComponentTypes,
-  type SelectMenu,
-  type SelectOption,
+import { ComponentTypes } from "../../types/src/interactions/message_components.ts";
+import type {
+  ActionRow,
+  Button,
+  ButtonStyles,
+  NotActionRow,
+  SelectMenu,
+  SelectOption,
+  TextInput,
+  TextInputStyles,
 } from "../../types/src/interactions/message_components.ts";
 
 /** Action row message component */
-export const actionRow = <T extends Button | SelectMenu>(
+export const actionRow = <T extends NotActionRow>(
   components: [T?, T?, T?, T?, T?],
 ): ActionRow<T> => ({
   components,
@@ -50,4 +53,18 @@ export const selectOption = (
   description,
   label,
   value,
+});
+
+/** Text input message component */
+export const textInput = (
+  customId: string,
+  label: string,
+  style: TextInputStyles,
+  extra?: Omit<TextInput, "custom_id" | "label" | "style" | "type">,
+): TextInput => ({
+  custom_id: customId,
+  label,
+  style,
+  type: ComponentTypes.TextInput,
+  ...extra,
 });

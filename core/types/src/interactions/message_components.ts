@@ -4,7 +4,7 @@ import type { Emoji } from "../resources/emoji.ts";
 
 // https://discord.dev/interactions/message-components
 
-type NotActionRow = Button | SelectMenu | TextInput;
+export type NotActionRow = Button | SelectMenu | TextInput;
 
 /** https://discord.dev/interactions/message-components#component-object */
 export type Component = ActionRow<NotActionRow> | NotActionRow;
@@ -93,7 +93,7 @@ export interface SelectOption {
   default?: boolean;
 }
 
-/** https://discord.com/developers/docs/interactions/message-components#text-inputs */
+/** https://discord.dev/interactions/message-components#text-inputs */
 export interface TextInput {
   /** `4` for a text input */
   type: ComponentTypes.TextInput;
@@ -102,7 +102,7 @@ export interface TextInput {
   /** the [Text Input Style](https://discord.dev/interactions/message-components#text-inputs-text-input-styles) */
   style: TextInputStyles;
   /** the label for this component */
-  label?: string;
+  label: string;
   /** the minimum input length for a text input, min 0, max 4000 */
   min_length?: number;
   /** the maximum input length for a text input, min 1, max 4000 */
@@ -115,7 +115,7 @@ export interface TextInput {
   placeholder?: string;
 }
 
-/** https://discord.com/developers/docs/interactions/message-components#text-inputs-text-input-styles */
+/** https://discord.dev/interactions/message-components#text-inputs-text-input-styles */
 export enum TextInputStyles {
   /** A single-line input */
   Short = 1,

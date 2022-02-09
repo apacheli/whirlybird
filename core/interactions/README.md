@@ -75,7 +75,7 @@ import {
   selectMenu,
 } from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/mod.ts";
 
-callback(InteractionCallbackType.ChannelMessageWithSource, {
+await callback(InteractionCallbackType.ChannelMessageWithSource, {
   components: [
     actionRow([
       button("a", "Click Me!", ButtonStyles.Primary),

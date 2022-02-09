@@ -101,8 +101,10 @@ export interface ResolvedData {
   roles?: Record<Snowflake, Role>;
   /** the IDs and partial channel objects */
   channels?: Record<Snowflake, Channel>;
-  /** Map of Snowflakes to [partial messages](https://discord.dev/resources/channel#message-object) objects */
+  /** the ids and partial Message objects */
   messages?: Record<Snowflake, Partial<Message>>;
+  /** the ids and attachment objects */
+  attachments?: Record<Snowflake, Attachment>;
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#message-interaction-object */
@@ -146,7 +148,13 @@ export enum InteractionCallbackType {
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-interaction-callback-data-structure */
-export interface InteractionCallbackData {
+export type InteractionCallbackData =
+  | InteractionCallbackDataMessage
+  | InteractionCallbackDataAutocomplete
+  | InteractionCallbackDataModal;
+
+/** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-messages */
+export interface InteractionCallbackDataMessage {
   /** is the response TTS */
   tts?: boolean;
   /** message content */
@@ -164,13 +172,13 @@ export interface InteractionCallbackData {
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-autocomplete */
-export interface Autocomplete {
+export interface InteractionCallbackDataAutocomplete {
   /** autocomplete choices (max of 25 choices) */
   choices: ApplicationCommandOptionChoice[];
 }
 
 /** https://discord.dev/interactions/receiving-and-responding#interaction-response-object-modal */
-export interface Modal {
+export interface InteractionCallbackDataModal {
   /** a developer-defined identifier for the component, max 100 characters */
   custom_id: string;
   /** the title of the popup modal */
