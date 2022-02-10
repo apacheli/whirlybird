@@ -13,12 +13,12 @@ the complicated bits to improve the overall development experience.
 
 ### Getting Started
 
-Run an [example](examples/ping_pong.ts) directly from the CLI:
+Run an [example](examples/example.ts) directly from the CLI:
 
 ```sh
 $ BOT_TOKEN=""\
   deno run --allow-env --allow-net\
-  https://github.com/apacheli/whirlybird/raw/dev/examples/ping_pong.ts
+  https://github.com/apacheli/whirlybird/raw/dev/examples/example.ts
 ```
 
 More examples are available [here](examples).
