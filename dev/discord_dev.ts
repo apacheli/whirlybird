@@ -9,13 +9,28 @@ async function* readDir(dir: string): AsyncGenerator<string> {
   }
 }
 
+const fixUrl = (url: string) =>
+  url
+    .substring(4)
+    .replace(/GAME_SDK/g, "game-sdk")
+    .replace(/SDK_STARTER_GUIDE/g, "sdk-starter-guide")
+    .replace(/APPLICATION_COMMANDS/g, "application-commands")
+    .replace(/RESPONDING_AND_RECEIVING/g, "responding-and-receiving")
+    .replace(/GUILD_SCHEDULED_EVENT/g, "guild-scheduled-event")
+    .replace(/GUILD_TEMPLATE/g, "guild-template")
+    .replace("/", "#")
+    .replace(/_/g, "/")
+    .toLowerCase();
+
 const fixFile = async (path: string) => {
   const data = await Deno.readTextFile(path);
-  const newData = data.replace(/com\/developers\/docs/g, "dev");
+  const newData = data
+    .replace(/\(#(.+?)\)/g, (_, x) => `(https://discord.dev${fixUrl(x)})`)
+    .replace(/com\/developers\/docs/g, "dev");
 
   if (data !== newData) {
     await Deno.writeTextFile(path, newData);
-    console.log(`Fixed ${path}`);
+    console.log(`Patched ${path}`);
   }
 };
 
