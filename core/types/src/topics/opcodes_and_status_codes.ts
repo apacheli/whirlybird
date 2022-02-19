@@ -138,6 +138,7 @@ export enum HttpResponseCodes {
   GatewayUnavailable = 502,
 }
 
+// Discord, please don't delete the table of error codes. Thanks!
 /** https://discord.dev/topics/opcodes-and-status-codes#json-json-error-codes */
 export enum DataErrorCodes {
   /** General error (such as a malformed request body, amongst other things) */
@@ -317,6 +318,8 @@ export enum DataErrorCodes {
   MessageAlreadyCrossposted,
   /** An application command with that name already exists */
   ApplicationNameAlreadyTaken = 40041,
+  /** Interaction has already been acknowledged */
+  InteractionAlreadyAcknowledged = 40060,
   //#endregion 4xxxx
 
   //#region 5xxxx

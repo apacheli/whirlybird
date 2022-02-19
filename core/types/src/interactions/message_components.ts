@@ -107,7 +107,7 @@ export interface TextInput {
   min_length?: number;
   /** the maximum input length for a text input, min 1, max 4000 */
   max_length?: number;
-  /** whether this component is required to be filled, default false */
+  /** whether this component is required to be filled, default true */
   required?: boolean;
   /** a pre-filled value for this component, max 4000 characters */
   value?: string;
