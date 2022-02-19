@@ -15,6 +15,8 @@ import type {
   BulkOverwriteGuildApplicationCommandsBody,
   BulkOverwriteGuildApplicationCommandsData,
   ConsumeSKUBody,
+  CreateAchievementBody,
+  CreateAchievementData,
   CreateChannelInviteBody,
   CreateChannelInviteData,
   CreateDMBody,
@@ -46,6 +48,10 @@ import type {
   CreateGuildTemplateData,
   CreateInteractionResponseBody,
   CreateInteractionResponseData,
+  CreateLobbyBody,
+  CreateLobbyData,
+  CreateLobbySearchBody,
+  CreateLobbySearchData,
   CreateMessageBody,
   CreateMessageData,
   CreatePurchaseDiscountBody,
@@ -56,6 +62,7 @@ import type {
   CreateWebhookBody,
   CreateWebhookData,
   CrosspostMessageBody,
+  DeleteAchievementBody,
   DeleteAllReactionsBody,
   DeleteAllReactionsForEmojiBody,
   DeleteChannelBody,
@@ -71,6 +78,7 @@ import type {
   DeleteGuildStickerBody,
   DeleteGuildTemplateBody,
   DeleteInviteBody,
+  DeleteLobbyBody,
   DeleteMessageBody,
   DeleteOriginalInteractionResponseBody,
   DeleteOwnReactionBody,
@@ -108,6 +116,8 @@ import type {
   ExecuteWebhookQuery,
   FollowNewsChannelBody,
   FollowNewsChannelData,
+  GetAchievementBody,
+  GetAchievementsBody,
   GetApplicationCommandPermissionsBody,
   GetChannelBody,
   GetChannelInvitesBody,
@@ -173,6 +183,7 @@ import type {
   GetStageInstanceBody,
   GetStickerBody,
   GetThreadMemberBody,
+  GetUserAchievementsBody,
   GetUserBody,
   GetUserConnectionsBody,
   GetWebhookBody,
@@ -201,6 +212,8 @@ import type {
   ListScheduledEventsForGuildQuery,
   ListThreadMembersBody,
   ListVoiceRegionsBody,
+  ModifyAchievementBody,
+  ModifyAchievementData,
   ModifyChannelBody,
   ModifyChannelData,
   ModifyCurrentMemberBody,
@@ -233,8 +246,13 @@ import type {
   ModifyGuildWelcomeScreenData,
   ModifyGuildWidgetBody,
   ModifyGuildWidgetData,
+  ModifyLobbyBody,
+  ModifyLobbyData,
+  ModifyLobbyMemberBody,
+  ModifyLobbyMemberData,
   ModifyStageInstanceBody,
   ModifyStageInstanceData,
+  ModifyUserAchievementBody,
   ModifyUserVoiceStateBody,
   ModifyUserVoiceStateData,
   ModifyWebhookBody,
@@ -248,6 +266,8 @@ import type {
   RemoveThreadMemberBody,
   SearchGuildMembersBody,
   SearchGuildMembersQuery,
+  SendLobbyDataBody,
+  SendLobbyDataData,
   StartThreadWithMessageBody,
   StartThreadWithMessageData,
   StartThreadWithoutMessageBody,
@@ -283,6 +303,8 @@ import {
 import { HttpError } from "./http_error.ts";
 //#region
 import {
+  APPLICATION_ACHIEVEMENT,
+  APPLICATION_ACHIEVEMENTS,
   APPLICATION_COMMAND,
   APPLICATION_COMMANDS,
   APPLICATION_ENTITLEMENT,
@@ -313,6 +335,7 @@ import {
   CHANNEL_THREAD_MEMBER_ME,
   CHANNEL_THREAD_MEMBERS,
   CHANNEL_THREADS,
+  CHANNEL_THREADS_ACTIVE,
   CHANNEL_THREADS_ARCHIVED_PRIVATE,
   CHANNEL_THREADS_ARCHIVED_PUBLIC,
   CHANNEL_TYPING,
@@ -361,6 +384,11 @@ import {
   GUILDS_TEMPLATE,
   INTERACTION_TOKEN_CALLBACK,
   INVITE,
+  LOBBIES,
+  LOBBIES_SEARCH,
+  LOBBY,
+  LOBBY_MEMBER,
+  LOBBY_SEND,
   OAUTH2_APPLICATION_ME,
   OAUTH2_ME,
   STAGE_INSTANCE,
@@ -369,6 +397,7 @@ import {
   STICKER_PACKS,
   STORE_SKU_DISCOUNT,
   USER,
+  USER_APPLICATION_ACHIEVEMENT,
   USER_ME,
   USER_ME_CHANNELS,
   USER_ME_CONNECTIONS,
@@ -778,6 +807,29 @@ export class HttpClient {
   }
 
   /**
+   * https://discord.dev/game-sdk/achievements#create-achievement
+   *
+   * Creates a new [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for your application.
+   *
+   * > info
+   * > Applications can have a maximum of 1000 achievements.
+   *
+   * @param applicationId https://discord.dev/resources/application#application-object
+   */
+  createAchievement(
+    applicationId: Snowflake,
+    data: CreateAchievementData,
+  ): Promise<CreateAchievementBody> {
+    return this.post(
+      APPLICATION_ACHIEVEMENTS(applicationId),
+      "createAchievement",
+      {
+        data,
+      },
+    );
+  }
+
+  /**
    * https://discord.dev/resources/channel#create-channel-invite
    *
    * Create a new [invite](https://discord.dev/resources/invite#invite-object) object for the channel. Only usable for guild channels. Requires the `CREATE_INSTANT_INVITE` permission. All JSON parameters for this route are optional, however the request body is not. If you are not sending any fields, you still have to send an empty JSON object (`{}`). Returns an [invite](https://discord.dev/resources/invite#invite-object) object. Fires an [Invite Create](https://discord.dev/topics/gateway#invite-create) Gateway event.
@@ -1129,6 +1181,32 @@ export class HttpClient {
   }
 
   /**
+   * https://discord.dev/game-sdk/lobbies#create-lobby
+   *
+   * Creates a new lobby. Returns a [lobby object](https://discord.dev/game-sdk/lobbies#lobby-object) on success.
+   *
+   * To get a list of valid regions, see the [List Voice Regions](https://discord.dev/resources/voice#list-voice-regions) endpoint.
+   */
+  createLobby(data: CreateLobbyData): Promise<CreateLobbyBody> {
+    return this.post(LOBBIES, "createLobby", {
+      data,
+    });
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#create-lobby-search
+   *
+   * Creates a lobby search for matchmaking around given criteria.
+   */
+  createLobbySearch(
+    data: CreateLobbySearchData,
+  ): Promise<CreateLobbySearchBody> {
+    return this.post(LOBBIES_SEARCH, "createLobbySearch", {
+      data,
+    });
+  }
+
+  /**
    * https://discord.dev/resources/channel#create-message
    *
    * > warn
@@ -1227,17 +1305,22 @@ export class HttpClient {
    *
    * - Webhook names cannot be: 'clyde'
    *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   createWebhook(
     channelId: Snowflake,
     data: CreateWebhookData,
+    reason?: string,
   ): Promise<CreateWebhookBody> {
     return this.post(
       CHANNEL_WEBHOOKS(channelId),
       `createWebhook_${channelId}`,
       {
         data,
+        reason,
       },
     );
   }
@@ -1259,6 +1342,24 @@ export class HttpClient {
     return this.post(
       CHANNEL_MESSAGE_CROSSPOST(channelId, messageId),
       `crosspostMessage_${channelId}`,
+    );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#delete-achievement
+   *
+   * Deletes the given [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) from your application. Returns a `204` on success.
+   *
+   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  deleteAchievement(
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+  ): Promise<DeleteAchievementBody> {
+    return this.delete(
+      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
+      "deleteAchievement",
     );
   }
 
@@ -1548,6 +1649,17 @@ export class HttpClient {
   }
 
   /**
+   * https://discord.dev/game-sdk/lobbies#delete-lobby
+   *
+   * Deletes a lobby. Returns a `204` on success.
+   *
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
+   */
+  deleteLobby(lobbyId: Snowflake): Promise<DeleteLobbyBody> {
+    return this.delete(LOBBY(lobbyId), "deleteLobby");
+  }
+
+  /**
    * https://discord.dev/resources/channel#delete-message
    *
    * Delete a message. If operating on a guild channel and trying to delete a message that was not sent by the current user, this endpoint requires the `MANAGE_MESSAGES` permission. Returns a 204 empty response on success. Fires a [Message Delete](https://discord.dev/topics/gateway#message-delete) Gateway event.
@@ -1575,7 +1687,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#delete-original-interaction-response
    *
-   * Deletes the initial Interaction response. Returns `204 No Content` on success.
+   * Deletes the initial Interaction response. Returns `204 No Content` on success. Does not support ephemeral followups.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -1700,10 +1812,18 @@ export class HttpClient {
    *
    * Delete a webhook permanently. Requires the `MANAGE_WEBHOOKS` permission. Returns a `204 No Content` response on success.
    *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
-  deleteWebhook(webhookId: Snowflake): Promise<DeleteWebhookBody> {
-    return this.delete(WEBHOOK(webhookId), `deleteWebhook_${webhookId}`);
+  deleteWebhook(
+    webhookId: Snowflake,
+    reason?: string,
+  ): Promise<DeleteWebhookBody> {
+    return this.delete(WEBHOOK(webhookId), `deleteWebhook_${webhookId}`, {
+      reason,
+    });
   }
 
   /**
@@ -2101,6 +2221,35 @@ export class HttpClient {
         data,
       },
     );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#get-achievement
+   *
+   * Returns the given [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for the given application.
+   *
+   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  getAchievement(
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+  ): Promise<GetAchievementBody> {
+    return this.get(
+      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
+      "getAchievement",
+    );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#get-achievements
+   *
+   * Returns a list of [achievements](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for the given application.
+   *
+   * @param applicationId https://discord.dev/resources/application#application-object
+   */
+  getAchievements(applicationId: Snowflake): Promise<GetAchievementsBody> {
+    return this.get(APPLICATION_ACHIEVEMENTS(applicationId), "getAchievements");
   }
 
   /**
@@ -2720,7 +2869,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#get-guild-welcome-screen
    *
-   * Returns the [Welcome Screen](https://discord.dev/resources/guild#welcome-screen-object) object for the guild.
+   * Returns the [Welcome Screen](https://discord.dev/resources/guild#welcome-screen-object) object for the guild. If the welcome screen is not enabled, the `MANAGE_GUILD` permission is required.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -2736,7 +2885,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#get-guild-widget
    *
-   * Returns the widget for the guild.
+   * Returns the [widget](https://discord.dev/resources/guild#get-guild-widget-object) for the guild.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -2770,7 +2919,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#get-guild-widget-settings
    *
-   * Returns a [guild widget](https://discord.dev/resources/guild#guild-widget-object) object. Requires the `MANAGE_GUILD` permission.
+   * Returns a [guild widget settings](https://discord.dev/resources/guild#guild-widget-settings-object) object. Requires the `MANAGE_GUILD` permission.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -2907,6 +3056,29 @@ export class HttpClient {
    */
   getUser(userId: Snowflake): Promise<GetUserBody> {
     return this.get(USER(userId), "getUser");
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#get-user-achievements
+   *
+   * Returns a list of achievements for the user whose token you're making the request with. This endpoint will **NOT** accept the Bearer token for your application generated via the [Client Crendentials Grant](https://discord.dev/topics/oauth2#client-credentials-grant). You will need the _user's_ bearer token, gotten via either the [Authorization Code OAuth2 Grant](https://discord.dev/topics/oauth2#authorization-code-grant) or via the SDK with [GetOAuth2Token](https://discord.dev/game-sdk/applications#get-oauth2-token). This endpoint has a rate limit of 2 requests per 5 seconds per application per user.
+   *
+   * > info
+   * > This endpoint will _not_ return any achievements marked as `secret` that the user has not yet completed.
+   *
+   * @param userId https://discord.dev/resources/user#user-object
+   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  getUserAchievements(
+    userId: Snowflake,
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+  ): Promise<GetUserAchievementsBody> {
+    return this.get(
+      USER_APPLICATION_ACHIEVEMENT(userId, applicationId, achievementId),
+      "getUserAchievements",
+    );
   }
 
   /**
@@ -3221,6 +3393,28 @@ export class HttpClient {
    */
   listVoiceRegions(): Promise<ListVoiceRegionsBody> {
     return this.get(VOICE_REGIONS, "listVoiceRegions");
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#modify-achievement
+   *
+   * Updates the [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for all users. This is **NOT** to update a single user's achievement progress; this is to edit the `UserAchievement` itself.
+   *
+   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  modifyAchievement(
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+    data: ModifyAchievementData,
+  ): Promise<ModifyAchievementBody> {
+    return this.patch(
+      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
+      "modifyAchievement",
+      {
+        data,
+      },
+    );
   }
 
   /**
@@ -3617,7 +3811,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#modify-guild-widget
    *
-   * Modify a [guild widget](https://discord.dev/resources/guild#guild-widget-object) object for the guild. All attributes may be passed in with JSON and modified. Requires the `MANAGE_GUILD` permission. Returns the updated [guild widget](https://discord.dev/resources/guild#guild-widget-object) object.
+   * Modify a [guild widget settings](https://discord.dev/resources/guild#guild-widget-settings-object) object for the guild. All attributes may be passed in with JSON and modified. Requires the `MANAGE_GUILD` permission. Returns the updated [guild widget](https://discord.dev/resources/guild#guild-widget-settings-object) object.
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -3632,6 +3826,40 @@ export class HttpClient {
     return this.patch(GUILD_WIDGET(guildId), `modifyGuildWidget_${guildId}`, {
       data,
       reason,
+    });
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#modify-lobby
+   *
+   * Modifies a lobby. Returns the modified [lobby object](https://discord.dev/game-sdk/lobbies#lobby-object) on success.
+   *
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
+   */
+  modifyLobby(
+    lobbyId: Snowflake,
+    data: ModifyLobbyData,
+  ): Promise<ModifyLobbyBody> {
+    return this.patch(LOBBY(lobbyId), "modifyLobby", {
+      data,
+    });
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#modify-lobby-member
+   *
+   * Modifies the metadata for a lobby member.
+   *
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
+   * @param userId https://discord.dev/resources/user#user-object
+   */
+  modifyLobbyMember(
+    lobbyId: Snowflake,
+    userId: Snowflake,
+    data: ModifyLobbyMemberData,
+  ): Promise<ModifyLobbyMemberBody> {
+    return this.patch(LOBBY_MEMBER(lobbyId, userId), "modifyLobbyMember", {
+      data,
     });
   }
 
@@ -3659,6 +3887,27 @@ export class HttpClient {
         data,
         reason,
       },
+    );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#modify-user-achievement
+   *
+   * Updates the `UserAchievement` record for a given user. Use this endpoint to
+   * update `secure` achievement progress for users.
+   *
+   * @param userId https://discord.dev/resources/user#user-object
+   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  modifyUserAchievement(
+    userId: Snowflake,
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+  ): Promise<ModifyUserAchievementBody> {
+    return this.put(
+      USER_APPLICATION_ACHIEVEMENT(userId, applicationId, achievementId),
+      "modifyUserAchievement",
     );
   }
 
@@ -3692,14 +3941,19 @@ export class HttpClient {
    * > info
    * > All parameters to this endpoint are optional
    *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
   modifyWebhook(
     webhookId: Snowflake,
     data: ModifyWebhookData,
+    reason?: string,
   ): Promise<ModifyWebhookBody> {
     return this.patch(WEBHOOK(webhookId), `modifyWebhook_${webhookId}`, {
       data,
+      reason,
     });
   }
 
@@ -3869,6 +4123,24 @@ export class HttpClient {
         query,
       },
     );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#send-lobby-data
+   *
+   * Sends a message to the lobby, fanning it out to other lobby members.
+   *
+   * This endpoints accepts a UTF8 string. If your message is already a string, you're good to go! If you want to send binary, you can send it to this endpoint as a base64 encoded data uri.
+   *
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#data-models-lobby-struct
+   */
+  sendLobbyData(
+    lobbyId: Snowflake,
+    data: SendLobbyDataData,
+  ): Promise<SendLobbyDataBody> {
+    return this.post(LOBBY_SEND(lobbyId), "sendLobbyData", {
+      data,
+    });
   }
 
   /**

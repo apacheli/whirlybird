@@ -34,7 +34,7 @@ export interface AchievementLocale {
 export type GetAchievementsBody = Achievement[];
 
 /** https://discord.dev/game-sdk/achievements#get-achievement */
-export type GetAchievementBOdy = Achievement;
+export type GetAchievementBody = Achievement;
 
 /** https://discord.dev/game-sdk/achievements#create-achievement */
 export interface CreateAchievementData {
@@ -69,7 +69,7 @@ export interface UpdateUserAchievementData {
 }
 
 /** https://discord.dev/game-sdk/achievements#update-user-achievement */
-export type UpdateUserAchievementBody = Record<string, never>;
+export type ModifyUserAchievementBody = Record<string, never>;
 
 /** https://discord.dev/game-sdk/achievements#get-user-achievements */
 export type GetUserAchievementsBody = Achievement[];

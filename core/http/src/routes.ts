@@ -1,7 +1,9 @@
 import type { Snowflake } from "../../types/src/reference.ts";
 
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
+  APPLICATION_ACHIEVEMENT                  = (applicationId: Snowflake, achievementId: Snowflake) => `/applications/${applicationId}/achievements/${achievementId}`,
+  APPLICATION_ACHIEVEMENTS                 = (applicationId: Snowflake) => `/applications/${applicationId}/achievements`,
   APPLICATION_COMMAND                      = (applicationId: Snowflake, commandId: Snowflake) => `/applications/${applicationId}/commands/${commandId}`,
   APPLICATION_COMMANDS                     = (applicationId: Snowflake) => `/applications/${applicationId}/commands`,
   APPLICATION_ENTITLEMENT                  = (applicationId: Snowflake, entitlementId: Snowflake) => `/applications/${applicationId}/entitlements/${entitlementId}`,
@@ -81,6 +83,11 @@ export const
   GUILDS_TEMPLATE                          = (templateCode: string) => `/guilds/templates/${templateCode}`,
   INTERACTION_TOKEN_CALLBACK               = (interactionId: Snowflake, interactionToken: string) => `/interactions/${interactionId}/${interactionToken}/callback`,
   INVITE                                   = (inviteCode: string) => `/invites/${inviteCode}`,
+  LOBBY                                   = (lobbyId: Snowflake) => `/lobbies/${lobbyId}`,
+  LOBBY_MEMBER                            = (lobbyId: Snowflake, userId: Snowflake) => `/lobbies/${lobbyId}/members/${userId}`,
+  LOBBY_SEND                              = (lobbyId: Snowflake) => `/lobbies/${lobbyId}/send`,
+  LOBBIES                                  = "/lobbies",
+  LOBBIES_SEARCH                           = "/lobbies/search",
   OAUTH2_APPLICATION_ME                    = "/oauth2/applications/@me",
   OAUTH2_ME                                = "/oauth2/@me",
   STAGE_INSTANCE                           = (channelId: Snowflake) => `/stage-instances/${channelId}`,
@@ -89,6 +96,7 @@ export const
   STICKER_PACKS                            = "/sticker-packs",
   STORE_SKU_DISCOUNT                       = (skuId: Snowflake, userId: Snowflake) => `/store/skus/${skuId}/discounts/${userId}`,
   USER                                     = (userId: Snowflake) => `/users/${userId}`,
+  USER_APPLICATION_ACHIEVEMENT             = (userId: Snowflake, applicationId: Snowflake, achievementId: Snowflake) => `/users/${userId}/applications/${applicationId}//achievements/${achievementId}`,
   USER_ME                                  = "/users/@me",
   USER_ME_CHANNELS                         = "/users/@me/channels",
   USER_ME_CONNECTIONS                      = "/users/@me/connections",
