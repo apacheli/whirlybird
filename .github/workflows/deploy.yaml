@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - manual/**
   workflow_dispatch:
     branches:
       - dev
@@ -37,4 +39,4 @@ jobs:
         mv ../book/* .
         git add .
         git commit -m "Deploy $GITHUB_SHA to gh-pages"
-        git push
+        git push --force
