@@ -34,7 +34,6 @@ export const
   CHANNEL_THREAD_MEMBER_ME                 = (channelId: Snowflake) => `/channels/${channelId}/thread-members/@me`,
   CHANNEL_THREAD_MEMBERS                   = (channelId: Snowflake) => `/channels/${channelId}/thread-members`,
   CHANNEL_THREADS                          = (channelId: Snowflake) => `/channels/${channelId}/threads`,
-  CHANNEL_THREADS_ACTIVE                   = (channelId: Snowflake) => `/channels/${channelId}/threads/active`,
   CHANNEL_THREADS_ARCHIVED_PRIVATE         = (channelId: Snowflake) => `/channels/${channelId}/threads/archived/private`,
   CHANNEL_THREADS_ARCHIVED_PUBLIC          = (channelId: Snowflake) => `/channels/${channelId}/threads/archived/public`,
   CHANNEL_TYPING                           = (channelId: Snowflake) => `/channels/${channelId}/typing`,

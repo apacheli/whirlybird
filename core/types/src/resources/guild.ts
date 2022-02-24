@@ -119,7 +119,7 @@ export interface Guild {
   /** the welcome screen of a Community guild, shown to new members, returned in an [Invite](https://discord.dev/resources/invite#invite-object)'s guild object */
   welcome_screen?: WelcomeScreen;
   /** [guild NSFW level](https://discord.dev/resources/guild#guild-object-guild-nsfw-level) */
-  nsfw_level: GuildNSFWLevel;
+  nsfw_level: GuildNsfwLevel;
   /** Stage instances in the guild */
   stage_instances?: StageInstance;
   /** custom guild stickers */
@@ -171,7 +171,7 @@ export enum VerificationLevel {
 }
 
 /** https://discord.dev/resources/guild#guild-object-guild-nsfw-level */
-export enum GuildNSFWLevel {
+export enum GuildNsfwLevel {
   Default,
   Explicit,
   Safe,
