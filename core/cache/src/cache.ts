@@ -1,9 +1,20 @@
+import type { Awaitable } from "../../util/src/types.ts";
+
+export interface Cache<K, V extends CacheStructure<K, T>, T> {
+  add(key: K, data: T): Awaitable<void>;
+  get(key: K): Awaitable<V | undefined>;
+  has(key: K): Awaitable<boolean>;
+  remove(key: K): Awaitable<void>;
+  update(key: K, data: Partial<T>): Awaitable<void>;
+}
+
 export interface CacheStructure<K, T> {
   id: K;
   update(data: Partial<T>): void;
 }
 
-export class Cache<K, V extends CacheStructure<K, T>, T> extends Map<K, V> {
+export class CacheMap<K, V extends CacheStructure<K, T>, T> extends Map<K, V>
+  implements Cache<K, V, T> {
   constructor(public base: new (data: T, id?: K) => V, public limit?: number) {
     super();
   }
