@@ -24,7 +24,7 @@ export type Handler = (
   interaction: Interaction,
 ) => Awaitable<void>;
 
-/** Handle a request event */
+/** Handle a request event. */
 export const handleRequestEvent = async (
   publicKey: string,
   { request, respondWith }: Deno.RequestEvent,
@@ -47,7 +47,7 @@ export const handleRequestEvent = async (
 
   const body = await request.text();
 
-  if (!validateRequest(publicKey, signature, timestamp, body)) {
+  if (!verifyRequest(publicKey, signature, timestamp, body)) {
     return respond("401 Unauthorized", HttpResponseCodes.Unauthorized);
   }
 
@@ -67,8 +67,8 @@ export const handleRequestEvent = async (
   }
 };
 
-/** Check if a request is valid */
-export const validateRequest = (
+/** Run a request through a verification test. */
+export const verifyRequest = (
   publicKey: string,
   signature: string,
   timestamp: string,

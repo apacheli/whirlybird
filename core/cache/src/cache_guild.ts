@@ -26,8 +26,10 @@ import type {
 } from "../../types/src/resources/voice.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions, Role } from "../../types/src/topics/permissions.ts";
+import { CacheStructure, SYMBOL_UPDATE } from "./cache_base.ts";
+import type { CacheClient } from "./cache_client.ts";
 
-export class CacheGuild {
+export class CacheGuild extends CacheStructure {
   name!: string;
   icon!: string | null;
   iconHash?: string | null;
@@ -80,7 +82,9 @@ export class CacheGuild {
   guildScheduledEvents?: GuildScheduledEvent[];
   premiumProgressBarEnabled?: boolean;
 
-  constructor(data: Guild, public id = BigInt(data.id)) {
+  constructor(data: Guild, client?: CacheClient) {
+    super(data);
+
     this.roles = data.roles;
     this.emojis = data.emojis;
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
@@ -94,10 +98,18 @@ export class CacheGuild {
     this.stickers = data.stickers;
     this.guildScheduledEvents = data.guild_scheduled_events;
 
-    this.update(data);
+    if (data.members) {
+      for (const member of data.members) {
+        if (member.user) {
+          client?.users.add(member.user);
+        }
+      }
+    }
+
+    this[SYMBOL_UPDATE](data);
   }
 
-  update(data: Partial<Guild>) {
+  [SYMBOL_UPDATE](data: Partial<Guild>) {
     if (data.name !== undefined) {
       this.name = data.name;
     }

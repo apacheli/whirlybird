@@ -1,47 +1,43 @@
-import { Guild } from "../../types/src/resources/guild.ts";
 import {
   type DispatchPayload,
   GatewayEvents,
 } from "../../types/src/topics/gateway.ts";
-import { type Cache, CacheMap } from "./cache.ts";
+import { CacheMap } from "./cache.ts";
 import { CacheGuild } from "./cache_guild.ts";
-
-export interface CacheClientOptions {
-  guilds?: Cache<bigint, CacheGuild, Guild>;
-}
+import { CacheUser } from "./cache_user.ts";
 
 export class CacheClient {
-  guilds;
-
-  constructor(options?: CacheClientOptions) {
-    this.guilds = options?.guilds ?? new CacheMap(CacheGuild);
-  }
+  guilds = new CacheMap(CacheGuild);
+  users = new CacheMap(CacheUser);
 
   /** Update the cache from a gateway dispatch payload. */
-  async update(payload: DispatchPayload) {
+  update(payload: DispatchPayload) {
     switch (payload.t) {
       case GatewayEvents.GuildCreate: {
-        const id = BigInt(payload.d.id);
-        if ("unavailable" in payload.d && await this.guilds.has(id)) {
-          await this.guilds.update(id, payload.d);
+        if ("unavailable" in payload.d) {
+          this.guilds.modify(payload.d, this);
         } else {
-          await this.guilds.add(id, payload.d);
+          this.guilds.add(payload.d, this);
         }
         break;
       }
 
       case GatewayEvents.GuildUpdate: {
-        await this.guilds.update(BigInt(payload.d.id), payload.d);
+        this.guilds.modify(payload.d, this);
         break;
       }
 
       case GatewayEvents.GuildDelete: {
-        const id = BigInt(payload.d.id);
         if (payload.d.unavailable) {
-          await this.guilds.update(id, payload.d);
+          this.guilds.modify(payload.d, this);
         } else {
-          await this.guilds.remove(id);
+          this.guilds.remove(payload.d);
         }
+        break;
+      }
+
+      case GatewayEvents.UserUpdate: {
+        this.users.modify(payload.d, this);
         break;
       }
     }

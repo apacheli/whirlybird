@@ -13,7 +13,7 @@ export interface User {
   /** the user's username, not unique across the platform */
   username: string;
   /** the user's 4-digit discord-tag */
-  discriminator: string;
+  discriminator: `${number}`;
   /** the user's [avatar hash](https://discord.dev/reference#image-formatting) */
   avatar: string | null;
   /** whether the user belongs to an OAuth2 application */
