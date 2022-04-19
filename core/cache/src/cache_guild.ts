@@ -26,8 +26,10 @@ import type {
 } from "../../types/src/resources/voice.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions, Role } from "../../types/src/topics/permissions.ts";
-import { CacheStructure, SYMBOL_UPDATE } from "./cache_base.ts";
+import { CacheMap } from "./cache.ts";
 import type { CacheClient } from "./cache_client.ts";
+import { CacheRole } from "./cache_role.ts";
+import { CacheStructure } from "./cache_structure.ts";
 
 export class CacheGuild extends CacheStructure {
   name!: string;
@@ -46,7 +48,7 @@ export class CacheGuild extends CacheStructure {
   verificationLevel!: VerificationLevel;
   defaultMessageNotifications!: DefaultMessageNotificationLevel;
   explicitContentFilter!: ExplicitContentFilterLevel;
-  roles: Role[];
+  roles;
   emojis: Emoji[];
   features!: GuildFeatures[];
   mfaLevel!: MfaLevel;
@@ -85,7 +87,10 @@ export class CacheGuild extends CacheStructure {
   constructor(data: Guild, client?: CacheClient) {
     super(data);
 
-    this.roles = data.roles;
+    this.roles = new CacheMap(CacheRole);
+    for (const role of data.roles) {
+      this.roles.add(role);
+    }
     this.emojis = data.emojis;
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
     this.large = data.large;
@@ -106,10 +111,10 @@ export class CacheGuild extends CacheStructure {
       }
     }
 
-    this[SYMBOL_UPDATE](data);
+    this.__update__(data);
   }
 
-  [SYMBOL_UPDATE](data: Partial<Guild>) {
+  __update__(data: Partial<Guild>) {
     if (data.name !== undefined) {
       this.name = data.name;
     }

@@ -3,7 +3,7 @@ authors = ["apacheopteryx"]
 language = "en"
 multilingual = false
 src = "src"
-title = "Whirlybird Manual"
+title = "Official whirlybird Manual"
 
 [output.html]
 git-repository-url = "https://github.com/apacheli/whirlybird"

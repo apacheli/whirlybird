@@ -31,13 +31,32 @@ export class CacheClient {
         if (payload.d.unavailable) {
           this.guilds.modify(payload.d, this);
         } else {
-          this.guilds.remove(payload.d);
+          this.guilds.delete(payload.d.id);
         }
         break;
       }
 
       case GatewayEvents.UserUpdate: {
         this.users.modify(payload.d, this);
+        break;
+      }
+
+      case GatewayEvents.GuildRoleCreate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.roles.add(payload.d.role);
+        break;
+      }
+
+      case GatewayEvents.GuildRoleUpdate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        const role = guild?.roles.get(payload.d.role.id);
+        role?.__update__(payload.d.role);
+        break;
+      }
+
+      case GatewayEvents.GuildRoleDelete: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.roles.delete(payload.d.role_id);
         break;
       }
     }

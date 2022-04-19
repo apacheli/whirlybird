@@ -1,24 +1,32 @@
-import {
-  type CacheStructure,
-  type Structure,
-  SYMBOL_UPDATE,
-} from "./cache_base.ts";
+import type { Snowflake } from "../../types/src/reference.ts";
 import { CacheClient } from "./cache_client.ts";
+import type { CacheStructure, Structure } from "./cache_structure.ts";
 
 export class CacheMap<V extends CacheStructure, T extends Structure>
   extends Map<bigint, V> {
   constructor(
-    public base: new (data: T, client?: CacheClient, id?: bigint) => V,
+    public baseClass: new (data: T, client?: CacheClient) => V,
     public limit?: number,
   ) {
     super();
   }
 
+  delete(key: Snowflake | bigint) {
+    return super.delete(BigInt(key));
+  }
+
+  get(key: Snowflake | bigint) {
+    return super.get(BigInt(key));
+  }
+
+  has(key: Snowflake | bigint) {
+    return super.has(BigInt(key));
+  }
+
   add(data: T, client?: CacheClient) {
-    const id = BigInt(data.id);
-    const existing = this.get(id);
+    const existing = this.get(BigInt(data.id));
     if (existing) {
-      existing[SYMBOL_UPDATE](data);
+      existing.__update__(data);
       return;
     }
     if (this.limit !== undefined && this.size >= this.limit) {
@@ -32,15 +40,12 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
     if (this.limit === 0) {
       return;
     }
-    const item = new this.base(data, client, id);
+    const item = new this.baseClass(data, client);
     this.set(item.id, item);
     return item;
   }
 
-  remove(data: Pick<T, "id">) {
-    this.delete(BigInt(data.id));
-  }
-
+  // Calls CacheMap.add() under the hood but make an alias anyway.
   modify(data: Partial<T>, client?: CacheClient) {
     return this.add(data as T, client);
   }

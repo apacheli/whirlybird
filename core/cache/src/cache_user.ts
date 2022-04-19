@@ -3,7 +3,7 @@ import type {
   User,
   UserFlags,
 } from "../../types/src/resources/user.ts";
-import { CacheStructure, SYMBOL_UPDATE } from "./cache_base.ts";
+import { CacheStructure } from "./cache_structure.ts";
 
 export class CacheUser extends CacheStructure {
   username!: string;
@@ -27,10 +27,10 @@ export class CacheUser extends CacheStructure {
     this.bot = data.bot;
     this.system = data.system;
 
-    this[SYMBOL_UPDATE](data);
+    this.__update__(data);
   }
 
-  [SYMBOL_UPDATE](data: User) {
+  __update__(data: Partial<User>) {
     if (data.username !== undefined) {
       this.username = data.username;
     }
