@@ -1,0 +1,223 @@
+import { ChannelTypes } from "../../types/src/resources/channel.ts";
+import type {
+  BaseTextChannel,
+  BaseVoiceChannel,
+  ChannelFlags,
+  GuildCategoryChannel,
+  GuildChannel,
+  GuildNewsThreadChannel,
+  GuildPrivateThreadChannel,
+  GuildPublicThreadChannel,
+  GuildStoreChannel,
+  ThreadMember,
+  ThreadMetadata,
+} from "../../types/src/resources/channel.ts";
+import type {
+  BaseThreadChannel,
+  Channel,
+  DMChannel,
+  GroupDMChannel,
+  GuildNewsChannel,
+  GuildStageVoiceChannel,
+  GuildTextChannel,
+  GuildVoiceChannel,
+  Overwrite,
+  VideoQualityModes,
+} from "../../types/src/resources/channel.ts";
+import { CacheStructure } from "./cache_structure.ts";
+import { CacheUser } from "./cache_user.ts";
+
+export class CacheChannel extends CacheStructure {
+  type!: ChannelTypes;
+  guildId?: bigint;
+  position?: number;
+  permissionOverwrites?: Overwrite[];
+  name?: string | null;
+  topic?: string | null;
+  nsfw?: boolean;
+  lastMessageId?: bigint | null;
+  bitrate?: number;
+  userLimit?: number;
+  rateLimitPerUser?: number;
+  recipients?: CacheUser[];
+  icon?: string | null;
+  ownerId?: bigint;
+  applicationId?: bigint;
+  parentId?: bigint | null;
+  lastPinTimestamp?: number | null;
+  rtcRegion?: string | null;
+  videoQualityMode?: VideoQualityModes;
+  messageCount?: number;
+  memberCount?: number;
+  threadMetadata?: ThreadMetadata;
+  member?: ThreadMember;
+  defaultAutoArchiveDuration?: number;
+  permissions?: bigint;
+  flags?: ChannelFlags;
+
+  __update__(data: Partial<Channel>) {
+    if (data.type !== undefined) {
+      this.type = data.type;
+    }
+    // @ts-ignore: Unions and intersections are painful.
+    // TODO: Support channel type 15 (forums).
+    this[this.type]?.(data);
+  }
+
+  #guild(data: Partial<GuildChannel>) {
+    if (data.guild_id !== undefined) {
+      this.guildId = BigInt(data.guild_id);
+    }
+    if (data.position !== undefined) {
+      this.position = data.position;
+    }
+    if (data.permission_overwrites !== undefined) {
+      this.permissionOverwrites = data.permission_overwrites;
+    }
+    if (data.name !== undefined) {
+      this.name = data.name;
+    }
+    if (data.nsfw !== undefined) {
+      this.nsfw = data.nsfw;
+    }
+    if (data.parent_id !== undefined) {
+      this.parentId = data.parent_id && BigInt(data.parent_id);
+    }
+    if (data.permissions !== undefined) {
+      this.permissions = BigInt(data.permissions);
+    }
+  }
+
+  #baseText(data: Partial<BaseTextChannel>) {
+    if (data.last_message_id !== undefined) {
+      this.lastMessageId = data.last_message_id && BigInt(data.last_message_id);
+    }
+    if (data.last_pin_timestamp !== undefined) {
+      this.lastPinTimestamp = data.last_pin_timestamp == null
+        ? null
+        : Date.parse(data.last_pin_timestamp);
+    }
+  }
+
+  #baseVoice(data: Partial<BaseVoiceChannel>) {
+    if (data.bitrate !== undefined) {
+      this.bitrate = data.bitrate;
+    }
+    if (data.user_limit !== undefined) {
+      this.userLimit = data.user_limit;
+    }
+    if (data.rtc_region !== undefined) {
+      this.rtcRegion = data.rtc_region;
+    }
+    if (data.video_quality_mode !== undefined) {
+      this.videoQualityMode = data.video_quality_mode;
+    }
+  }
+
+  #baseThread(data: Partial<BaseThreadChannel>) {
+    if (data.message_count !== undefined) {
+      this.messageCount = data.message_count;
+    }
+    if (data.member_count !== undefined) {
+      this.memberCount = data.member_count;
+    }
+    if (data.thread_metadata !== undefined) {
+      this.threadMetadata = data.thread_metadata;
+    }
+    if (data.member !== undefined) {
+      this.member = data.member;
+    }
+  }
+
+  [ChannelTypes.GuildText](data: Partial<GuildTextChannel>) {
+    this.#guild(data);
+    this.#baseText(data);
+
+    if (data.topic !== undefined) {
+      this.topic = data.topic;
+    }
+    if (data.rate_limit_per_user !== undefined) {
+      this.rateLimitPerUser = data.rate_limit_per_user;
+    }
+    if (data.default_auto_archive_duration !== undefined) {
+      this.defaultAutoArchiveDuration = data.default_auto_archive_duration;
+    }
+  }
+
+  [ChannelTypes.DM](data: Partial<DMChannel>) {
+    this.#baseText(data);
+
+    if (data.recipients) {
+      this.recipients = data.recipients.map((user) => new CacheUser(user));
+    }
+  }
+
+  [ChannelTypes.GuildVoice](data: Partial<GuildVoiceChannel>) {
+    this.#guild(data);
+    this.#baseVoice(data);
+  }
+
+  [ChannelTypes.GroupDM](data: Partial<GroupDMChannel>) {
+    this.#baseText(data);
+
+    if (data.name !== undefined) {
+      this.name = data.name;
+    }
+    if (data.recipients) {
+      this.recipients = data.recipients.map((user) => new CacheUser(user));
+    }
+    if (data.icon !== undefined) {
+      this.icon = data.icon;
+    }
+    if (data.owner_id !== undefined) {
+      this.ownerId = BigInt(data.owner_id);
+    }
+    if (data.application_id !== undefined) {
+      this.applicationId = data.application_id && BigInt(data.application_id);
+    }
+  }
+
+  [ChannelTypes.GuildCategory](data: Partial<GuildCategoryChannel>) {
+    this.#guild(data);
+  }
+
+  [ChannelTypes.GuildNews](data: Partial<GuildNewsChannel>) {
+    this.#guild(data);
+    this.#baseText(data);
+
+    if (data.topic !== undefined) {
+      this.topic = data.topic;
+    }
+    if (data.default_auto_archive_duration !== undefined) {
+      this.defaultAutoArchiveDuration = data.default_auto_archive_duration;
+    }
+  }
+
+  [ChannelTypes.GuildStore](data: Partial<GuildStoreChannel>) {
+    this.#guild(data);
+  }
+
+  [ChannelTypes.GuildNewsThread](data: Partial<GuildNewsThreadChannel>) {
+    this.#guild(data);
+    this.#baseThread(data);
+  }
+
+  [ChannelTypes.GuildPublicThread](data: Partial<GuildPublicThreadChannel>) {
+    this.#guild(data);
+    this.#baseThread(data);
+  }
+
+  [ChannelTypes.GuildPrivateThread](data: Partial<GuildPrivateThreadChannel>) {
+    this.#guild(data);
+    this.#baseThread(data);
+  }
+
+  [ChannelTypes.GuildStageVoice](data: Partial<GuildStageVoiceChannel>) {
+    this.#guild(data);
+    this.#baseVoice(data);
+
+    if (data.topic !== undefined) {
+      this.topic = data.topic;
+    }
+  }
+}

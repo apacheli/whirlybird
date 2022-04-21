@@ -1,8 +1,4 @@
 import type { AcceptedLocales } from "../../types/src/reference.ts";
-import type {
-  GuildChannel,
-  ThreadChannel,
-} from "../../types/src/resources/channel.ts";
 import type { Emoji } from "../../types/src/resources/emoji.ts";
 import type {
   DefaultMessageNotificationLevel,
@@ -25,8 +21,9 @@ import type {
   VoiceState,
 } from "../../types/src/resources/voice.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
-import type { Permissions, Role } from "../../types/src/topics/permissions.ts";
+import type { Permissions } from "../../types/src/topics/permissions.ts";
 import { CacheMap } from "./cache.ts";
+import { CacheChannel } from "./cache_channel.ts";
 import type { CacheClient } from "./cache_client.ts";
 import { CacheRole } from "./cache_role.ts";
 import { CacheStructure } from "./cache_structure.ts";
@@ -62,8 +59,8 @@ export class CacheGuild extends CacheStructure {
   memberCount?: number;
   voiceStates?: Partial<VoiceState>[];
   members?: GuildMember[];
-  channels?: GuildChannel[];
-  threads?: ThreadChannel[];
+  channels;
+  threads;
   presences?: DispatchPayloadPresenceUpdateData[];
   maxPresences?: number | null;
   maxMembers?: number;
@@ -96,8 +93,18 @@ export class CacheGuild extends CacheStructure {
     this.large = data.large;
     this.voiceStates = data.voice_states;
     this.members = data.members;
-    this.channels = data.channels;
-    this.threads = data.threads;
+    this.channels = new CacheMap(CacheChannel);
+    if (data.channels) {
+      for (const channel of data.channels) {
+        this.channels.add(channel);
+      }
+    }
+    this.threads = new CacheMap(CacheChannel);
+    if (data.threads) {
+      for (const thread of data.threads) {
+        this.threads.add(thread);
+      }
+    }
     this.presences = data.presences;
     this.stageInstances = data.stage_instances;
     this.stickers = data.stickers;
@@ -110,8 +117,6 @@ export class CacheGuild extends CacheStructure {
         }
       }
     }
-
-    this.__update__(data);
   }
 
   __update__(data: Partial<Guild>) {

@@ -26,8 +26,6 @@ export class CacheUser extends CacheStructure {
 
     this.bot = data.bot;
     this.system = data.system;
-
-    this.__update__(data);
   }
 
   __update__(data: Partial<User>) {

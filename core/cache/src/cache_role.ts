@@ -13,12 +13,6 @@ export class CacheRole extends CacheStructure {
   mentionable!: boolean;
   tags?: CacheRoleTags;
 
-  constructor(data: Role) {
-    super(data);
-
-    this.__update__(data);
-  }
-
   __update__(data: Partial<Role>) {
     if (data.name !== undefined) {
       this.name = data.name;

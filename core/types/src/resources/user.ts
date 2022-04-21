@@ -22,7 +22,7 @@ export interface User {
   system?: boolean;
   /** whether the user has two factor enabled on their account */
   mfa_enabled?: boolean;
-  /** the user's [banner hash](#DOCS_REFERENCE/image-formatting) */
+  /** the user's [banner hash](https://discord.dev/reference#image-formatting) */
   banner?: string | null;
   /** the user's banner color encoded as an integer representation of hexadecimal color code */
   accent_color?: number | null;

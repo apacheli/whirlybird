@@ -35,14 +35,14 @@ export type ThreadChannel =
   | GuildPrivateThreadChannel;
 
 //#region base channel interfaces
-/* export */ interface BaseChannel<T extends ChannelTypes> {
+export interface BaseChannel<T extends ChannelTypes = ChannelTypes> {
   /** the id of this channel */
   id: Snowflake;
   /** the [type of channel](https://discord.dev/resources/channel#channel-object-channel-types) */
   type: T;
 }
 
-/* export */ interface BaseGuildChannel<T extends ChannelTypes>
+export interface BaseGuildChannel<T extends ChannelTypes = ChannelTypes>
   extends BaseChannel<T> {
   /** the id of the guild (may be missing for some channel objects received over gateway guild dispatches) */
   guild_id: Snowflake;
@@ -60,14 +60,14 @@ export type ThreadChannel =
   permissions?: Permissions;
 }
 
-/* export */ interface BaseTextChannel {
+export interface BaseTextChannel {
   /** the id of the last message sent in this channel (may not point to an existing or valid message) */
   last_message_id?: Snowflake | null;
   /** when the last pinned message was pinned. This may be `null` in events such as `GUILD_CREATE` when a message is not pinned. */
   last_pin_timestamp?: string | null;
 }
 
-/* export */ interface BaseVoiceChannel {
+export interface BaseVoiceChannel {
   /** the bitrate (in bits) of the voice channel */
   bitrate: number;
   /** the user limit of the voice channel */
@@ -78,7 +78,7 @@ export type ThreadChannel =
   video_quality_mode: VideoQualityModes;
 }
 
-/* export */ interface BaseThreadChannel extends BaseTextChannel {
+export interface BaseThreadChannel extends BaseTextChannel {
   /** an approximate count of messages in a thread, stops counting at 50 */
   message_count: number;
   /** an approximate count of users in a thread, stops counting at 50 */
@@ -121,7 +121,7 @@ export interface GroupDMChannel
   /** id of the creator of the group DM or thread */
   owner_id: Snowflake;
   /** application id of the group DM creator if it is bot-created */
-  application_id: Snowflake | null;
+  application_id: Snowflake;
 }
 
 export type GuildCategoryChannel = BaseGuildChannel<ChannelTypes.GuildCategory>;
@@ -186,6 +186,12 @@ export enum VideoQualityModes {
   Auto = 1,
   /** 720p */
   Full,
+}
+
+/** https://discord.dev/resources/channel#channel-object-channel-flags */
+export enum ChannelFlags {
+  /** this thread is pinned to the top of its parent forum channel */
+  Pinned = 1 << 1,
 }
 
 /** https://discord.dev/resources/channel#message-object */

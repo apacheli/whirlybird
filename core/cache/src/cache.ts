@@ -24,7 +24,7 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
   }
 
   add(data: T, client?: CacheClient) {
-    const existing = this.get(BigInt(data.id));
+    const existing = this.get(data.id);
     if (existing) {
       existing.__update__(data);
       return;
@@ -41,6 +41,7 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
       return;
     }
     const item = new this.baseClass(data, client);
+    item.__update__(data);
     this.set(item.id, item);
     return item;
   }

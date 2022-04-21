@@ -18,7 +18,7 @@ export type ImageSizes = 16 | 32 | 64 | 128 | 256 | 512 | 1024 | 2048 | 4096;
 /** https://discord.dev/reference#image-formatting-image-formats */
 export type ImageFormats = "jpeg" | "png" | "webp" | "gif" | "json";
 
-/** https://discord.com/developers/docs/reference#locales */
+/** https://discord.dev/reference#locales */
 export type AcceptedLocales =
   | "en-US" // English (United States)
   | "en-GB" // English (Great Britain)
