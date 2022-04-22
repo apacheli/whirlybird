@@ -39,7 +39,7 @@ export interface GuildScheduledEvent {
   /** the number of users subscribed to the scheduled event */
   user_count?: number;
   /** the [cover image hash](https://discord.dev/reference#image-formatting) of the scheduled event */
-  image: string | null;
+  image?: string | null;
 }
 
 /** https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object-guild-scheduled-event-privacy-level */

@@ -69,7 +69,7 @@ export interface SelectMenu {
   custom_id: string;
   /** the choices in the select, max 25 */
   options?: SelectOption[];
-  /** custom placeholder text if nothing is selected, max 100 characters */
+  /** custom placeholder text if nothing is selected, max 150 characters */
   placeholder?: string;
   /** the minimum number of items that must be chosen; default 1, min 0, max 25 */
   min_values?: number;
@@ -83,7 +83,7 @@ export interface SelectMenu {
 export interface SelectOption {
   /** the user-facing name of the option, max 100 characters */
   label: string;
-  /** the dev-define value of the option, max 100 characters */
+  /** the dev-defined value of the option, max 100 characters */
   value: string;
   /** an additional description of the option, max 100 characters */
   description?: string;
@@ -97,11 +97,11 @@ export interface SelectOption {
 export interface TextInput {
   /** `4` for a text input */
   type: ComponentTypes.TextInput;
-  /** a developer-defined identifier for the input, max 100 characters */
+  /** a developer-defined identifier for the select menu, max 100 characters */
   custom_id: string;
   /** the [Text Input Style](https://discord.dev/interactions/message-components#text-inputs-text-input-styles) */
   style: TextInputStyles;
-  /** the label for this component */
+  /** the label for this component, max 45 characters */
   label: string;
   /** the minimum input length for a text input, min 0, max 4000 */
   min_length?: number;

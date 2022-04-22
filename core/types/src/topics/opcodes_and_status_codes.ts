@@ -209,8 +209,10 @@ export enum DataErrorCodes {
   UnknownInteraction = 10062,
   /** Unknown application command */
   UnknownApplicationCommand,
+  /** Unknown voice state */
+  UnknownVoiceState = 10065,
   /** Unknown application command permissions */
-  UnknownApplicationCommandPermissions = 10066,
+  UnknownApplicationCommandPermissions,
   /** Unknown Stage Instance */
   UnknownStageInstance,
   /** Unknown Guild Member Verification Form */
@@ -221,6 +223,8 @@ export enum DataErrorCodes {
   UnknownGuildScheduledEvent,
   /** Unknown Guild Scheduled Event User  */
   UnknownGuildScheduledEventUser,
+  /** Unknown Tag */
+  UnknownTag = 10087,
   //#endregion 1xxxx
 
   //#region 2xxxx
@@ -295,6 +299,10 @@ export enum DataErrorCodes {
   MaximumGuildWidgetSettingsUpdated = 30042,
   /** Maximum number of edits to messages older than 1 hour reached. Try again later */
   MaximumMessageEdits = 30046,
+  /** Maximum number of pinned threads in a forum channel has been reached */
+  MaximumForumPinnedThreads,
+  /** Maximum number of tags in a forum channel has been reached */
+  MaximumForumTags,
   //#endregion 3xxxx
 
   //#region 4xxxx
@@ -320,6 +328,8 @@ export enum DataErrorCodes {
   ApplicationNameAlreadyTaken = 40041,
   /** Interaction has already been acknowledged */
   InteractionAlreadyAcknowledged = 40060,
+  /** Tag names must be unique */
+  TagNamesMustBeUnique,
   //#endregion 4xxxx
 
   //#region 5xxxx
@@ -337,7 +347,7 @@ export enum DataErrorCodes {
   CannotSendEmptyMessage,
   /** Cannot send messages to this user */
   CannotSendMessageToUser,
-  /** Cannot send messages in a voice channel */
+  /** Cannot send messages in a non-text channel */
   CannotSendMessageToVoiceChannel,
   /** Channel verification level is too high for you to gain access */
   ChannelVerificationLevelTooHigh,

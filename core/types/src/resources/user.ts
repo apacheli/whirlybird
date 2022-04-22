@@ -42,14 +42,12 @@ export interface User {
 
 /** https://discord.dev/resources/user#user-object-user-flags */
 export enum UserFlags {
-  /** None */
-  None,
   /** Discord Employee */
   Staff = 1 << 0,
   /** Partnered Server Owner */
   Partner = 1 << 1,
-  /** HypeSquad Events Coordinator */
-  Hypesquad = 1 << 2,
+  /** HypeSquad Events Member */
+  HypeSquad = 1 << 2,
   /** Bug Hunter Level 1 */
   BugHunterLevel1 = 1 << 3,
   /** House Bravery Member */

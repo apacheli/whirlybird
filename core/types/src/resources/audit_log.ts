@@ -204,6 +204,8 @@ export interface AuditLogChangeKey {
   hoist: boolean;
   /** icon changed */
   icon_hash: string;
+  /** guild scheduled event cover image changed */
+  image_hash?: string;
   /** the id of the changed entity - sometimes used in conjunction with other keys */
   id: Snowflake;
   /** person who created invite code changed */

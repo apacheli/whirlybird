@@ -19,6 +19,8 @@ export interface StageInstance {
   privacy_level: PrivacyLevel;
   /** Whether or not Stage Discovery is disabled */
   discoverable_disabled: boolean;
+  /** The id of the scheduled event for this Stage instance */
+  guild_scheduled_event_id: Snowflake;
 }
 
 /** https://discord.dev/resources/stage-instance#stage-instance-object-privacy-level */
@@ -48,6 +50,8 @@ export interface ModifyStageInstanceData {
   topic?: string;
   /** The topic of the Stage instance (1-120 characters) */
   privacy_level?: PrivacyLevel;
+  /** Notify @everyone that a Stage instance has started */
+  send_start_notification?: boolean;
 }
 
 /** https://discord.dev/resources/stage-instance#modify-stage-instance */

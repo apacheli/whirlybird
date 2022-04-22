@@ -79,6 +79,8 @@ export interface InteractionData {
   resolved?: ResolvedData;
   /** the params + values from the user */
   options?: ApplicationCommandInteractionDataOption[];
+  /** the id of the guild the command is registered to */
+  guild_id?: Snowflake;
   /** for components, the [`custom_id`](https://discord.dev/interactions/message-components#custom-id) of the component */
   custom_id: string;
   /** the [type](https://discord.dev/interactions/message-components#component-object-component-types) of the component */
@@ -181,7 +183,7 @@ export interface InteractionCallbackDataAutocomplete {
 export interface InteractionCallbackDataModal {
   /** a developer-defined identifier for the component, max 100 characters */
   custom_id: string;
-  /** the title of the popup modal */
+  /** the title of the popup modal, max 45 characters */
   title: string;
   /** between 1 and 5 (inclusive) components that make up the modal */
   components: Component[];

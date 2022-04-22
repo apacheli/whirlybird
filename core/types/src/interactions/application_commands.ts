@@ -1,7 +1,7 @@
 // deno-lint-ignore-file camelcase
 
 import type { Nullify } from "../../../util/mod.ts";
-import type { Snowflake } from "../reference.ts";
+import type { AcceptedLocales, Snowflake } from "../reference.ts";
 import type { ChannelTypes } from "../resources/channel.ts";
 
 // https://discord.dev/interactions/application-commands
@@ -18,8 +18,12 @@ export interface ApplicationCommand {
   guild_id?: boolean;
   /** [1-32 character name](https://discord.dev/interactions/application-commands#application-command-object-application-command-naming) */
   name: string;
+  /** Localization dictionary for the `name` field. Values follow the same restrictions as `name` */
+  name_localizations?: Record<AcceptedLocales, string>;
   /** 1-100 character description */
   description: string;
+  /** Localization dictionary for the `description` field. Values follow the same restrictions as `description` */
+  description_localizations?: Record<AcceptedLocales, string>;
   /** the parameters for the command */
   options?: ApplicationCommandOption[];
   /** whether the command is enabled by default when the app is added to a guild */
@@ -86,6 +90,8 @@ export enum ApplicationCommandOptionType {
 export interface ApplicationCommandOptionChoice {
   /** 1-100 character choice name */
   name: string;
+  /** Localization dictionary for the `name` field. Values follow the same restrictions as `name` */
+  name_localizations?: Record<AcceptedLocales, string>;
   /** value of the choice, up to 100 characters if string */
   value: string | number;
 }
@@ -135,6 +141,12 @@ export enum ApplicationCommandPermissionType {
 /** https://discord.dev/interactions/application-commands#get-global-application-commands */
 export type GetGlobalApplicationCommandsBody = ApplicationCommand[];
 
+/** https://discord.dev/interactions/application-commands#get-global-application-commands */
+export interface GetGlobalApplicationCommandsQuery {
+  /** Whether to include full localization dictionaries (`name_localizations` and `description_localizations`) in the returned objects, instead of the `name_localized` and `description_localized` fields. Default `false`. */
+  with_localizations?: boolean;
+}
+
 /** https://discord.dev/interactions/application-commands#create-global-application-command */
 export type CreateGlobalApplicationCommandData = Omit<
   ApplicationCommand,
@@ -166,6 +178,10 @@ export type BulkOverwriteGlobalApplicationCommandsBody = ApplicationCommand[];
 
 /** https://discord.dev/interactions/application-commands#get-guild-application-commands */
 export type GetGuildApplicationCommandsBody = ApplicationCommand[];
+
+/** https://discord.dev/interactions/application-commands#get-guild-application-commands */
+export type GetGuildApplicationCommandsQuery =
+  GetGlobalApplicationCommandsQuery;
 
 /** https://discord.dev/interactions/application-commands#create-guild-application-command */
 export type CreateGuildApplicationCommandData =

@@ -51,7 +51,7 @@ export interface BaseGuildChannel<T extends ChannelTypes = ChannelTypes>
   /** explicit permission overwrites for members and roles */
   permission_overwrites: Overwrite[];
   /** the name of the channel (1-100 characters) */
-  name: string;
+  name: string | null;
   /** whether the channel is nsfw */
   nsfw: boolean;
   /** for guild channels: id of the parent category for a channel (each parent category can contain up to 50 channels), for threads: id of the text channel this thread was created */
@@ -61,7 +61,7 @@ export interface BaseGuildChannel<T extends ChannelTypes = ChannelTypes>
 }
 
 export interface BaseTextChannel {
-  /** the id of the last message sent in this channel (may not point to an existing or valid message) */
+  /** the id of the last message sent in this channel (or thread for `GUILD_FORUM` channels) (may not point to an existing or valid message or thread) */
   last_message_id?: Snowflake | null;
   /** when the last pinned message was pinned. This may be `null` in events such as `GUILD_CREATE` when a message is not pinned. */
   last_pin_timestamp?: string | null;
@@ -113,7 +113,7 @@ export type GuildVoiceChannel =
 export interface GroupDMChannel
   extends BaseChannel<ChannelTypes.GroupDM>, BaseTextChannel {
   /** the name of the channel (1-100 characters) */
-  name: string;
+  name: string | null;
   /** the recipients of the DM */
   recipients: User[];
   /** icon hash of the group DM */
@@ -178,6 +178,10 @@ export enum ChannelTypes {
   GuildPrivateThread,
   /** a voice channel for [hosting events with an audience](https://support.discord.com/hc/en-us/articles/1500005513722) */
   GuildStageVoice,
+  /** the channel in a [hub](https://support.discord.com/hc/en-us/articles/4406046651927-Discord-Student-Hubs-FAQ) containing the listed servers */
+  GuildDirectory,
+  /** (still in development) a channel that can only contain threads */
+  GuildForum,
 }
 
 /** https://discord.dev/resources/channel#channel-object-video-quality-modes */
@@ -790,7 +794,7 @@ export type GroupDMAddRecipientBody = void;
 export type GroupDMRemoveRecipientBody = void;
 
 /** https://discord.dev/resources/channel#start-thread-with-message */
-export interface StartThreadWithMessageData {
+export interface StartThreadFromMessageData {
   /** 1-100 character channel name */
   name: string;
   /** duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
@@ -802,7 +806,7 @@ export type StartThreadWithMessageBody = Channel;
 
 /** https://discord.dev/resources/channel#start-thread-without-message */
 export interface StartThreadWithoutMessageData
-  extends StartThreadWithMessageData {
+  extends StartThreadFromMessageData {
   /** the [type of thread](https://discord.dev/resources/channel#channel-object-channel-types) to create */
   type?: ChannelTypes;
 }

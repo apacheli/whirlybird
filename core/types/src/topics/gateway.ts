@@ -49,9 +49,9 @@ export interface BasePayload<op extends number, d extends unknown> {
 export interface GatewayURLQuery {
   /** Gateway Version to use */
   v: GatewayVersions;
-  /** The encoding of received gateway packets */
+  /** `json` or `etf` */
   encoding: EncodingTypes;
-  /** The (optional) compression of gateway packets */
+  /** `zlib-stream` */
   compress?: "zlib-stream";
 }
 

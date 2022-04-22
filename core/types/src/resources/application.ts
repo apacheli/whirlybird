@@ -28,8 +28,6 @@ export interface Application {
   privacy_policy_url?: string;
   /** partial user object containing info on the owner of the application */
   owner?: Partial<User>;
-  /** if this application is a game sold on Discord, this field will be the summary field for the store page of its primary sku */
-  summary: string;
   /** the hex encoded key for verification in interactions and the GameSDK's [GetTicket](https://discord.dev/game-sdk/applications#getticket) */
   verify_key: string;
   /** if the application belongs to a team, this will be a list of the members of that team */
@@ -44,14 +42,38 @@ export interface Application {
   cover_image?: string;
   /** the application's public [flags](https://discord.dev/resources/application#application-object-application-flags) */
   flags?: ApplicationFlags;
+  /** up to 5 tags describing the content and functionality of the application */
+  tags?: string[];
+  /** settings for the application's default in-app authorization link, if enabled */
+  install_params?: InstallParams;
+  /** the application's default custom authorization link, if enabled */
+  custom_install_url?: string;
 }
 
 /** https://discord.dev/resources/application#application-object-application-flags */
 export enum ApplicationFlags {
+  /** Intent required for bots in **100 or more servers** to receive [`presence_update` events](#DOCS_TOPICS_GATEWAY/presence-update) */
   GatewayPresence = 1 << 12,
+  /** Intent required for bots in under 100 servers to receive [`presence_update` events](#DOCS_TOPICS_GATEWAY/presence-update), found in Bot Settings */
   GatewayPresenceLimited = 1 << 13,
+  /** Intent required for bots in **100 or more servers** to receive member-related events like `guild_member_add`. See list of member-related events [under `GUILD_MEMBERS`](#DOCS_TOPICS_GATEWAY/list-of-intents) */
   GatewayGuildMembers = 1 << 14,
+  /** Intent required for bots in under 100 servers to receive member-related events like `guild_member_add`, found in Bot Settings. See list of member-related events [under `GUILD_MEMBERS`](#DOCS_TOPICS_GATEWAY/list-of-intents) */
   GatewayGuildMembersLimited = 1 << 15,
+  /** Indicates unusual growth of an app that prevents verification */
   VerificationPendingGuildLimit = 1 << 16,
+  /** Indicates if an app is embedded within the Discord client (currently unavailable publicly) */
   Embedded = 1 << 17,
+  /** Intent required for bots in **100 or more servers** to receive [message content](https://support-dev.discord.com/hc/en-us/articles/4404772028055) */
+  GatewayMessageContent = 1 << 18,
+  /** Intent required for bots in under 100 servers to receive [message content](https://support-dev.discord.com/hc/en-us/articles/4404772028055), found in Bot Settings */
+  GatewayMessageContentLimited = 1 << 19,
+}
+
+/** https://discord.com/developers/docs/resources/application#install-params-object */
+export interface InstallParams {
+  /** the [scopes](#DOCS_TOPICS_OAUTH2/shared-resources-oauth2-scopes) to add the application to the server with */
+  scopes: string[];
+  /** the [permissions](#DOCS_TOPICS_PERMISSIONS) to request for the bot role */
+  permissions: string;
 }
