@@ -4,7 +4,7 @@
 export const BaseUrl = "https://discord.com/api";
 
 /** https://discord.dev/reference#api-versioning */
-export type ApiVersions = 8 | 9;
+export type ApiVersions = 10;
 
 /** https://discord.dev/reference#snowflakes */
 export type Snowflake = `${bigint}`;

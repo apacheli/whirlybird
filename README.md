@@ -13,6 +13,8 @@ the complicated bits to improve the overall development experience.
 
 ### Getting Started
 
+You will need Deno v1.21.0 at minimum.
+
 Run an [example](examples/example.ts) directly from the CLI:
 
 ```sh

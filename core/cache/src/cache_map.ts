@@ -6,9 +6,16 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
   extends Map<bigint, V> {
   constructor(
     public baseClass: new (data: T, client?: CacheClient) => V,
+    structures?: T[] | null,
     public limit?: number,
   ) {
     super();
+
+    if (structures?.length) {
+      for (const structure of structures) {
+        this.add(structure);
+      }
+    }
   }
 
   delete(key: Snowflake | bigint) {

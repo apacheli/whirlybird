@@ -52,13 +52,13 @@ export interface Application {
 
 /** https://discord.dev/resources/application#application-object-application-flags */
 export enum ApplicationFlags {
-  /** Intent required for bots in **100 or more servers** to receive [`presence_update` events](#DOCS_TOPICS_GATEWAY/presence-update) */
+  /** Intent required for bots in **100 or more servers** to receive [`presence_update` events](https://discord.dev/topics/gateway#presence-update) */
   GatewayPresence = 1 << 12,
-  /** Intent required for bots in under 100 servers to receive [`presence_update` events](#DOCS_TOPICS_GATEWAY/presence-update), found in Bot Settings */
+  /** Intent required for bots in under 100 servers to receive [`presence_update` events](https://discord.dev/topics/gateway#presence-update), found in Bot Settings */
   GatewayPresenceLimited = 1 << 13,
-  /** Intent required for bots in **100 or more servers** to receive member-related events like `guild_member_add`. See list of member-related events [under `GUILD_MEMBERS`](#DOCS_TOPICS_GATEWAY/list-of-intents) */
+  /** Intent required for bots in **100 or more servers** to receive member-related events like `guild_member_add`. See list of member-related events [under `GUILD_MEMBERS`](https://discord.dev/topics/gateway#list-of-intents) */
   GatewayGuildMembers = 1 << 14,
-  /** Intent required for bots in under 100 servers to receive member-related events like `guild_member_add`, found in Bot Settings. See list of member-related events [under `GUILD_MEMBERS`](#DOCS_TOPICS_GATEWAY/list-of-intents) */
+  /** Intent required for bots in under 100 servers to receive member-related events like `guild_member_add`, found in Bot Settings. See list of member-related events [under `GUILD_MEMBERS`](https://discord.dev/topics/gateway#list-of-intents) */
   GatewayGuildMembersLimited = 1 << 15,
   /** Indicates unusual growth of an app that prevents verification */
   VerificationPendingGuildLimit = 1 << 16,
@@ -70,10 +70,10 @@ export enum ApplicationFlags {
   GatewayMessageContentLimited = 1 << 19,
 }
 
-/** https://discord.com/developers/docs/resources/application#install-params-object */
+/** https://discord.dev/resources/application#install-params-object */
 export interface InstallParams {
-  /** the [scopes](#DOCS_TOPICS_OAUTH2/shared-resources-oauth2-scopes) to add the application to the server with */
+  /** the [scopes](https://discord.dev/topics/oauth2#shared-resources-oauth2-scopes) to add the application to the server with */
   scopes: string[];
-  /** the [permissions](#DOCS_TOPICS_PERMISSIONS) to request for the bot role */
+  /** the [permissions](https://discord.dev/topics/permissions) to request for the bot role */
   permissions: string;
 }

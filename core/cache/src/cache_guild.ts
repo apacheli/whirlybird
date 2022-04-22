@@ -84,27 +84,14 @@ export class CacheGuild extends CacheStructure {
   constructor(data: Guild, client?: CacheClient) {
     super(data);
 
-    this.roles = new CacheMap(CacheRole);
-    for (const role of data.roles) {
-      this.roles.add(role);
-    }
+    this.roles = new CacheMap(CacheRole, data.roles);
     this.emojis = data.emojis;
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
     this.large = data.large;
     this.voiceStates = data.voice_states;
     this.members = data.members;
-    this.channels = new CacheMap(CacheChannel);
-    if (data.channels) {
-      for (const channel of data.channels) {
-        this.channels.add(channel);
-      }
-    }
-    this.threads = new CacheMap(CacheChannel);
-    if (data.threads) {
-      for (const thread of data.threads) {
-        this.threads.add(thread);
-      }
-    }
+    this.channels = new CacheMap(CacheChannel, data.channels);
+    this.threads = new CacheMap(CacheChannel, data.threads);
     this.presences = data.presences;
     this.stageInstances = data.stage_instances;
     this.stickers = data.stickers;
