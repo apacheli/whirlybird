@@ -1,0 +1,59 @@
+name: Bug Report
+description: Found a bug? Report it so we can fix it as soon as possible.
+labels: bug
+
+body:
+
+  - type: textarea
+    attributes:
+      label: Description
+      description: Describe the bug and how the behavior is unexpected.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Reproduce
+      description: List the steps to reproduce the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: Explain what you expect the behavior should be.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Code/Screenshots/Videos
+      description: Share code or media that might help us debug the issue.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Deno Version
+      description: Make sure your Deno version is higher or equal to the minimum required Deno version to run Whirlybird.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Platform
+      description: The name and build of your platform. Make sure to be very specific!
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Whirlybird Version
+      description: The version of Whirlybird you are using.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Keywords
+      description: This will help others find your issue in the search bar.

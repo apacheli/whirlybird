@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: 1.17.0
+
+      - name: fmt
+        run: deno fmt --check
+
+      - name: lint
+        run: deno lint
+
+      # - name: test
+      #   run: deno test
