@@ -81,7 +81,7 @@ export class CacheGuild extends CacheStructure {
   guildScheduledEvents?: GuildScheduledEvent[];
   premiumProgressBarEnabled?: boolean;
 
-  constructor(data: Guild, client?: CacheClient) {
+  constructor(data: Guild) {
     super(data);
 
     this.roles = new CacheMap(CacheRole, data.roles);
@@ -96,14 +96,6 @@ export class CacheGuild extends CacheStructure {
     this.stageInstances = data.stage_instances;
     this.stickers = data.stickers;
     this.guildScheduledEvents = data.guild_scheduled_events;
-
-    if (data.members) {
-      for (const member of data.members) {
-        if (member.user) {
-          client?.users.add(member.user);
-        }
-      }
-    }
   }
 
   __update__(data: Partial<Guild>) {

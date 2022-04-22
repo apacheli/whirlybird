@@ -117,21 +117,21 @@ export class CacheClient {
 
       case GatewayEvents.GuildCreate: {
         if ("unavailable" in payload.d) {
-          this.guilds.modify(payload.d, this);
+          this.guilds.modify(payload.d);
         } else {
-          this.guilds.add(payload.d, this);
+          this.guilds.add(payload.d);
         }
         break;
       }
 
       case GatewayEvents.GuildUpdate: {
-        this.guilds.modify(payload.d, this);
+        this.guilds.modify(payload.d);
         break;
       }
 
       case GatewayEvents.GuildDelete: {
         if (payload.d.unavailable) {
-          this.guilds.modify(payload.d, this);
+          this.guilds.modify(payload.d);
         } else {
           this.guilds.delete(payload.d.id);
         }
@@ -139,7 +139,7 @@ export class CacheClient {
       }
 
       case GatewayEvents.UserUpdate: {
-        this.users.modify(payload.d, this);
+        this.users.modify(payload.d);
         break;
       }
 

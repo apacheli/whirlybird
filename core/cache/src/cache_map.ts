@@ -5,7 +5,7 @@ import type { CacheStructure, Structure } from "./cache_structure.ts";
 export class CacheMap<V extends CacheStructure, T extends Structure>
   extends Map<bigint, V> {
   constructor(
-    public baseClass: new (data: T, client?: CacheClient) => V,
+    public baseClass: new (data: T) => V,
     structures?: T[] | null,
     public limit?: number,
   ) {
@@ -30,7 +30,7 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
     return super.has(BigInt(key));
   }
 
-  add(data: T, client?: CacheClient) {
+  add(data: T) {
     const existing = this.get(data.id);
     if (existing) {
       existing.__update__(data);
@@ -47,14 +47,14 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
     if (this.limit === 0) {
       return;
     }
-    const item = new this.baseClass(data, client);
+    const item = new this.baseClass(data);
     item.__update__(data);
     this.set(item.id, item);
     return item;
   }
 
-  // Calls CacheMap.add() under the hood but make an alias anyway.
-  modify(data: Partial<T>, client?: CacheClient) {
-    return this.add(data as T, client);
+  // Calls CacheMap.add() under the hood but make this method an alias anyway.
+  modify(data: Partial<T>) {
+    return this.add(data as T);
   }
 }

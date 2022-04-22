@@ -1,4 +1,5 @@
 import type { Snowflake } from "../../types/src/reference.ts";
+import type { CacheClient } from "./cache_client.ts";
 
 export interface Structure {
   id: Snowflake;
@@ -15,7 +16,7 @@ export interface Structure {
 export abstract class CacheStructure {
   id;
 
-  constructor(data: Structure) {
+  constructor(data: Structure, public client?: CacheClient) {
     this.id = BigInt(data.id);
   }
 
