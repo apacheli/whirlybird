@@ -1,5 +1,4 @@
 import type { Snowflake } from "../../types/src/reference.ts";
-import { CacheClient } from "./cache_client.ts";
 import type { CacheStructure, Structure } from "./cache_structure.ts";
 
 export class CacheMap<V extends CacheStructure, T extends Structure>
