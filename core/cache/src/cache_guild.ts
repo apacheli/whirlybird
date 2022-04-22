@@ -22,9 +22,9 @@ import type {
 } from "../../types/src/resources/voice.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions } from "../../types/src/topics/permissions.ts";
-import { CacheMap } from "./cache.ts";
 import { CacheChannel } from "./cache_channel.ts";
 import type { CacheClient } from "./cache_client.ts";
+import { CacheMap } from "./cache_map.ts";
 import { CacheRole } from "./cache_role.ts";
 import { CacheStructure } from "./cache_structure.ts";
 

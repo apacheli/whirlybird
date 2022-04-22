@@ -431,7 +431,7 @@ export type DispatchPayloadChannelCreate = BaseDispatchPayload<
 >;
 
 /** https://discord.dev/topics/gateway#channel-create */
-export type DispatchPayloadChannelCreateData = GuildChannel;
+export type DispatchPayloadChannelCreateData = Channel;
 
 /** https://discord.dev/topics/gateway#channel-update */
 export type DispatchPayloadChannelUpdate = BaseDispatchPayload<
