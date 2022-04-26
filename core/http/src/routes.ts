@@ -1,6 +1,6 @@
 import type { Snowflake } from "../../types/src/reference.ts";
 
-// deno-fmt-ignore
+// deno-fmt-ignore-next-line
 export const
   APPLICATION_ACHIEVEMENT                  = (applicationId: Snowflake, achievementId: Snowflake) => `/applications/${applicationId}/achievements/${achievementId}`,
   APPLICATION_ACHIEVEMENTS                 = (applicationId: Snowflake) => `/applications/${applicationId}/achievements`,
@@ -34,6 +34,7 @@ export const
   CHANNEL_THREAD_MEMBER_ME                 = (channelId: Snowflake) => `/channels/${channelId}/thread-members/@me`,
   CHANNEL_THREAD_MEMBERS                   = (channelId: Snowflake) => `/channels/${channelId}/thread-members`,
   CHANNEL_THREADS                          = (channelId: Snowflake) => `/channels/${channelId}/threads`,
+  CHANNEL_THREADS_ACTIVE                   = (channelId: Snowflake) => `/channels/${channelId}/threads/active`,
   CHANNEL_THREADS_ARCHIVED_PRIVATE         = (channelId: Snowflake) => `/channels/${channelId}/threads/archived/private`,
   CHANNEL_THREADS_ARCHIVED_PUBLIC          = (channelId: Snowflake) => `/channels/${channelId}/threads/archived/public`,
   CHANNEL_TYPING                           = (channelId: Snowflake) => `/channels/${channelId}/typing`,
@@ -82,11 +83,11 @@ export const
   GUILDS_TEMPLATE                          = (templateCode: string) => `/guilds/templates/${templateCode}`,
   INTERACTION_TOKEN_CALLBACK               = (interactionId: Snowflake, interactionToken: string) => `/interactions/${interactionId}/${interactionToken}/callback`,
   INVITE                                   = (inviteCode: string) => `/invites/${inviteCode}`,
-  LOBBY                                   = (lobbyId: Snowflake) => `/lobbies/${lobbyId}`,
-  LOBBY_MEMBER                            = (lobbyId: Snowflake, userId: Snowflake) => `/lobbies/${lobbyId}/members/${userId}`,
-  LOBBY_SEND                              = (lobbyId: Snowflake) => `/lobbies/${lobbyId}/send`,
   LOBBIES                                  = "/lobbies",
   LOBBIES_SEARCH                           = "/lobbies/search",
+  LOBBY                                    = (lobbyId: Snowflake) => `/lobbies/${lobbyId}`,
+  LOBBY_MEMBER                             = (lobbyId: Snowflake, userId: Snowflake) => `/lobbies/${lobbyId}/members/${userId}`,
+  LOBBY_SEND                               = (lobbyId: Snowflake) => `/lobbies/${lobbyId}/send`,
   OAUTH2_APPLICATION_ME                    = "/oauth2/applications/@me",
   OAUTH2_ME                                = "/oauth2/@me",
   STAGE_INSTANCE                           = (channelId: Snowflake) => `/stage-instances/${channelId}`,
@@ -95,8 +96,8 @@ export const
   STICKER_PACKS                            = "/sticker-packs",
   STORE_SKU_DISCOUNT                       = (skuId: Snowflake, userId: Snowflake) => `/store/skus/${skuId}/discounts/${userId}`,
   USER                                     = (userId: Snowflake) => `/users/${userId}`,
-  USER_APPLICATION_ACHIEVEMENT             = (userId: Snowflake, applicationId: Snowflake, achievementId: Snowflake) => `/users/${userId}/applications/${applicationId}//achievements/${achievementId}`,
   USER_ME                                  = "/users/@me",
+  USER_ME_APPLICATION_ACHIEVEMENTS         = (applicationId: Snowflake) => `/users/@me/applications/${applicationId}/achievements`,
   USER_ME_CHANNELS                         = "/users/@me/channels",
   USER_ME_CONNECTIONS                      = "/users/@me/connections",
   USER_ME_GUILD                            = (guildId: Snowflake) => `/users/@me/guilds/${guildId}`,

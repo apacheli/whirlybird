@@ -1,4 +1,3 @@
-//#region
 import type {
   AddGuildMemberBody,
   AddGuildMemberData,
@@ -140,13 +139,16 @@ import type {
   GetGatewayBotBody,
   GetGlobalApplicationCommandBody,
   GetGlobalApplicationCommandsBody,
+  GetGlobalApplicationCommandsQuery,
   GetGuildApplicationCommandBody,
   GetGuildApplicationCommandPermissionsBody,
   GetGuildApplicationCommandsBody,
+  GetGuildApplicationCommandsQuery,
   GetGuildAuditLogBody,
   GetGuildAuditLogQuery,
   GetGuildBanBody,
   GetGuildBansBody,
+  GetGuildBansQuery,
   GetGuildBody,
   GetGuildChannelsBody,
   GetGuildEmojiBody,
@@ -212,8 +214,6 @@ import type {
   ListScheduledEventsForGuildQuery,
   ListThreadMembersBody,
   ListVoiceRegionsBody,
-  ModifyAchievementBody,
-  ModifyAchievementData,
   ModifyChannelBody,
   ModifyChannelData,
   ModifyCurrentMemberBody,
@@ -246,13 +246,8 @@ import type {
   ModifyGuildWelcomeScreenData,
   ModifyGuildWidgetBody,
   ModifyGuildWidgetData,
-  ModifyLobbyBody,
-  ModifyLobbyData,
-  ModifyLobbyMemberBody,
-  ModifyLobbyMemberData,
   ModifyStageInstanceBody,
   ModifyStageInstanceData,
-  ModifyUserAchievementBody,
   ModifyUserVoiceStateBody,
   ModifyUserVoiceStateData,
   ModifyWebhookBody,
@@ -268,15 +263,24 @@ import type {
   SearchGuildMembersQuery,
   SendLobbyDataBody,
   SendLobbyDataData,
-  StartThreadWithMessageBody,
-  StartThreadWithMessageData,
+  StartThreadFromMessageBody,
+  StartThreadFromMessageData,
+  StartThreadInForumChannelBody,
+  StartThreadInForumChannelData,
   StartThreadWithoutMessageBody,
   StartThreadWithoutMessageData,
   SyncGuildTemplateBody,
   TriggerTypingIndicatorBody,
   UnpinMessageBody,
+  UpdateAchievementBody,
+  UpdateAchievementData,
+  UpdateLobbyBody,
+  UpdateLobbyData,
+  UpdateLobbyMemberBody,
+  UpdateLobbyMemberData,
+  UpdateUserAchievementBody,
+  UpdateUserAchievementData,
 } from "../../types/mod.ts";
-//#endregion
 import {
   type ApiVersions,
   BaseUrl,
@@ -396,8 +400,8 @@ import {
   STICKER_PACKS,
   STORE_SKU_DISCOUNT,
   USER,
-  USER_APPLICATION_ACHIEVEMENT,
   USER_ME,
+  USER_ME_APPLICATION_ACHIEVEMENTS,
   USER_ME_CHANNELS,
   USER_ME_CONNECTIONS,
   USER_ME_GUILD,
@@ -422,6 +426,7 @@ export interface HttpClientOptions {
 }
 
 export interface RequestOptions {
+  authentication?: boolean;
   data?: unknown;
   files?: File[];
   // https://github.com/microsoft/TypeScript/issues/15300
@@ -455,9 +460,11 @@ export class HttpClient {
     options?: RequestOptions,
   ) {
     const headers: Record<string, string> = {
-      "Authorization": this.#token,
       "User-Agent": this.options?.userAgent ?? USER_AGENT,
     };
+    if (options?.authentication !== false) {
+      headers["Authorization"] = this.#token;
+    }
     if (options?.reason) {
       headers["X-Audit-Log-Reason"] = options.reason;
     }
@@ -580,7 +587,6 @@ export class HttpClient {
   put(path: string, bucketKey: string, options?: RequestOptions) {
     return this.request("PUT", path, bucketKey, options);
   }
-
   //#region methods
   /**
    * https://discord.dev/resources/guild#add-guild-member
@@ -605,7 +611,7 @@ export class HttpClient {
   ): Promise<AddGuildMemberBody> {
     return this.put(
       GUILD_MEMBER(guildId, userId),
-      `addGuildMember_${guildId}`,
+      `AddGuildMember_${guildId}`,
       {
         data,
       },
@@ -632,7 +638,7 @@ export class HttpClient {
   ): Promise<AddGuildMemberRoleBody> {
     return this.put(
       GUILD_MEMBER_ROLE(guildId, userId, roleId),
-      `addGuildMemberRole_${guildId}`,
+      `AddGuildMemberRole_${guildId}`,
       {
         reason,
       },
@@ -653,7 +659,7 @@ export class HttpClient {
   ): Promise<AddThreadMemberBody> {
     return this.put(
       CHANNEL_THREAD_MEMBER(channelId, userId),
-      `addThreadMember_${channelId}`,
+      `AddThreadMember_${channelId}`,
     );
   }
 
@@ -663,11 +669,11 @@ export class HttpClient {
    * > warn
    * > This endpoint will overwrite all existing permissions for all commands in a guild, including slash commands, user commands, and message commands.
    *
-   * Batch edits permissions for all commands in a guild. Takes an array of partial [guild application command permissions](https://discord.dev/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) objects including `id` and `permissions`.
+   * Batch edits permissions for all commands in a guild. Takes an array of partial [guild application command permissions](https://discord.dev/interactions/application/commands#application-command-permissions-object-guild-application-command-permissions-structure) objects including `id` and `permissions`.
    *
    * You can only add up to 10 permission overwrites for a command.
    *
-   * Returns an array of [GuildApplicationCommandPermissions](https://discord.dev/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) objects.
+   * Returns an array of [GuildApplicationCommandPermissions](https://discord.dev/interactions/application/commands#application-command-permissions-object-guild-application-command-permissions-structure) objects.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
@@ -679,7 +685,7 @@ export class HttpClient {
   ): Promise<BatchEditApplicationCommandPermissionsBody> {
     return this.put(
       APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId),
-      `batchEditApplicationCommandPermissions_${guildId}`,
+      `BatchEditApplicationCommandPermissions_${guildId}`,
       {
         data,
       },
@@ -689,7 +695,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#begin-guild-prune
    *
-   * Begin a prune operation. Requires the `KICK_MEMBERS` permission. Returns an object with one 'pruned' key indicating the number of members that were removed in the prune operation. For large guilds it's recommended to set the `compute_prune_count` option to `false`, forcing 'pruned' to `null`. Fires multiple [Guild Member Remove](https://discord.dev/topics/gateway#guild-member-remove) Gateway events.
+   * Begin a prune operation. Requires the `KICK_MEMBERS` permission. Returns an object with one `pruned` key indicating the number of members that were removed in the prune operation. For large guilds it's recommended to set the `compute_prune_count` option to `false`, forcing `pruned` to `null`. Fires multiple [Guild Member Remove](https://discord.dev/topics/gateway#guild-member-remove) Gateway events.
    *
    * By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the `include_roles` parameter. Any inactive user that has a subset of the provided role(s) will be included in the prune and users with additional roles will not.
    *
@@ -703,7 +709,7 @@ export class HttpClient {
     data: BeginGuildPruneData,
     reason?: string,
   ): Promise<BeginGuildPruneBody> {
-    return this.post(GUILD_PRUNE(guildId), `beginGuildPrune_${guildId}`, {
+    return this.post(GUILD_PRUNE(guildId), `BeginGuildPrune_${guildId}`, {
       data,
       reason,
     });
@@ -731,7 +737,7 @@ export class HttpClient {
   ): Promise<BulkDeleteMessagesBody> {
     return this.post(
       CHANNEL_MESSAGES_BULK_DELETE(channelId),
-      `bulkDeleteMessages_${channelId}`,
+      `BulkDeleteMessages_${channelId}`,
       {
         data,
         reason,
@@ -742,7 +748,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/application-commands#bulk-overwrite-global-application-commands
    *
-   * Takes a list of application commands, overwriting the existing global command list for this application. Updates will be available in all guilds after 1 hour. Returns `200` and a list of [application command](https://discord.dev/interactions/application-commands#application-command-object) objects. Commands that do not already exist will count toward daily application command create limits.
+   * Takes a list of application commands, overwriting the existing global command list for this application. Updates will be available in all guilds after 1 hour. Returns `200` and a list of [application command](https://discord.dev/interactions/application/commands#application-command-object) objects. Commands that do not already exist will count toward daily application command create limits.
    *
    * > danger
    * > This will overwrite **all** types of application commands: slash commands, user commands, and message commands.
@@ -755,7 +761,7 @@ export class HttpClient {
   ): Promise<BulkOverwriteGlobalApplicationCommandsBody> {
     return this.put(
       APPLICATION_COMMANDS(applicationId),
-      "bulkOverwriteGlobalApplicationCommands",
+      "BulkOverwriteGlobalApplicationCommands",
       {
         data,
       },
@@ -765,7 +771,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/application-commands#bulk-overwrite-guild-application-commands
    *
-   * Takes a list of application commands, overwriting the existing command list for this application for the targeted guild. Returns `200` and a list of [application command](https://discord.dev/interactions/application-commands#application-command-object) objects.
+   * Takes a list of application commands, overwriting the existing command list for this application for the targeted guild. Returns `200` and a list of [application command](https://discord.dev/interactions/application/commands#application-command-object) objects.
    *
    * > danger
    * > This will overwrite **all** types of application commands: slash commands, user commands, and message commands.
@@ -780,7 +786,7 @@ export class HttpClient {
   ): Promise<BulkOverwriteGuildApplicationCommandsBody> {
     return this.put(
       APPLICATION_GUILD_COMMANDS(applicationId, guildId),
-      `bulkOverwriteGuildApplicationCommands_${guildId}`,
+      `BulkOverwriteGuildApplicationCommands_${guildId}`,
       {
         data,
       },
@@ -801,19 +807,16 @@ export class HttpClient {
   ): Promise<ConsumeSKUBody> {
     return this.post(
       APPLICATION_ENTITLEMENT_CONSUME(applicationId, entitlementId),
-      "consumeSKU",
+      "ConsumeSKU",
     );
   }
 
   /**
    * https://discord.dev/game-sdk/achievements#create-achievement
    *
-   * Creates a new [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for your application.
+   * Creates a new achievement for your application. Applications can have a maximum of 1000 achievements. This endpoint has a rate limit of 5 requests per 5 seconds per application.
    *
-   * > info
-   * > Applications can have a maximum of 1000 achievements.
-   *
-   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   createAchievement(
     applicationId: Snowflake,
@@ -821,7 +824,7 @@ export class HttpClient {
   ): Promise<CreateAchievementBody> {
     return this.post(
       APPLICATION_ACHIEVEMENTS(applicationId),
-      "createAchievement",
+      "CreateAchievement",
       {
         data,
       },
@@ -845,7 +848,7 @@ export class HttpClient {
   ): Promise<CreateChannelInviteBody> {
     return this.post(
       CHANNEL_INVITES(channelId),
-      `createChannelInvite_${channelId}`,
+      `CreateChannelInvite_${channelId}`,
       {
         data,
         reason,
@@ -862,7 +865,7 @@ export class HttpClient {
    * > You should not use this endpoint to DM everyone in a server about something. DMs should generally be initiated by a user action. If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
    */
   createDM(data: CreateDMData): Promise<CreateDMBody> {
-    return this.post(USER_ME_CHANNELS, "createDM", {
+    return this.post(USER_ME_CHANNELS, "CreateDM", {
       data,
     });
   }
@@ -870,7 +873,9 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#create-followup-message
    *
-   * Create a followup message for an Interaction. Functions the same as [Execute Webhook](https://discord.dev/resources/webhook#execute-webhook), but `wait` is always true, and `flags` can be set to `64` in the body to send an ephemeral message. The `thread_id`, `avatar_url`, and `username` parameters are not supported when using this endpoint for interaction followups.
+   * Create a followup message for an Interaction. Functions the same as [Execute Webhook](https://discord.dev/resources/webhook#execute-webhook), but `wait` is always true. The `thread_id`, `avatar_url`, and `username` parameters are not supported when using this endpoint for interaction followups.
+   *
+   * `flags` can be set to `64` to mark the message as ephemeral, except when it is the first followup message to a deferred Interactions Response. In that case, the `flags` field will be ignored, and the ephemerality of the message will be determined by the `flags` value in your original ACK.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -883,7 +888,7 @@ export class HttpClient {
   ): Promise<CreateFollowupMessageBody> {
     return this.post(
       WEBHOOK_TOKEN(applicationId, interactionToken),
-      `createFollowupMessage_${interactionToken}`,
+      `CreateFollowupMessage_${interactionToken}`,
       {
         data,
         files,
@@ -897,7 +902,7 @@ export class HttpClient {
    * > danger
    * > Creating a command with the same name as an existing command for your application will overwrite the old command.
    *
-   * Create a new global command. New global commands will be available in all guilds after 1 hour. Returns `201` and an [application command](https://discord.dev/interactions/application-commands#application-command-object) object.
+   * Create a new global command. New global commands will be available in all guilds after 1 hour. Returns `201` and an [application command](https://discord.dev/interactions/application/commands#application-command-object) object.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    */
@@ -907,7 +912,7 @@ export class HttpClient {
   ): Promise<CreateGlobalApplicationCommandBody> {
     return this.post(
       APPLICATION_COMMANDS(applicationId),
-      "createGlobalApplicationCommand",
+      "CreateGlobalApplicationCommand",
       {
         data,
       },
@@ -923,7 +928,7 @@ export class HttpClient {
    * > This endpoint is limited to 10 active group DMs.
    */
   createGroupDM(data: CreateGroupDMData): Promise<CreateGroupDMBody> {
-    return this.post(USER_ME_CHANNELS, "createGroupDM", {
+    return this.post(USER_ME_CHANNELS, "CreateGroupDM", {
       data,
     });
   }
@@ -937,7 +942,7 @@ export class HttpClient {
    * > This endpoint can be used only by bots in less than 10 guilds.
    */
   createGuild(data: CreateGuildData): Promise<CreateGuildBody> {
-    return this.post(GUILDS, "createGuild", {
+    return this.post(GUILDS, "CreateGuild", {
       data,
     });
   }
@@ -948,7 +953,7 @@ export class HttpClient {
    * > danger
    * > Creating a command with the same name as an existing command for your application will overwrite the old command.
    *
-   * Create a new guild command. New guild commands will be available in the guild immediately. Returns `201` and an [application command](https://discord.dev/interactions/application-commands#application-command-object) object. If the command did not already exist, it will count toward daily application command create limits.
+   * Create a new guild command. New guild commands will be available in the guild immediately. Returns `201` and an [application command](https://discord.dev/interactions/application/commands#application-command-object) object. If the command did not already exist, it will count toward daily application command create limits.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
@@ -960,7 +965,7 @@ export class HttpClient {
   ): Promise<CreateGuildApplicationCommandBody> {
     return this.post(
       APPLICATION_GUILD_COMMANDS(applicationId, guildId),
-      `createGuildApplicationCommand_${guildId}`,
+      `CreateGuildApplicationCommand_${guildId}`,
       {
         data,
       },
@@ -984,7 +989,7 @@ export class HttpClient {
     data: CreateGuildBanData,
     reason?: string,
   ): Promise<CreateGuildBanBody> {
-    return this.put(GUILD_BAN(guildId, userId), `createGuildBan_${guildId}`, {
+    return this.put(GUILD_BAN(guildId, userId), `CreateGuildBan_${guildId}`, {
       data,
       reason,
     });
@@ -996,7 +1001,7 @@ export class HttpClient {
    * Create a new [channel](https://discord.dev/resources/channel#channel-object) object for the guild. Requires the `MANAGE_CHANNELS` permission. If setting permission overwrites, only permissions your bot has in the guild can be allowed/denied. Setting `MANAGE_ROLES` permission in channels is only possible for guild administrators. Returns the new [channel](https://discord.dev/resources/channel#channel-object) object on success. Fires a [Channel Create](https://discord.dev/topics/gateway#channel-create) Gateway event.
    *
    * > info
-   * > All parameters to this endpoint are optional excluding 'name'
+   * > All parameters to this endpoint are optional excluding `name`
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -1008,7 +1013,7 @@ export class HttpClient {
     data: CreateGuildChannelData,
     reason?: string,
   ): Promise<CreateGuildChannelBody> {
-    return this.post(GUILD_CHANNELS(guildId), `createGuildChannel_${guildId}`, {
+    return this.post(GUILD_CHANNELS(guildId), `CreateGuildChannel_${guildId}`, {
       data,
       reason,
     });
@@ -1032,7 +1037,7 @@ export class HttpClient {
     data: CreateGuildEmojiData,
     reason?: string,
   ): Promise<CreateGuildEmojiBody> {
-    return this.post(GUILD_EMOJIS(guildId), `createGuildEmoji_${guildId}`, {
+    return this.post(GUILD_EMOJIS(guildId), `CreateGuildEmoji_${guildId}`, {
       data,
       reason,
     });
@@ -1054,7 +1059,7 @@ export class HttpClient {
   ): Promise<CreateGuildFromGuildTemplateBody> {
     return this.post(
       GUILDS_TEMPLATE(templateCode),
-      "createGuildFromGuildTemplate",
+      "CreateGuildFromGuildTemplate",
       {
         data,
       },
@@ -1076,7 +1081,7 @@ export class HttpClient {
     data: CreateGuildRoleData,
     reason?: string,
   ): Promise<CreateGuildRoleBody> {
-    return this.post(GUILD_ROLES(guildId), `createGuildRole_${guildId}`, {
+    return this.post(GUILD_ROLES(guildId), `CreateGuildRole_${guildId}`, {
       data,
       reason,
     });
@@ -1102,7 +1107,7 @@ export class HttpClient {
   ): Promise<CreateGuildScheduledEventBody> {
     return this.post(
       GUILD_SCHEDULED_EVENTS(guildId),
-      `createGuildScheduledEvent_${guildId}`,
+      `CreateGuildScheduledEvent_${guildId}`,
       {
         data,
         reason,
@@ -1128,7 +1133,7 @@ export class HttpClient {
     files?: File[],
     reason?: string,
   ): Promise<CreateGuildStickerBody> {
-    return this.post(GUILD_STICKERS(guildId), `createGuildSticker_${guildId}`, {
+    return this.post(GUILD_STICKERS(guildId), `CreateGuildSticker_${guildId}`, {
       files,
       reason,
     });
@@ -1147,7 +1152,7 @@ export class HttpClient {
   ): Promise<CreateGuildTemplateBody> {
     return this.post(
       GUILD_TEMPLATES(guildId),
-      `createGuildTemplate_${guildId}`,
+      `CreateGuildTemplate_${guildId}`,
       {
         data,
       },
@@ -1157,7 +1162,8 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#create-interaction-response
    *
-   * Create a response to an Interaction from the gateway. Takes an [interaction response](https://discord.dev/interactions/receiving-and-responding#interaction-response-object).
+   * Create a response to an Interaction from the gateway. Body is an [interaction response](https://discord.dev/interactions/receiving-and-responding#interaction-response-object). Returns `204 No Content`.
+   *
    * This endpoint also supports file attachments similar to the webhook endpoints. Refer to [Uploading Files](https://discord.dev/reference#uploading-files) for details on uploading files and `multipart/form-data` requests.
    *
    * @param interactionId https://discord.dev/interactions/receiving-and-responding#interaction
@@ -1171,7 +1177,7 @@ export class HttpClient {
   ): Promise<CreateInteractionResponseBody> {
     return this.post(
       INTERACTION_TOKEN_CALLBACK(interactionId, interactionToken),
-      `createInteractionResponse_${interactionToken}`,
+      `CreateInteractionResponse_${interactionToken}`,
       {
         data,
         files,
@@ -1182,12 +1188,12 @@ export class HttpClient {
   /**
    * https://discord.dev/game-sdk/lobbies#create-lobby
    *
-   * Creates a new lobby. Returns a [lobby object](https://discord.dev/game-sdk/lobbies#lobby-object) on success.
+   * Creates a new lobby. Returns an object similar to the SDK `Lobby` struct, documented below.
    *
-   * To get a list of valid regions, see the [List Voice Regions](https://discord.dev/resources/voice#list-voice-regions) endpoint.
+   * To get a list of valid regions, call the [List Voice Regions](https://discord.com/developers/docs/resources/voice#list-voice-regions) endpoint.
    */
   createLobby(data: CreateLobbyData): Promise<CreateLobbyBody> {
-    return this.post(LOBBIES, "createLobby", {
+    return this.post(LOBBIES, "CreateLobby", {
       data,
     });
   }
@@ -1200,7 +1206,7 @@ export class HttpClient {
   createLobbySearch(
     data: CreateLobbySearchData,
   ): Promise<CreateLobbySearchBody> {
-    return this.post(LOBBIES_SEARCH, "createLobbySearch", {
+    return this.post(LOBBIES_SEARCH, "CreateLobbySearch", {
       data,
     });
   }
@@ -1226,7 +1232,7 @@ export class HttpClient {
   ): Promise<CreateMessageBody> {
     return this.post(
       CHANNEL_MESSAGES(channelId),
-      `createMessage_${channelId}`,
+      `CreateMessage_${channelId}`,
       {
         data,
         files,
@@ -1249,7 +1255,7 @@ export class HttpClient {
   ): Promise<CreatePurchaseDiscountBody> {
     return this.put(
       STORE_SKU_DISCOUNT(skuId, userId),
-      "createPurchaseDiscount",
+      "CreatePurchaseDiscount",
       {
         data,
       },
@@ -1259,7 +1265,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/channel#create-reaction
    *
-   * Create a reaction for the message. This endpoint requires the 'READ_MESSAGE_HISTORY' permission to be present on the current user. Additionally, if nobody else has reacted to the message using this emoji, this endpoint requires the 'ADD_REACTIONS' permission to be present on the current user. Returns a 204 empty response on success.
+   * Create a reaction for the message. This endpoint requires the `READ_MESSAGE_HISTORY` permission to be present on the current user. Additionally, if nobody else has reacted to the message using this emoji, this endpoint requires the `ADD_REACTIONS` permission to be present on the current user. Returns a 204 empty response on success.
    * The `emoji` must be [URL Encoded](https://en.wikipedia.org/wiki/Percent-encoding) or the request will fail with `10014: Unknown Emoji`. To use custom emoji, you must encode it in the format `name:id` with the emoji name and emoji id.
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
@@ -1273,14 +1279,14 @@ export class HttpClient {
   ): Promise<CreateReactionBody> {
     return this.put(
       CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji),
-      `createReaction_${channelId}`,
+      `CreateReaction_${channelId}`,
     );
   }
 
   /**
    * https://discord.dev/resources/stage-instance#create-stage-instance
    *
-   * Creates a new Stage instance associated to a Stage channel.
+   * Creates a new Stage instance associated to a Stage channel. Returns that [Stage instance](https://discord.dev/resources/stage/instance#stage-instance-object-stage-instance-structure).
    *
    * Requires the user to be a moderator of the Stage channel.
    *
@@ -1291,7 +1297,7 @@ export class HttpClient {
     data: CreateStageInstanceData,
     reason?: string,
   ): Promise<CreateStageInstanceBody> {
-    return this.post(STAGE_INSTANCES, "createStageInstance", {
+    return this.post(STAGE_INSTANCES, "CreateStageInstance", {
       data,
       reason,
     });
@@ -1300,9 +1306,11 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/webhook#create-webhook
    *
-   * Create a new webhook. Requires the `MANAGE_WEBHOOKS` permission. Returns a [webhook](https://discord.dev/resources/webhook#webhook-object) object on success. Webhook names follow our naming restrictions that can be found in our [Usernames and Nicknames](https://discord.dev/resources/user#usernames-and-nicknames) documentation, with the following additional stipulations:
+   * Creates a new webhook and returns a [webhook](https://discord.dev/resources/webhook#webhook-object) object on success. Requires the `MANAGE_WEBHOOKS` permission.
    *
-   * - Webhook names cannot be: 'clyde'
+   * An error will be returned if a webhook name (`name`) is not valid. A webhook name is valid if:
+   * - It does not contain the substring '**clyde**' (case-insensitive)
+   * - It follows the nickname guidelines in the [Usernames and Nicknames](https://discord.dev/resources/user#usernames-and-nicknames) documentation, with an exception that webhook names can be up to 80 characters
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -1316,7 +1324,7 @@ export class HttpClient {
   ): Promise<CreateWebhookBody> {
     return this.post(
       CHANNEL_WEBHOOKS(channelId),
-      `createWebhook_${channelId}`,
+      `CreateWebhook_${channelId}`,
       {
         data,
         reason,
@@ -1327,7 +1335,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/channel#crosspost-message
    *
-   * Crosspost a message in a News Channel to following channels. This endpoint requires the 'SEND_MESSAGES' permission, if the current user sent the message, or additionally the 'MANAGE_MESSAGES' permission, for all other messages, to be present for the current user.
+   * Crosspost a message in a News Channel to following channels. This endpoint requires the `SEND_MESSAGES` permission, if the current user sent the message, or additionally the `MANAGE_MESSAGES` permission, for all other messages, to be present for the current user.
    *
    * Returns a [message](https://discord.dev/resources/channel#message-object) object.
    *
@@ -1340,16 +1348,16 @@ export class HttpClient {
   ): Promise<CrosspostMessageBody> {
     return this.post(
       CHANNEL_MESSAGE_CROSSPOST(channelId, messageId),
-      `crosspostMessage_${channelId}`,
+      `CrosspostMessage_${channelId}`,
     );
   }
 
   /**
    * https://discord.dev/game-sdk/achievements#delete-achievement
    *
-   * Deletes the given [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) from your application. Returns a `204` on success.
+   * Deletes the given achievement from your application. This endpoint has a rate limit of 5 requests per 5 seconds per application.
    *
-   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   deleteAchievement(
@@ -1358,14 +1366,14 @@ export class HttpClient {
   ): Promise<DeleteAchievementBody> {
     return this.delete(
       APPLICATION_ACHIEVEMENT(applicationId, achievementId),
-      "deleteAchievement",
+      "DeleteAchievement",
     );
   }
 
   /**
    * https://discord.dev/resources/channel#delete-all-reactions
    *
-   * Deletes all reactions on a message. This endpoint requires the 'MANAGE_MESSAGES' permission to be present on the current user. Fires a [Message Reaction Remove All](https://discord.dev/topics/gateway#message-reaction-remove-all) Gateway event.
+   * Deletes all reactions on a message. This endpoint requires the `MANAGE_MESSAGES` permission to be present on the current user. Fires a [Message Reaction Remove All](https://discord.dev/topics/gateway#message-reaction-remove-all) Gateway event.
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
    * @param messageId https://discord.dev/resources/channel#message-object
@@ -1376,7 +1384,7 @@ export class HttpClient {
   ): Promise<DeleteAllReactionsBody> {
     return this.delete(
       CHANNEL_MESSAGE_REACTIONS(channelId, messageId),
-      `deleteAllReactions_${channelId}`,
+      `DeleteAllReactions_${channelId}`,
     );
   }
 
@@ -1397,8 +1405,33 @@ export class HttpClient {
   ): Promise<DeleteAllReactionsForEmojiBody> {
     return this.delete(
       CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji),
-      `deleteAllReactionsForEmoji_${channelId}`,
+      `DeleteAllReactionsForEmoji_${channelId}`,
     );
+  }
+
+  /**
+   * https://discord.dev/resources/channel#delete-channel
+   *
+   * Delete a channel, or close a private message. Requires the `MANAGE_CHANNELS` permission for the guild, or `MANAGE_THREADS` if the channel is a thread. Deleting a category does not delete its child channels; they will have their `parent_id` removed and a [Channel Update](https://discord.dev/topics/gateway#channel-update) Gateway event will fire for each of them. Returns a [channel](https://discord.dev/resources/channel#channel-object) object on success. Fires a [Channel Delete](https://discord.dev/topics/gateway#channel-delete) Gateway event (or [Thread Delete](https://discord.dev/topics/gateway#thread-delete) if the channel was a thread).
+   *
+   * > warn
+   * > Deleting a guild channel cannot be undone. Use this with caution, as it is impossible to undo this action when performed on a guild channel. In contrast, when used with a private message, it is possible to undo the action by opening a private message with the recipient again.
+   *
+   * > info
+   * > For Community guilds, the Rules or Guidelines channel and the Community Updates channel cannot be deleted.
+   *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
+   * @param channelId https://discord.dev/resources/channel#channel-object
+   */
+  deleteChannel(
+    channelId: Snowflake,
+    reason?: string,
+  ): Promise<DeleteChannelBody> {
+    return this.delete(CHANNEL(channelId), `DeleteChannel_${channelId}`, {
+      reason,
+    });
   }
 
   /**
@@ -1419,7 +1452,7 @@ export class HttpClient {
   ): Promise<DeleteChannelPermissionBody> {
     return this.delete(
       CHANNEL_PERMISSION(channelId, overwriteId),
-      `deleteChannelPermission_${channelId}`,
+      `DeleteChannelPermission_${channelId}`,
       {
         reason,
       },
@@ -1442,7 +1475,7 @@ export class HttpClient {
   ): Promise<DeleteFollowupMessageBody> {
     return this.delete(
       WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId),
-      `deleteFollowupMessage_${interactionToken}`,
+      `DeleteFollowupMessage_${interactionToken}`,
     );
   }
 
@@ -1452,7 +1485,7 @@ export class HttpClient {
    * Deletes a global command. Returns `204 No Content` on success.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   deleteGlobalApplicationCommand(
     applicationId: Snowflake,
@@ -1460,7 +1493,7 @@ export class HttpClient {
   ): Promise<DeleteGlobalApplicationCommandBody> {
     return this.delete(
       APPLICATION_COMMAND(applicationId, commandId),
-      "deleteGlobalApplicationCommand",
+      "DeleteGlobalApplicationCommand",
     );
   }
 
@@ -1472,7 +1505,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   deleteGuild(guildId: Snowflake): Promise<DeleteGuildBody> {
-    return this.delete(GUILD(guildId), `deleteGuild_${guildId}`);
+    return this.delete(GUILD(guildId), `DeleteGuild_${guildId}`);
   }
 
   /**
@@ -1482,7 +1515,7 @@ export class HttpClient {
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   deleteGuildApplicationCommand(
     applicationId: Snowflake,
@@ -1491,7 +1524,7 @@ export class HttpClient {
   ): Promise<DeleteGuildApplicationCommandBody> {
     return this.delete(
       APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId),
-      `deleteGuildApplicationCommand_${guildId}`,
+      `DeleteGuildApplicationCommand_${guildId}`,
     );
   }
 
@@ -1513,7 +1546,7 @@ export class HttpClient {
   ): Promise<DeleteGuildEmojiBody> {
     return this.delete(
       GUILD_EMOJI(guildId, emojiId),
-      `deleteGuildEmoji_${guildId}`,
+      `DeleteGuildEmoji_${guildId}`,
       {
         reason,
       },
@@ -1538,7 +1571,7 @@ export class HttpClient {
   ): Promise<DeleteGuildIntegrationBody> {
     return this.delete(
       GUILD_INTEGRATION(guildId, integrationId),
-      `deleteGuildIntegration_${guildId}`,
+      `DeleteGuildIntegration_${guildId}`,
       {
         reason,
       },
@@ -1563,7 +1596,7 @@ export class HttpClient {
   ): Promise<DeleteGuildRoleBody> {
     return this.delete(
       GUILD_ROLE(guildId, roleId),
-      `deleteGuildRole_${guildId}`,
+      `DeleteGuildRole_${guildId}`,
       {
         reason,
       },
@@ -1584,7 +1617,7 @@ export class HttpClient {
   ): Promise<DeleteGuildScheduledEventBody> {
     return this.delete(
       GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId),
-      `deleteGuildScheduledEvent_${guildId}`,
+      `DeleteGuildScheduledEvent_${guildId}`,
     );
   }
 
@@ -1606,7 +1639,7 @@ export class HttpClient {
   ): Promise<DeleteGuildStickerBody> {
     return this.delete(
       GUILD_STICKER(guildId, stickerId),
-      `deleteGuildSticker_${guildId}`,
+      `DeleteGuildSticker_${guildId}`,
       {
         reason,
       },
@@ -1627,7 +1660,7 @@ export class HttpClient {
   ): Promise<DeleteGuildTemplateBody> {
     return this.delete(
       GUILD_TEMPLATE(guildId, templateCode),
-      `deleteGuildTemplate_${guildId}`,
+      `DeleteGuildTemplate_${guildId}`,
     );
   }
 
@@ -1642,7 +1675,7 @@ export class HttpClient {
    * @param inviteCode https://discord.dev/resources/invite#invite-object
    */
   deleteInvite(inviteCode: string, reason?: string): Promise<DeleteInviteBody> {
-    return this.delete(INVITE(inviteCode), "deleteInvite", {
+    return this.delete(INVITE(inviteCode), "DeleteInvite", {
       reason,
     });
   }
@@ -1650,12 +1683,12 @@ export class HttpClient {
   /**
    * https://discord.dev/game-sdk/lobbies#delete-lobby
    *
-   * Deletes a lobby. Returns a `204` on success.
+   * Deletes a lobby.
    *
-   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#data-models-lobby-struct
    */
   deleteLobby(lobbyId: Snowflake): Promise<DeleteLobbyBody> {
-    return this.delete(LOBBY(lobbyId), "deleteLobby");
+    return this.delete(LOBBY(lobbyId), "DeleteLobby");
   }
 
   /**
@@ -1676,7 +1709,7 @@ export class HttpClient {
   ): Promise<DeleteMessageBody> {
     return this.delete(
       CHANNEL_MESSAGE(channelId, messageId),
-      `deleteMessage_${channelId}`,
+      `DeleteMessage_${channelId}`,
       {
         reason,
       },
@@ -1697,7 +1730,7 @@ export class HttpClient {
   ): Promise<DeleteOriginalInteractionResponseBody> {
     return this.delete(
       WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken),
-      `deleteOriginalInteractionResponse_${interactionToken}`,
+      `DeleteOriginalInteractionResponse_${interactionToken}`,
     );
   }
 
@@ -1718,7 +1751,7 @@ export class HttpClient {
   ): Promise<DeleteOwnReactionBody> {
     return this.delete(
       CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji),
-      `deleteOwnReaction_${channelId}`,
+      `DeleteOwnReaction_${channelId}`,
     );
   }
 
@@ -1736,14 +1769,14 @@ export class HttpClient {
   ): Promise<DeletePurchaseDiscountBody> {
     return this.delete(
       STORE_SKU_DISCOUNT(skuId, userId),
-      "deletePurchaseDiscount",
+      "DeletePurchaseDiscount",
     );
   }
 
   /**
    * https://discord.dev/resources/stage-instance#delete-stage-instance
    *
-   * Deletes the Stage instance.
+   * Deletes the Stage instance. Returns `204 No Content`.
    *
    * Requires the user to be a moderator of the Stage channel.
    *
@@ -1758,7 +1791,7 @@ export class HttpClient {
   ): Promise<DeleteStageInstanceBody> {
     return this.delete(
       STAGE_INSTANCE(channelId),
-      `deleteStageInstance_${channelId}`,
+      `DeleteStageInstance_${channelId}`,
       {
         reason,
       },
@@ -1779,14 +1812,14 @@ export class HttpClient {
   ): Promise<DeleteTestEntitlementBody> {
     return this.delete(
       APPLICATION_ENTITLEMENT(applicationId, entitlementId),
-      "deleteTestEntitlement",
+      "DeleteTestEntitlement",
     );
   }
 
   /**
    * https://discord.dev/resources/channel#delete-user-reaction
    *
-   * Deletes another user's reaction. This endpoint requires the 'MANAGE_MESSAGES' permission to be present on the current user. Returns a 204 empty response on success.
+   * Deletes another user's reaction. This endpoint requires the `MANAGE_MESSAGES` permission to be present on the current user. Returns a 204 empty response on success.
    * The `emoji` must be [URL Encoded](https://en.wikipedia.org/wiki/Percent-encoding) or the request will fail with `10014: Unknown Emoji`. To use custom emoji, you must encode it in the format `name:id` with the emoji name and emoji id.
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
@@ -1802,7 +1835,7 @@ export class HttpClient {
   ): Promise<DeleteUserReactionBody> {
     return this.delete(
       CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId),
-      `deleteUserReaction_${channelId}`,
+      `DeleteUserReaction_${channelId}`,
     );
   }
 
@@ -1820,7 +1853,7 @@ export class HttpClient {
     webhookId: Snowflake,
     reason?: string,
   ): Promise<DeleteWebhookBody> {
-    return this.delete(WEBHOOK(webhookId), `deleteWebhook_${webhookId}`, {
+    return this.delete(WEBHOOK(webhookId), `DeleteWebhook_${webhookId}`, {
       reason,
     });
   }
@@ -1842,7 +1875,7 @@ export class HttpClient {
   ): Promise<DeleteWebhookMessageBody> {
     return this.delete(
       WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId),
-      `deleteWebhookMessage_${webhookId}_${webhookToken}`,
+      `DeleteWebhookMessage_${webhookId}_${webhookToken}`,
       {
         query,
       },
@@ -1863,33 +1896,11 @@ export class HttpClient {
   ): Promise<DeleteWebhookWithTokenBody> {
     return this.delete(
       WEBHOOK_TOKEN(webhookId, webhookToken),
-      `deleteWebhookWithToken_${webhookId}_${webhookToken}`,
+      `DeleteWebhookWithToken_${webhookId}_${webhookToken}`,
+      {
+        authentication: false,
+      },
     );
-  }
-
-  /**
-   * https://discord.dev/resources/channel#delete/close-channel
-   *
-   * Delete a channel, or close a private message. Requires the `MANAGE_CHANNELS` permission for the guild, or `MANAGE_THREADS` if the channel is a thread. Deleting a category does not delete its child channels; they will have their `parent_id` removed and a [Channel Update](https://discord.dev/topics/gateway#channel-update) Gateway event will fire for each of them. Returns a [channel](https://discord.dev/resources/channel#channel-object) object on success. Fires a [Channel Delete](https://discord.dev/topics/gateway#channel-delete) Gateway event (or [Thread Delete](https://discord.dev/topics/gateway#thread-delete) if the channel was a thread).
-   *
-   * > warn
-   * > Deleting a guild channel cannot be undone. Use this with caution, as it is impossible to undo this action when performed on a guild channel. In contrast, when used with a private message, it is possible to undo the action by opening a private message with the recipient again.
-   *
-   * > info
-   * > For Community guilds, the Rules or Guidelines channel and the Community Updates channel cannot be deleted.
-   *
-   * > info
-   * > This endpoint supports the `X-Audit-Log-Reason` header.
-   *
-   * @param channelId https://discord.dev/resources/channel#channel-object
-   */
-  deleteChannel(
-    channelId: Snowflake,
-    reason?: string,
-  ): Promise<DeleteChannelBody> {
-    return this.delete(CHANNEL(channelId), `deleteChannel_${channelId}`, {
-      reason,
-    });
   }
 
   /**
@@ -1900,14 +1911,14 @@ export class HttpClient {
    *
    * Edits command permissions for a specific command for your application in a guild.
    * You can only add up to 10 permission overwrites for a command.
-   * Returns a [GuildApplicationCommandPermissions](https://discord.dev/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) object.
+   * Returns a [GuildApplicationCommandPermissions](https://discord.dev/interactions/application/commands#application-command-permissions-object-guild-application-command-permissions-structure) object.
    *
    * > warn
    * > Deleting or renaming a command will permanently delete all permissions for that command
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editApplicationCommandPermissions(
     applicationId: Snowflake,
@@ -1917,7 +1928,7 @@ export class HttpClient {
   ): Promise<EditApplicationCommandPermissionsBody> {
     return this.put(
       APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId),
-      `editApplicationCommandPermissions_${guildId}`,
+      `EditApplicationCommandPermissions_${guildId}`,
       {
         data,
       },
@@ -1927,7 +1938,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/channel#edit-channel-permissions
    *
-   * Edit the channel permission overwrites for a user or role in a channel. Only usable for guild channels. Requires the `MANAGE_ROLES` permission. Only permissions your bot has in the guild or channel can be allowed/denied (unless your bot has a `MANAGE_ROLES` overwrite in the channel). Returns a 204 empty response on success. For more information about permissions, see [permissions](https://discord.dev/topics/permissions#permissions).
+   * Edit the channel permission overwrites for a user or role in a channel. Only usable for guild channels. Requires the `MANAGE_ROLES` permission. Only permissions your bot has in the guild or parent channel (if applicable) can be allowed/denied (unless your bot has a `MANAGE_ROLES` overwrite in the channel). Returns a 204 empty response on success. For more information about permissions, see [permissions](https://discord.dev/topics/permissions#permissions).
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -1943,7 +1954,7 @@ export class HttpClient {
   ): Promise<EditChannelPermissionsBody> {
     return this.put(
       CHANNEL_PERMISSION(channelId, overwriteId),
-      `editChannelPermissions_${channelId}`,
+      `EditChannelPermissions_${channelId}`,
       {
         data,
         reason,
@@ -1954,7 +1965,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#edit-followup-message
    *
-   * Edits a followup message for an Interaction. Functions the same as [Edit Webhook Message](https://discord.dev/resources/webhook#edit-webhook-message). Does not support ephemeral followups.
+   * Edits a followup message for an Interaction. Functions the same as [Edit Webhook Message](https://discord.dev/resources/webhook#edit-webhook-message).
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -1969,7 +1980,7 @@ export class HttpClient {
   ): Promise<EditFollowupMessageBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId),
-      `editFollowupMessage_${interactionToken}`,
+      `EditFollowupMessage_${interactionToken}`,
       {
         data,
         files,
@@ -1983,10 +1994,10 @@ export class HttpClient {
    * > info
    * > All parameters for this endpoint are optional.
    *
-   * Edit a global command. Updates will be available in all guilds after 1 hour. Returns `200` and an [application command](https://discord.dev/interactions/application-commands#application-command-object) object.
+   * Edit a global command. Updates will be available in all guilds after 1 hour. Returns `200` and an [application command](https://discord.dev/interactions/application/commands#application-command-object) object. All fields are optional, but any fields provided will entirely overwrite the existing values of those fields.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editGlobalApplicationCommand(
     applicationId: Snowflake,
@@ -1995,7 +2006,7 @@ export class HttpClient {
   ): Promise<EditGlobalApplicationCommandBody> {
     return this.patch(
       APPLICATION_COMMAND(applicationId, commandId),
-      "editGlobalApplicationCommand",
+      "EditGlobalApplicationCommand",
       {
         data,
       },
@@ -2008,11 +2019,11 @@ export class HttpClient {
    * > info
    * > All parameters for this endpoint are optional.
    *
-   * Edit a guild command. Updates for guild commands will be available immediately. Returns `200` and an [application command](https://discord.dev/interactions/application-commands#application-command-object) object.
+   * Edit a guild command. Updates for guild commands will be available immediately. Returns `200` and an [application command](https://discord.dev/interactions/application/commands#application-command-object) object. All fields are optional, but any fields provided will entirely overwrite the existing values of those fields.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editGuildApplicationCommand(
     applicationId: Snowflake,
@@ -2022,7 +2033,7 @@ export class HttpClient {
   ): Promise<EditGuildApplicationCommandBody> {
     return this.patch(
       APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId),
-      `editGuildApplicationCommand_${guildId}`,
+      `EditGuildApplicationCommand_${guildId}`,
       {
         data,
       },
@@ -2058,7 +2069,7 @@ export class HttpClient {
   ): Promise<EditMessageBody> {
     return this.patch(
       CHANNEL_MESSAGE(channelId, messageId),
-      `editMessage_${channelId}`,
+      `EditMessage_${channelId}`,
       {
         data,
         files,
@@ -2082,7 +2093,7 @@ export class HttpClient {
   ): Promise<EditOriginalInteractionResponseBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken),
-      `editOriginalInteractionResponse_${interactionToken}`,
+      `EditOriginalInteractionResponse_${interactionToken}`,
       {
         data,
         files,
@@ -2120,7 +2131,7 @@ export class HttpClient {
   ): Promise<EditWebhookMessageBody> {
     return this.patch(
       WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId),
-      `editWebhookMessage_${webhookId}_${webhookToken}`,
+      `EditWebhookMessage_${webhookId}_${webhookToken}`,
       {
         data,
         query,
@@ -2144,7 +2155,7 @@ export class HttpClient {
   ): Promise<ExecuteGitHubCompatibleWebhookBody> {
     return this.post(
       WEBHOOK_TOKEN_GITHUB(webhookId, webhookToken),
-      `executeGitHubCompatibleWebhook_${webhookId}_${webhookToken}`,
+      `ExecuteGitHubCompatibleWebhook_${webhookId}_${webhookToken}`,
       {
         query,
       },
@@ -2166,7 +2177,7 @@ export class HttpClient {
   ): Promise<ExecuteSlackCompatibleWebhookBody> {
     return this.post(
       WEBHOOK_TOKEN_SLACK(webhookId, webhookToken),
-      `executeSlackCompatibleWebhook_${webhookId}_${webhookToken}`,
+      `ExecuteSlackCompatibleWebhook_${webhookId}_${webhookToken}`,
       {
         query,
       },
@@ -2176,7 +2187,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/webhook#execute-webhook
    *
-   * Refer to [Uploading Files](https://discord.dev/reference#uploading-files) for details on attachments and `multipart/form-data` requests.
+   * Refer to [Uploading Files](https://discord.dev/reference#uploading-files) for details on attachments and `multipart/form-data` requests. Returns a message or `204 No Content` depending on the `wait` query parameter.
    *
    * > info
    * > Note that when sending a message, you must provide a value for at **least one of** `content`, `embeds`, or `file`.
@@ -2193,8 +2204,9 @@ export class HttpClient {
   ): Promise<ExecuteWebhookBody> {
     return this.post(
       WEBHOOK_TOKEN(webhookId, webhookToken),
-      `executeWebhook_${webhookId}_${webhookToken}`,
+      `ExecuteWebhook_${webhookId}_${webhookToken}`,
       {
+        authentication: false,
         data,
         query,
         files,
@@ -2215,7 +2227,7 @@ export class HttpClient {
   ): Promise<FollowNewsChannelBody> {
     return this.post(
       CHANNEL_FOLLOWERS(channelId),
-      `followNewsChannel_${channelId}`,
+      `FollowNewsChannel_${channelId}`,
       {
         data,
       },
@@ -2225,9 +2237,9 @@ export class HttpClient {
   /**
    * https://discord.dev/game-sdk/achievements#get-achievement
    *
-   * Returns the given [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for the given application.
+   * Returns the given achievement for the given application. This endpoint has a rate limit of 5 requests per 5 seconds per application.
    *
-   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   getAchievement(
@@ -2236,29 +2248,29 @@ export class HttpClient {
   ): Promise<GetAchievementBody> {
     return this.get(
       APPLICATION_ACHIEVEMENT(applicationId, achievementId),
-      "getAchievement",
+      "GetAchievement",
     );
   }
 
   /**
    * https://discord.dev/game-sdk/achievements#get-achievements
    *
-   * Returns a list of [achievements](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for the given application.
+   * Returns all achievements for the given application. This endpoint has a rate limit of 5 requests per 5 seconds per application.
    *
-   * @param applicationId https://discord.dev/resources/application#application-object
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getAchievements(applicationId: Snowflake): Promise<GetAchievementsBody> {
-    return this.get(APPLICATION_ACHIEVEMENTS(applicationId), "getAchievements");
+    return this.get(APPLICATION_ACHIEVEMENTS(applicationId), "GetAchievements");
   }
 
   /**
    * https://discord.dev/interactions/application-commands#get-application-command-permissions
    *
-   * Fetches command permissions for a specific command for your application in a guild. Returns a [guild application command permissions](https://discord.dev/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) object.
+   * Fetches command permissions for a specific command for your application in a guild. Returns a [guild application command permissions](https://discord.dev/interactions/application/commands#application-command-permissions-object-guild-application-command-permissions-structure) object.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getApplicationCommandPermissions(
     applicationId: Snowflake,
@@ -2267,7 +2279,7 @@ export class HttpClient {
   ): Promise<GetApplicationCommandPermissionsBody> {
     return this.get(
       APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId),
-      `getApplicationCommandPermissions_${guildId}`,
+      `GetApplicationCommandPermissions_${guildId}`,
     );
   }
 
@@ -2279,7 +2291,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getChannel(channelId: Snowflake): Promise<GetChannelBody> {
-    return this.get(CHANNEL(channelId), `getChannel_${channelId}`);
+    return this.get(CHANNEL(channelId), `GetChannel_${channelId}`);
   }
 
   /**
@@ -2292,14 +2304,14 @@ export class HttpClient {
   getChannelInvites(channelId: Snowflake): Promise<GetChannelInvitesBody> {
     return this.get(
       CHANNEL_INVITES(channelId),
-      `getChannelInvites_${channelId}`,
+      `GetChannelInvites_${channelId}`,
     );
   }
 
   /**
    * https://discord.dev/resources/channel#get-channel-message
    *
-   * Returns a specific message in the channel. If operating on a guild channel, this endpoint requires the 'READ_MESSAGE_HISTORY' permission to be present on the current user. Returns a [message](https://discord.dev/resources/channel#message-object) object on success.
+   * Returns a specific message in the channel. If operating on a guild channel, this endpoint requires the `READ_MESSAGE_HISTORY` permission to be present on the current user. Returns a [message](https://discord.dev/resources/channel#message-object) object on success.
    *
    * @param channelId https://discord.dev/resources/channel#channel-object
    * @param messageId https://discord.dev/resources/channel#message-object
@@ -2310,14 +2322,14 @@ export class HttpClient {
   ): Promise<GetChannelMessageBody> {
     return this.get(
       CHANNEL_MESSAGE(channelId, messageId),
-      `getChannelMessage_${channelId}`,
+      `GetChannelMessage_${channelId}`,
     );
   }
 
   /**
    * https://discord.dev/resources/channel#get-channel-messages
    *
-   * Returns the messages for a channel. If operating on a guild channel, this endpoint requires the `VIEW_CHANNEL` permission to be present on the current user. If the current user is missing the 'READ_MESSAGE_HISTORY' permission in the channel then this will return no messages (since they cannot read the message history). Returns an array of [message](https://discord.dev/resources/channel#message-object) objects on success.
+   * Returns the messages for a channel. If operating on a guild channel, this endpoint requires the `VIEW_CHANNEL` permission to be present on the current user. If the current user is missing the `READ_MESSAGE_HISTORY` permission in the channel then this will return no messages (since they cannot read the message history). Returns an array of [message](https://discord.dev/resources/channel#message-object) objects on success.
    *
    * > info
    * > The before, after, and around keys are mutually exclusive, only one may be passed at a time.
@@ -2330,7 +2342,7 @@ export class HttpClient {
   ): Promise<GetChannelMessagesBody> {
     return this.get(
       CHANNEL_MESSAGES(channelId),
-      `getChannelMessages_${channelId}`,
+      `GetChannelMessages_${channelId}`,
       {
         query,
       },
@@ -2347,7 +2359,7 @@ export class HttpClient {
   getChannelWebhooks(channelId: Snowflake): Promise<GetChannelWebhooksBody> {
     return this.get(
       CHANNEL_WEBHOOKS(channelId),
-      `getChannelWebhooks_${channelId}`,
+      `GetChannelWebhooks_${channelId}`,
     );
   }
 
@@ -2359,7 +2371,7 @@ export class HttpClient {
   getCurrentAuthorizationInformation(): Promise<
     GetCurrentAuthorizationInformationBody
   > {
-    return this.get(OAUTH2_ME, "getCurrentAuthorizationInformation");
+    return this.get(OAUTH2_ME, "GetCurrentAuthorizationInformation");
   }
 
   /**
@@ -2372,7 +2384,7 @@ export class HttpClient {
   > {
     return this.get(
       OAUTH2_APPLICATION_ME,
-      "getCurrentBotApplicationInformation",
+      "GetCurrentBotApplicationInformation",
     );
   }
 
@@ -2382,7 +2394,7 @@ export class HttpClient {
    * Returns the [user](https://discord.dev/resources/user#user-object) object of the requester's account. For OAuth2, this requires the `identify` scope, which will return the object _without_ an email, and optionally the `email` scope, which returns the object _with_ an email.
    */
   getCurrentUser(): Promise<GetCurrentUserBody> {
-    return this.get(USER_ME, "getCurrentUser");
+    return this.get(USER_ME, "GetCurrentUser");
   }
 
   /**
@@ -2397,7 +2409,7 @@ export class HttpClient {
   ): Promise<GetCurrentUserGuildMemberBody> {
     return this.get(
       USER_ME_GUILD_MEMBER(guildId),
-      `getCurrentUserGuildMember_${guildId}`,
+      `GetCurrentUserGuildMember_${guildId}`,
     );
   }
 
@@ -2409,7 +2421,7 @@ export class HttpClient {
   getCurrentUserGuilds(
     query: GetCurrentUserGuildsQuery,
   ): Promise<GetCurrentUserGuildsBody> {
-    return this.get(USER_ME_GUILDS, "getCurrentUserGuilds", {
+    return this.get(USER_ME_GUILDS, "GetCurrentUserGuilds", {
       query,
     });
   }
@@ -2429,7 +2441,7 @@ export class HttpClient {
   ): Promise<GetEntitlementBody> {
     return this.get(
       APPLICATION_ENTITLEMENT(applicationId, entitlementId),
-      "getEntitlement",
+      "GetEntitlement",
       {
         query,
       },
@@ -2449,7 +2461,7 @@ export class HttpClient {
   ): Promise<GetEntitlementsBody> {
     return this.get(
       APPLICATION_ENTITLEMENTS(applicationId),
-      "getEntitlements",
+      "GetEntitlements",
       {
         query,
       },
@@ -2459,7 +2471,7 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/receiving-and-responding#get-followup-message
    *
-   * Returns a followup message for an Interaction. Functions the same as [Get Webhook Message](https://discord.dev/resources/webhook#get-webhook-message). Does not support ephemeral followups.
+   * Returns a followup message for an Interaction. Functions the same as [Get Webhook Message](https://discord.dev/resources/webhook#get-webhook-message).
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
@@ -2472,7 +2484,7 @@ export class HttpClient {
   ): Promise<GetFollowupMessageBody> {
     return this.get(
       WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId),
-      `getFollowupMessage_${interactionToken}`,
+      `GetFollowupMessage_${interactionToken}`,
     );
   }
 
@@ -2485,7 +2497,9 @@ export class HttpClient {
    * Returns an object with a single valid WSS URL, which the client can use for [Connecting](https://discord.dev/topics/gateway#connecting). Clients **should** cache this value and only call this endpoint to retrieve a new URL if they are unable to properly establish a connection using the cached version of the URL.
    */
   getGateway(): Promise<GetGatewayBody> {
-    return this.get(GATEWAY, "getGateway");
+    return this.get(GATEWAY, "GetGateway", {
+      authentication: false,
+    });
   }
 
   /**
@@ -2497,16 +2511,16 @@ export class HttpClient {
    * Returns an object based on the information in [Get Gateway](https://discord.dev/topics/gateway#get-gateway), plus additional metadata that can help during the operation of large or [sharded](https://discord.dev/topics/gateway#sharding) bots. Unlike the [Get Gateway](https://discord.dev/topics/gateway#get-gateway), this route should not be cached for extended periods of time as the value is not guaranteed to be the same per-call, and changes as the bot joins/leaves guilds.
    */
   getGatewayBot(): Promise<GetGatewayBotBody> {
-    return this.get(GATEWAY_BOT, "getGatewayBot");
+    return this.get(GATEWAY_BOT, "GetGatewayBot");
   }
 
   /**
    * https://discord.dev/interactions/application-commands#get-global-application-command
    *
-   * Fetch a global command for your application. Returns an [application command](https://discord.dev/interactions/application-commands#application-command-object) object.
+   * Fetch a global command for your application. Returns an [application command](https://discord.dev/interactions/application/commands#application-command-object) object.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getGlobalApplicationCommand(
     applicationId: Snowflake,
@@ -2514,23 +2528,30 @@ export class HttpClient {
   ): Promise<GetGlobalApplicationCommandBody> {
     return this.get(
       APPLICATION_COMMAND(applicationId, commandId),
-      "getGlobalApplicationCommand",
+      "GetGlobalApplicationCommand",
     );
   }
 
   /**
    * https://discord.dev/interactions/application-commands#get-global-application-commands
    *
-   * Fetch all of the global commands for your application. Returns an array of [application command](https://discord.dev/interactions/application-commands#application-command-object) objects.
+   * > warn
+   * > The objects returned by this endpoint may be augmented with [additional fields if localization is active](https://discord.dev/interactions/application/commands#retrieving-localized-commands).
+   *
+   * Fetch all of the global commands for your application. Returns an array of [application command](https://discord.dev/interactions/application/commands#application-command-object) objects.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    */
   getGlobalApplicationCommands(
     applicationId: Snowflake,
+    query: GetGlobalApplicationCommandsQuery,
   ): Promise<GetGlobalApplicationCommandsBody> {
     return this.get(
       APPLICATION_COMMANDS(applicationId),
-      "getGlobalApplicationCommands",
+      "GetGlobalApplicationCommands",
+      {
+        query,
+      },
     );
   }
 
@@ -2542,7 +2563,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuild(guildId: Snowflake, query: GetGuildQuery): Promise<GetGuildBody> {
-    return this.get(GUILD(guildId), `getGuild_${guildId}`, {
+    return this.get(GUILD(guildId), `GetGuild_${guildId}`, {
       query,
     });
   }
@@ -2550,11 +2571,11 @@ export class HttpClient {
   /**
    * https://discord.dev/interactions/application-commands#get-guild-application-command
    *
-   * Fetch a guild command for your application. Returns an [application command](https://discord.dev/interactions/application-commands#application-command-object) object.
+   * Fetch a guild command for your application. Returns an [application command](https://discord.dev/interactions/application/commands#application-command-object) object.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
-   * @param commandId https://discord.dev/interactions/application-commands#application-command-object
+   * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getGuildApplicationCommand(
     applicationId: Snowflake,
@@ -2563,14 +2584,14 @@ export class HttpClient {
   ): Promise<GetGuildApplicationCommandBody> {
     return this.get(
       APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId),
-      `getGuildApplicationCommand_${guildId}`,
+      `GetGuildApplicationCommand_${guildId}`,
     );
   }
 
   /**
    * https://discord.dev/interactions/application-commands#get-guild-application-command-permissions
    *
-   * Fetches command permissions for all commands for your application in a guild. Returns an array of [guild application command permissions](https://discord.dev/interactions/application-commands#application-command-permissions-object-guild-application-command-permissions-structure) objects.
+   * Fetches command permissions for all commands for your application in a guild. Returns an array of [guild application command permissions](https://discord.dev/interactions/application/commands#application-command-permissions-object-guild-application-command-permissions-structure) objects.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
@@ -2581,14 +2602,17 @@ export class HttpClient {
   ): Promise<GetGuildApplicationCommandPermissionsBody> {
     return this.get(
       APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId),
-      `getGuildApplicationCommandPermissions_${guildId}`,
+      `GetGuildApplicationCommandPermissions_${guildId}`,
     );
   }
 
   /**
    * https://discord.dev/interactions/application-commands#get-guild-application-commands
    *
-   * Fetch all of the guild commands for your application for a specific guild. Returns an array of [application command](https://discord.dev/interactions/application-commands#application-command-object) objects.
+   * > warn
+   * > The objects returned by this endpoint may be augmented with [additional fields if localization is active](https://discord.dev/interactions/application/commands#retrieving-localized-commands).
+   *
+   * Fetch all of the guild commands for your application for a specific guild. Returns an array of [application command](https://discord.dev/interactions/application/commands#application-command-object) objects.
    *
    * @param applicationId https://discord.dev/resources/application#application-object
    * @param guildId https://discord.dev/resources/guild#guild-object
@@ -2596,17 +2620,21 @@ export class HttpClient {
   getGuildApplicationCommands(
     applicationId: Snowflake,
     guildId: Snowflake,
+    query: GetGuildApplicationCommandsQuery,
   ): Promise<GetGuildApplicationCommandsBody> {
     return this.get(
       APPLICATION_GUILD_COMMANDS(applicationId, guildId),
-      `getGuildApplicationCommands_${guildId}`,
+      `GetGuildApplicationCommands_${guildId}`,
+      {
+        query,
+      },
     );
   }
 
   /**
    * https://discord.dev/resources/audit-log#get-guild-audit-log
    *
-   * Returns an [audit log](https://discord.dev/resources/audit/log#audit-log-object) object for the guild. Requires the 'VIEW_AUDIT_LOG' permission.
+   * Returns an [audit log](https://discord.dev/resources/audit/log#audit-log-object) object for the guild. Requires the `VIEW_AUDIT_LOG` permission.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -2614,7 +2642,7 @@ export class HttpClient {
     guildId: Snowflake,
     query: GetGuildAuditLogQuery,
   ): Promise<GetGuildAuditLogBody> {
-    return this.get(GUILD_AUDIT_LOGS(guildId), `getGuildAuditLog_${guildId}`, {
+    return this.get(GUILD_AUDIT_LOGS(guildId), `GetGuildAuditLog_${guildId}`, {
       query,
     });
   }
@@ -2628,7 +2656,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getGuildBan(guildId: Snowflake, userId: Snowflake): Promise<GetGuildBanBody> {
-    return this.get(GUILD_BAN(guildId, userId), `getGuildBan_${guildId}`);
+    return this.get(GUILD_BAN(guildId, userId), `GetGuildBan_${guildId}`);
   }
 
   /**
@@ -2638,8 +2666,13 @@ export class HttpClient {
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
-  getGuildBans(guildId: Snowflake): Promise<GetGuildBansBody> {
-    return this.get(GUILD_BANS(guildId), `getGuildBans_${guildId}`);
+  getGuildBans(
+    guildId: Snowflake,
+    query: GetGuildBansQuery,
+  ): Promise<GetGuildBansBody> {
+    return this.get(GUILD_BANS(guildId), `GetGuildBans_${guildId}`, {
+      query,
+    });
   }
 
   /**
@@ -2650,7 +2683,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildChannels(guildId: Snowflake): Promise<GetGuildChannelsBody> {
-    return this.get(GUILD_CHANNELS(guildId), `getGuildChannels_${guildId}`);
+    return this.get(GUILD_CHANNELS(guildId), `GetGuildChannels_${guildId}`);
   }
 
   /**
@@ -2665,7 +2698,7 @@ export class HttpClient {
     guildId: Snowflake,
     emojiId: Snowflake,
   ): Promise<GetGuildEmojiBody> {
-    return this.get(GUILD_EMOJI(guildId, emojiId), `getGuildEmoji_${guildId}`);
+    return this.get(GUILD_EMOJI(guildId, emojiId), `GetGuildEmoji_${guildId}`);
   }
 
   /**
@@ -2678,7 +2711,7 @@ export class HttpClient {
   getGuildIntegrations(guildId: Snowflake): Promise<GetGuildIntegrationsBody> {
     return this.get(
       GUILD_INTEGRATIONS(guildId),
-      `getGuildIntegrations_${guildId}`,
+      `GetGuildIntegrations_${guildId}`,
     );
   }
 
@@ -2690,7 +2723,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildInvites(guildId: Snowflake): Promise<GetGuildInvitesBody> {
-    return this.get(GUILD_INVITES(guildId), `getGuildInvites_${guildId}`);
+    return this.get(GUILD_INVITES(guildId), `GetGuildInvites_${guildId}`);
   }
 
   /**
@@ -2705,7 +2738,7 @@ export class HttpClient {
     guildId: Snowflake,
     userId: Snowflake,
   ): Promise<GetGuildMemberBody> {
-    return this.get(GUILD_MEMBER(guildId, userId), `getGuildMember_${guildId}`);
+    return this.get(GUILD_MEMBER(guildId, userId), `GetGuildMember_${guildId}`);
   }
 
   /**
@@ -2716,13 +2749,13 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildPreview(guildId: Snowflake): Promise<GetGuildPreviewBody> {
-    return this.get(GUILD_PREVIEW(guildId), `getGuildPreview_${guildId}`);
+    return this.get(GUILD_PREVIEW(guildId), `GetGuildPreview_${guildId}`);
   }
 
   /**
    * https://discord.dev/resources/guild#get-guild-prune-count
    *
-   * Returns an object with one 'pruned' key indicating the number of members that would be removed in a prune operation. Requires the `KICK_MEMBERS` permission.
+   * Returns an object with one `pruned` key indicating the number of members that would be removed in a prune operation. Requires the `KICK_MEMBERS` permission.
    *
    * By default, prune will not remove users with roles. You can optionally include specific roles in your prune by providing the `include_roles` parameter. Any inactive user that has a subset of the provided role(s) will be counted in the prune and users with additional roles will not.
    *
@@ -2732,7 +2765,7 @@ export class HttpClient {
     guildId: Snowflake,
     query: GetGuildPruneCountQuery,
   ): Promise<GetGuildPruneCountBody> {
-    return this.get(GUILD_PRUNE(guildId), `getGuildPruneCount_${guildId}`, {
+    return this.get(GUILD_PRUNE(guildId), `GetGuildPruneCount_${guildId}`, {
       query,
     });
   }
@@ -2745,7 +2778,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildRoles(guildId: Snowflake): Promise<GetGuildRolesBody> {
-    return this.get(GUILD_ROLES(guildId), `getGuildRoles_${guildId}`);
+    return this.get(GUILD_ROLES(guildId), `GetGuildRoles_${guildId}`);
   }
 
   /**
@@ -2763,7 +2796,7 @@ export class HttpClient {
   ): Promise<GetGuildScheduledEventBody> {
     return this.get(
       GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId),
-      `getGuildScheduledEvent_${guildId}`,
+      `GetGuildScheduledEvent_${guildId}`,
       {
         query,
       },
@@ -2785,7 +2818,7 @@ export class HttpClient {
   ): Promise<GetGuildScheduledEventUsersBody> {
     return this.get(
       GUILD_SCHEDULED_EVENT_USERS(guildId, guildScheduledEventId),
-      `getGuildScheduledEventUsers_${guildId}`,
+      `GetGuildScheduledEventUsers_${guildId}`,
       {
         data,
       },
@@ -2806,7 +2839,7 @@ export class HttpClient {
   ): Promise<GetGuildStickerBody> {
     return this.get(
       GUILD_STICKER(guildId, stickerId),
-      `getGuildSticker_${guildId}`,
+      `GetGuildSticker_${guildId}`,
     );
   }
 
@@ -2818,7 +2851,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   getGuildTemplate(templateCode: string): Promise<GetGuildTemplateBody> {
-    return this.get(GUILDS_TEMPLATE(templateCode), "getGuildTemplate");
+    return this.get(GUILDS_TEMPLATE(templateCode), "GetGuildTemplate");
   }
 
   /**
@@ -2829,7 +2862,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildTemplates(guildId: Snowflake): Promise<GetGuildTemplatesBody> {
-    return this.get(GUILD_TEMPLATES(guildId), `getGuildTemplates_${guildId}`);
+    return this.get(GUILD_TEMPLATES(guildId), `GetGuildTemplates_${guildId}`);
   }
 
   /**
@@ -2840,7 +2873,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildVanityURL(guildId: Snowflake): Promise<GetGuildVanityURLBody> {
-    return this.get(GUILD_VANITY_URL(guildId), `getGuildVanityURL_${guildId}`);
+    return this.get(GUILD_VANITY_URL(guildId), `GetGuildVanityURL_${guildId}`);
   }
 
   /**
@@ -2851,7 +2884,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildVoiceRegions(guildId: Snowflake): Promise<GetGuildVoiceRegionsBody> {
-    return this.get(GUILD_REGIONS(guildId), `getGuildVoiceRegions_${guildId}`);
+    return this.get(GUILD_REGIONS(guildId), `GetGuildVoiceRegions_${guildId}`);
   }
 
   /**
@@ -2862,7 +2895,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWebhooks(guildId: Snowflake): Promise<GetGuildWebhooksBody> {
-    return this.get(GUILD_WEBHOOKS(guildId), `getGuildWebhooks_${guildId}`);
+    return this.get(GUILD_WEBHOOKS(guildId), `GetGuildWebhooks_${guildId}`);
   }
 
   /**
@@ -2877,7 +2910,7 @@ export class HttpClient {
   ): Promise<GetGuildWelcomeScreenBody> {
     return this.get(
       GUILD_WELCOME_SCREEN(guildId),
-      `getGuildWelcomeScreen_${guildId}`,
+      `GetGuildWelcomeScreen_${guildId}`,
     );
   }
 
@@ -2889,7 +2922,9 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWidget(guildId: Snowflake): Promise<GetGuildWidgetBody> {
-    return this.get(GUILD_WIDGET_JSON(guildId), `getGuildWidget_${guildId}`);
+    return this.get(GUILD_WIDGET_JSON(guildId), `GetGuildWidget_${guildId}`, {
+      authentication: false,
+    });
   }
 
   /**
@@ -2908,8 +2943,9 @@ export class HttpClient {
   ): Promise<GetGuildWidgetImageBody> {
     return this.get(
       GUILD_WIDGET_PNG(guildId),
-      `getGuildWidgetImage_${guildId}`,
+      `GetGuildWidgetImage_${guildId}`,
       {
+        authentication: false,
         query,
       },
     );
@@ -2925,7 +2961,7 @@ export class HttpClient {
   getGuildWidgetSettings(
     guildId: Snowflake,
   ): Promise<GetGuildWidgetSettingsBody> {
-    return this.get(GUILD_WIDGET(guildId), `getGuildWidgetSettings_${guildId}`);
+    return this.get(GUILD_WIDGET(guildId), `GetGuildWidgetSettings_${guildId}`);
   }
 
   /**
@@ -2936,7 +2972,8 @@ export class HttpClient {
    * @param inviteCode https://discord.dev/resources/invite#invite-object
    */
   getInvite(inviteCode: string, query: GetInviteQuery): Promise<GetInviteBody> {
-    return this.get(INVITE(inviteCode), "getInvite", {
+    return this.get(INVITE(inviteCode), "GetInvite", {
+      authentication: false,
       query,
     });
   }
@@ -2955,7 +2992,7 @@ export class HttpClient {
   ): Promise<GetOriginalInteractionResponseBody> {
     return this.get(
       WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken),
-      `getOriginalInteractionResponse_${interactionToken}`,
+      `GetOriginalInteractionResponse_${interactionToken}`,
     );
   }
 
@@ -2967,7 +3004,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getPinnedMessages(channelId: Snowflake): Promise<GetPinnedMessagesBody> {
-    return this.get(CHANNEL_PINS(channelId), `getPinnedMessages_${channelId}`);
+    return this.get(CHANNEL_PINS(channelId), `GetPinnedMessages_${channelId}`);
   }
 
   /**
@@ -2988,7 +3025,7 @@ export class HttpClient {
   ): Promise<GetReactionsBody> {
     return this.get(
       CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji),
-      `getReactions_${channelId}`,
+      `GetReactions_${channelId}`,
       {
         query,
       },
@@ -3003,7 +3040,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getSKUs(applicationId: Snowflake): Promise<GetSKUsBody> {
-    return this.get(APPLICATION_SKUS(applicationId), "getSKUs");
+    return this.get(APPLICATION_SKUS(applicationId), "GetSKUs");
   }
 
   /**
@@ -3014,7 +3051,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getStageInstance(channelId: Snowflake): Promise<GetStageInstanceBody> {
-    return this.get(STAGE_INSTANCE(channelId), `getStageInstance_${channelId}`);
+    return this.get(STAGE_INSTANCE(channelId), `GetStageInstance_${channelId}`);
   }
 
   /**
@@ -3025,7 +3062,7 @@ export class HttpClient {
    * @param stickerId https://discord.dev/resources/sticker#sticker-object
    */
   getSticker(stickerId: Snowflake): Promise<GetStickerBody> {
-    return this.get(STICKER(stickerId), "getSticker");
+    return this.get(STICKER(stickerId), "GetSticker");
   }
 
   /**
@@ -3042,7 +3079,7 @@ export class HttpClient {
   ): Promise<GetThreadMemberBody> {
     return this.get(
       CHANNEL_THREAD_MEMBER(channelId, userId),
-      `getThreadMember_${channelId}`,
+      `GetThreadMember_${channelId}`,
     );
   }
 
@@ -3054,29 +3091,25 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getUser(userId: Snowflake): Promise<GetUserBody> {
-    return this.get(USER(userId), "getUser");
+    return this.get(USER(userId), "GetUser");
   }
 
   /**
    * https://discord.dev/game-sdk/achievements#get-user-achievements
    *
-   * Returns a list of achievements for the user whose token you're making the request with. This endpoint will **NOT** accept the Bearer token for your application generated via the [Client Crendentials Grant](https://discord.dev/topics/oauth2#client-credentials-grant). You will need the _user's_ bearer token, gotten via either the [Authorization Code OAuth2 Grant](https://discord.dev/topics/oauth2#authorization-code-grant) or via the SDK with [GetOAuth2Token](https://discord.dev/game-sdk/applications#get-oauth2-token). This endpoint has a rate limit of 2 requests per 5 seconds per application per user.
+   * Returns a list of achievements for the user whose token you're making the request with. This endpoint will **NOT** accept the Bearer token for your application generated via the [Client Crendentials Grant](https://discord.dev/topics/oauth2#client-credentials-grant). You will need the _user's_ bearer token, gotten via either the [Authorization Code OAuth2 Grant](https://discord.dev/topics/oauth2#authorization-code-grant) or via the SDK with [GetOAuth2Token](https://discord.dev/game-sdk/applications#getoauth2token). This endpoint has a rate limit of 2 requests per 5 seconds per application per user.
    *
    * > info
    * > This endpoint will _not_ return any achievements marked as `secret` that the user has not yet completed.
    *
-   * @param userId https://discord.dev/resources/user#user-object
-   * @param applicationId https://discord.dev/resources/application#application-object
-   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getUserAchievements(
-    userId: Snowflake,
     applicationId: Snowflake,
-    achievementId: Snowflake,
   ): Promise<GetUserAchievementsBody> {
     return this.get(
-      USER_APPLICATION_ACHIEVEMENT(userId, applicationId, achievementId),
-      "getUserAchievements",
+      USER_ME_APPLICATION_ACHIEVEMENTS(applicationId),
+      "GetUserAchievements",
     );
   }
 
@@ -3086,7 +3119,7 @@ export class HttpClient {
    * Returns a list of [connection](https://discord.dev/resources/user#connection-object) objects. Requires the `connections` OAuth2 scope.
    */
   getUserConnections(): Promise<GetUserConnectionsBody> {
-    return this.get(USER_ME_CONNECTIONS, "getUserConnections");
+    return this.get(USER_ME_CONNECTIONS, "GetUserConnections");
   }
 
   /**
@@ -3097,7 +3130,7 @@ export class HttpClient {
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
   getWebhook(webhookId: Snowflake): Promise<GetWebhookBody> {
-    return this.get(WEBHOOK(webhookId), `getWebhook_${webhookId}`);
+    return this.get(WEBHOOK(webhookId), `GetWebhook_${webhookId}`);
   }
 
   /**
@@ -3117,7 +3150,7 @@ export class HttpClient {
   ): Promise<GetWebhookMessageBody> {
     return this.get(
       WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId),
-      `getWebhookMessage_${webhookId}_${webhookToken}`,
+      `GetWebhookMessage_${webhookId}_${webhookToken}`,
       {
         query,
       },
@@ -3138,7 +3171,10 @@ export class HttpClient {
   ): Promise<GetWebhookWithTokenBody> {
     return this.get(
       WEBHOOK_TOKEN(webhookId, webhookToken),
-      `getWebhookWithToken_${webhookId}_${webhookToken}`,
+      `GetWebhookWithToken_${webhookId}_${webhookToken}`,
+      {
+        authentication: false,
+      },
     );
   }
 
@@ -3157,7 +3193,7 @@ export class HttpClient {
   ): Promise<GroupDMAddRecipientBody> {
     return this.put(
       CHANNEL_RECIPIENT(channelId, userId),
-      `groupDMAddRecipient_${channelId}`,
+      `GroupDMAddRecipient_${channelId}`,
       {
         data,
       },
@@ -3178,7 +3214,7 @@ export class HttpClient {
   ): Promise<GroupDMRemoveRecipientBody> {
     return this.delete(
       CHANNEL_RECIPIENT(channelId, userId),
-      `groupDMRemoveRecipient_${channelId}`,
+      `GroupDMRemoveRecipient_${channelId}`,
     );
   }
 
@@ -3192,7 +3228,7 @@ export class HttpClient {
   joinThread(channelId: Snowflake): Promise<JoinThreadBody> {
     return this.put(
       CHANNEL_THREAD_MEMBER_ME(channelId),
-      `joinThread_${channelId}`,
+      `JoinThread_${channelId}`,
     );
   }
 
@@ -3204,7 +3240,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   leaveGuild(guildId: Snowflake): Promise<LeaveGuildBody> {
-    return this.delete(USER_ME_GUILD(guildId), `leaveGuild_${guildId}`);
+    return this.delete(USER_ME_GUILD(guildId), `LeaveGuild_${guildId}`);
   }
 
   /**
@@ -3217,7 +3253,7 @@ export class HttpClient {
   leaveThread(channelId: Snowflake): Promise<LeaveThreadBody> {
     return this.delete(
       CHANNEL_THREAD_MEMBER_ME(channelId),
-      `leaveThread_${channelId}`,
+      `LeaveThread_${channelId}`,
     );
   }
 
@@ -3231,7 +3267,7 @@ export class HttpClient {
   listActiveThreads(guildId: Snowflake): Promise<ListActiveThreadsBody> {
     return this.get(
       GUILD_THREADS_ACTIVE(guildId),
-      `listActiveThreads_${guildId}`,
+      `ListActiveThreads_${guildId}`,
     );
   }
 
@@ -3243,7 +3279,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listGuildEmojis(guildId: Snowflake): Promise<ListGuildEmojisBody> {
-    return this.get(GUILD_EMOJIS(guildId), `listGuildEmojis_${guildId}`);
+    return this.get(GUILD_EMOJIS(guildId), `ListGuildEmojis_${guildId}`);
   }
 
   /**
@@ -3263,7 +3299,7 @@ export class HttpClient {
     guildId: Snowflake,
     query: ListGuildMembersQuery,
   ): Promise<ListGuildMembersBody> {
-    return this.get(GUILD_MEMBERS(guildId), `listGuildMembers_${guildId}`, {
+    return this.get(GUILD_MEMBERS(guildId), `ListGuildMembers_${guildId}`, {
       query,
     });
   }
@@ -3276,7 +3312,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listGuildStickers(guildId: Snowflake): Promise<ListGuildStickersBody> {
-    return this.get(GUILD_STICKERS(guildId), `listGuildStickers_${guildId}`);
+    return this.get(GUILD_STICKERS(guildId), `ListGuildStickers_${guildId}`);
   }
 
   /**
@@ -3292,7 +3328,7 @@ export class HttpClient {
   ): Promise<ListJoinedPrivateArchivedThreadsBody> {
     return this.get(
       CHANNEL_USER_ME_THREADS_ARCHIVED_PRIVATE(channelId),
-      `listJoinedPrivateArchivedThreads_${channelId}`,
+      `ListJoinedPrivateArchivedThreads_${channelId}`,
       {
         query,
       },
@@ -3305,7 +3341,7 @@ export class HttpClient {
    * Returns the list of sticker packs available to Nitro subscribers.
    */
   listNitroStickerPacks(): Promise<ListNitroStickerPacksBody> {
-    return this.get(STICKER_PACKS, "listNitroStickerPacks");
+    return this.get(STICKER_PACKS, "ListNitroStickerPacks");
   }
 
   /**
@@ -3321,7 +3357,7 @@ export class HttpClient {
   ): Promise<ListPrivateArchivedThreadsBody> {
     return this.get(
       CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId),
-      `listPrivateArchivedThreads_${channelId}`,
+      `ListPrivateArchivedThreads_${channelId}`,
       {
         query,
       },
@@ -3341,7 +3377,7 @@ export class HttpClient {
   ): Promise<ListPublicArchivedThreadsBody> {
     return this.get(
       CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId),
-      `listPublicArchivedThreads_${channelId}`,
+      `ListPublicArchivedThreads_${channelId}`,
       {
         query,
       },
@@ -3361,7 +3397,7 @@ export class HttpClient {
   ): Promise<ListScheduledEventsForGuildBody> {
     return this.get(
       GUILD_SCHEDULED_EVENTS(guildId),
-      `listScheduledEventsForGuild_${guildId}`,
+      `ListScheduledEventsForGuild_${guildId}`,
       {
         query,
       },
@@ -3381,7 +3417,7 @@ export class HttpClient {
   listThreadMembers(channelId: Snowflake): Promise<ListThreadMembersBody> {
     return this.get(
       CHANNEL_THREAD_MEMBERS(channelId),
-      `listThreadMembers_${channelId}`,
+      `ListThreadMembers_${channelId}`,
     );
   }
 
@@ -3391,29 +3427,7 @@ export class HttpClient {
    * Returns an array of [voice region](https://discord.dev/resources/voice#voice-region-object) objects that can be used when setting a voice or stage channel's [`rtc_region`](https://discord.dev/resources/channel#channel-object-channel-structure).
    */
   listVoiceRegions(): Promise<ListVoiceRegionsBody> {
-    return this.get(VOICE_REGIONS, "listVoiceRegions");
-  }
-
-  /**
-   * https://discord.dev/game-sdk/achievements#modify-achievement
-   *
-   * Updates the [achievement](https://discord.dev/game-sdk/achievements#data-models-achievement-struct) for all users. This is **NOT** to update a single user's achievement progress; this is to edit the `UserAchievement` itself.
-   *
-   * @param applicationId https://discord.dev/resources/application#application-object
-   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
-   */
-  modifyAchievement(
-    applicationId: Snowflake,
-    achievementId: Snowflake,
-    data: ModifyAchievementData,
-  ): Promise<ModifyAchievementBody> {
-    return this.patch(
-      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
-      "modifyAchievement",
-      {
-        data,
-      },
-    );
+    return this.get(VOICE_REGIONS, "ListVoiceRegions");
   }
 
   /**
@@ -3431,7 +3445,7 @@ export class HttpClient {
     data: ModifyChannelData,
     reason?: string,
   ): Promise<ModifyChannelBody> {
-    return this.patch(CHANNEL(channelId), `modifyChannel_${channelId}`, {
+    return this.patch(CHANNEL(channelId), `ModifyChannel_${channelId}`, {
       data,
       reason,
     });
@@ -3454,7 +3468,7 @@ export class HttpClient {
   ): Promise<ModifyCurrentMemberBody> {
     return this.patch(
       GUILD_MEMBER_ME(guildId),
-      `modifyCurrentMember_${guildId}`,
+      `ModifyCurrentMember_${guildId}`,
       {
         data,
         reason,
@@ -3473,7 +3487,7 @@ export class HttpClient {
   modifyCurrentUser(
     data: ModifyCurrentUserData,
   ): Promise<ModifyCurrentUserBody> {
-    return this.patch(USER_ME, "modifyCurrentUser", {
+    return this.patch(USER_ME, "ModifyCurrentUser", {
       data,
     });
   }
@@ -3498,7 +3512,7 @@ export class HttpClient {
   ): Promise<ModifyCurrentUserNickBody> {
     return this.patch(
       GUILD_MEMBER_ME_NICK(guildId),
-      `modifyCurrentUserNick_${guildId}`,
+      `ModifyCurrentUserNick_${guildId}`,
       {
         data,
         reason,
@@ -3509,7 +3523,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/guild#modify-current-user-voice-state
    *
-   * Updates the current user's voice state.
+   * Updates the current user's voice state. Returns `204 No Content` on success.
    *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
@@ -3519,7 +3533,7 @@ export class HttpClient {
   ): Promise<ModifyCurrentUserVoiceStateBody> {
     return this.patch(
       GUILD_VOICE_STATE_ME(guildId),
-      `modifyCurrentUserVoiceState_${guildId}`,
+      `ModifyCurrentUserVoiceState_${guildId}`,
       {
         data,
       },
@@ -3537,6 +3551,9 @@ export class HttpClient {
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
    *
+   * > warn
+   * > Attempting to add or remove the `COMMUNITY` [guild feature](https://discord.dev/resources/guild#guild-object-guild-features) requires the `ADMINISTRATOR` permission.
+   *
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuild(
@@ -3544,7 +3561,7 @@ export class HttpClient {
     data: ModifyGuildData,
     reason?: string,
   ): Promise<ModifyGuildBody> {
-    return this.patch(GUILD(guildId), `modifyGuild_${guildId}`, {
+    return this.patch(GUILD(guildId), `ModifyGuild_${guildId}`, {
       data,
       reason,
     });
@@ -3572,7 +3589,7 @@ export class HttpClient {
   ): Promise<ModifyGuildChannelPositionsBody> {
     return this.patch(
       GUILD_CHANNELS(guildId),
-      `modifyGuildChannelPositions_${guildId}`,
+      `ModifyGuildChannelPositions_${guildId}`,
       {
         data,
         reason,
@@ -3602,7 +3619,7 @@ export class HttpClient {
   ): Promise<ModifyGuildEmojiBody> {
     return this.patch(
       GUILD_EMOJI(guildId, emojiId),
-      `modifyGuildEmoji_${guildId}`,
+      `ModifyGuildEmoji_${guildId}`,
       {
         data,
         reason,
@@ -3632,7 +3649,7 @@ export class HttpClient {
   ): Promise<ModifyGuildMemberBody> {
     return this.patch(
       GUILD_MEMBER(guildId, userId),
-      `modifyGuildMember_${guildId}`,
+      `ModifyGuildMember_${guildId}`,
       {
         data,
         reason,
@@ -3662,7 +3679,7 @@ export class HttpClient {
   ): Promise<ModifyGuildRoleBody> {
     return this.patch(
       GUILD_ROLE(guildId, roleId),
-      `modifyGuildRole_${guildId}`,
+      `ModifyGuildRole_${guildId}`,
       {
         data,
         reason,
@@ -3689,7 +3706,7 @@ export class HttpClient {
   ): Promise<ModifyGuildRolePositionsBody> {
     return this.patch(
       GUILD_ROLES(guildId),
-      `modifyGuildRolePositions_${guildId}`,
+      `ModifyGuildRolePositions_${guildId}`,
       {
         data,
         reason,
@@ -3708,6 +3725,9 @@ export class HttpClient {
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
    *
+   * > info
+   * > This endpoint silently discards `entity_metadata` for non-`EXTERNAL` events.
+   *
    * @param guildId https://discord.dev/resources/guild#guild-object
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
@@ -3719,7 +3739,7 @@ export class HttpClient {
   ): Promise<ModifyGuildScheduledEventBody> {
     return this.patch(
       GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId),
-      `modifyGuildScheduledEvent_${guildId}`,
+      `ModifyGuildScheduledEvent_${guildId}`,
       {
         data,
         reason,
@@ -3749,7 +3769,7 @@ export class HttpClient {
   ): Promise<ModifyGuildStickerBody> {
     return this.patch(
       GUILD_STICKER(guildId, stickerId),
-      `modifyGuildSticker_${guildId}`,
+      `ModifyGuildSticker_${guildId}`,
       {
         data,
         reason,
@@ -3772,7 +3792,7 @@ export class HttpClient {
   ): Promise<ModifyGuildTemplateBody> {
     return this.patch(
       GUILD_TEMPLATE(guildId, templateCode),
-      `modifyGuildTemplate_${guildId}`,
+      `ModifyGuildTemplate_${guildId}`,
       {
         data,
       },
@@ -3799,7 +3819,7 @@ export class HttpClient {
   ): Promise<ModifyGuildWelcomeScreenBody> {
     return this.patch(
       GUILD_WELCOME_SCREEN(guildId),
-      `modifyGuildWelcomeScreen_${guildId}`,
+      `ModifyGuildWelcomeScreen_${guildId}`,
       {
         data,
         reason,
@@ -3822,50 +3842,16 @@ export class HttpClient {
     data: ModifyGuildWidgetData,
     reason?: string,
   ): Promise<ModifyGuildWidgetBody> {
-    return this.patch(GUILD_WIDGET(guildId), `modifyGuildWidget_${guildId}`, {
+    return this.patch(GUILD_WIDGET(guildId), `ModifyGuildWidget_${guildId}`, {
       data,
       reason,
     });
   }
 
   /**
-   * https://discord.dev/game-sdk/lobbies#modify-lobby
-   *
-   * Modifies a lobby. Returns the modified [lobby object](https://discord.dev/game-sdk/lobbies#lobby-object) on success.
-   *
-   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
-   */
-  modifyLobby(
-    lobbyId: Snowflake,
-    data: ModifyLobbyData,
-  ): Promise<ModifyLobbyBody> {
-    return this.patch(LOBBY(lobbyId), "modifyLobby", {
-      data,
-    });
-  }
-
-  /**
-   * https://discord.dev/game-sdk/lobbies#modify-lobby-member
-   *
-   * Modifies the metadata for a lobby member.
-   *
-   * @param lobbyId https://discord.dev/game-sdk/lobbies#lobby-object
-   * @param userId https://discord.dev/resources/user#user-object
-   */
-  modifyLobbyMember(
-    lobbyId: Snowflake,
-    userId: Snowflake,
-    data: ModifyLobbyMemberData,
-  ): Promise<ModifyLobbyMemberBody> {
-    return this.patch(LOBBY_MEMBER(lobbyId, userId), "modifyLobbyMember", {
-      data,
-    });
-  }
-
-  /**
    * https://discord.dev/resources/stage-instance#modify-stage-instance
    *
-   * Updates fields of an existing Stage instance.
+   * Updates fields of an existing Stage instance. Returns the updated [Stage instance](https://discord.dev/resources/stage/instance#stage-instance-object-stage-instance-structure).
    *
    * Requires the user to be a moderator of the Stage channel.
    *
@@ -3881,32 +3867,11 @@ export class HttpClient {
   ): Promise<ModifyStageInstanceBody> {
     return this.patch(
       STAGE_INSTANCE(channelId),
-      `modifyStageInstance_${channelId}`,
+      `ModifyStageInstance_${channelId}`,
       {
         data,
         reason,
       },
-    );
-  }
-
-  /**
-   * https://discord.dev/game-sdk/achievements#modify-user-achievement
-   *
-   * Updates the `UserAchievement` record for a given user. Use this endpoint to
-   * update `secure` achievement progress for users.
-   *
-   * @param userId https://discord.dev/resources/user#user-object
-   * @param applicationId https://discord.dev/resources/application#application-object
-   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
-   */
-  modifyUserAchievement(
-    userId: Snowflake,
-    applicationId: Snowflake,
-    achievementId: Snowflake,
-  ): Promise<ModifyUserAchievementBody> {
-    return this.put(
-      USER_APPLICATION_ACHIEVEMENT(userId, applicationId, achievementId),
-      "modifyUserAchievement",
     );
   }
 
@@ -3925,7 +3890,7 @@ export class HttpClient {
   ): Promise<ModifyUserVoiceStateBody> {
     return this.patch(
       GUILD_VOICE_STATE(guildId, userId),
-      `modifyUserVoiceState_${guildId}`,
+      `ModifyUserVoiceState_${guildId}`,
       {
         data,
       },
@@ -3950,7 +3915,7 @@ export class HttpClient {
     data: ModifyWebhookData,
     reason?: string,
   ): Promise<ModifyWebhookBody> {
-    return this.patch(WEBHOOK(webhookId), `modifyWebhook_${webhookId}`, {
+    return this.patch(WEBHOOK(webhookId), `ModifyWebhook_${webhookId}`, {
       data,
       reason,
     });
@@ -3971,8 +3936,9 @@ export class HttpClient {
   ): Promise<ModifyWebhookWithTokenBody> {
     return this.patch(
       WEBHOOK_TOKEN(webhookId, webhookToken),
-      `modifyWebhookWithToken_${webhookId}_${webhookToken}`,
+      `ModifyWebhookWithToken_${webhookId}_${webhookToken}`,
       {
+        authentication: false,
         data,
       },
     );
@@ -3999,7 +3965,7 @@ export class HttpClient {
   ): Promise<PinMessageBody> {
     return this.put(
       CHANNEL_PIN(channelId, messageId),
-      `pinMessage_${channelId}`,
+      `PinMessage_${channelId}`,
       {
         reason,
       },
@@ -4024,7 +3990,7 @@ export class HttpClient {
   ): Promise<RemoveGuildBanBody> {
     return this.delete(
       GUILD_BAN(guildId, userId),
-      `removeGuildBan_${guildId}`,
+      `RemoveGuildBan_${guildId}`,
       {
         reason,
       },
@@ -4049,7 +4015,7 @@ export class HttpClient {
   ): Promise<RemoveGuildMemberBody> {
     return this.delete(
       GUILD_MEMBER(guildId, userId),
-      `removeGuildMember_${guildId}`,
+      `RemoveGuildMember_${guildId}`,
       {
         reason,
       },
@@ -4076,7 +4042,7 @@ export class HttpClient {
   ): Promise<RemoveGuildMemberRoleBody> {
     return this.delete(
       GUILD_MEMBER_ROLE(guildId, userId, roleId),
-      `removeGuildMemberRole_${guildId}`,
+      `RemoveGuildMemberRole_${guildId}`,
       {
         reason,
       },
@@ -4097,7 +4063,7 @@ export class HttpClient {
   ): Promise<RemoveThreadMemberBody> {
     return this.delete(
       CHANNEL_THREAD_MEMBER(channelId, userId),
-      `removeThreadMember_${channelId}`,
+      `RemoveThreadMember_${channelId}`,
     );
   }
 
@@ -4117,7 +4083,7 @@ export class HttpClient {
   ): Promise<SearchGuildMembersBody> {
     return this.get(
       GUILD_MEMBERS_SEARCH(guildId),
-      `searchGuildMembers_${guildId}`,
+      `SearchGuildMembers_${guildId}`,
       {
         query,
       },
@@ -4137,17 +4103,17 @@ export class HttpClient {
     lobbyId: Snowflake,
     data: SendLobbyDataData,
   ): Promise<SendLobbyDataBody> {
-    return this.post(LOBBY_SEND(lobbyId), "sendLobbyData", {
+    return this.post(LOBBY_SEND(lobbyId), "SendLobbyData", {
       data,
     });
   }
 
   /**
-   * https://discord.dev/resources/channel#start-thread-with-message
+   * https://discord.dev/resources/channel#start-thread-from-message
    *
    * Creates a new thread from an existing message. Returns a [channel](https://discord.dev/resources/channel#channel-object) on success, and a 400 BAD REQUEST on invalid parameters. Fires a [Thread Create](https://discord.dev/topics/gateway#thread-create) Gateway event.
    *
-   * When called on a `GUILD_TEXT` channel, creates a `GUILD_PUBLIC_THREAD`. When called on a `GUILD_NEWS` channel, creates a `GUILD_NEWS_THREAD`. The id of the created thread will be the same as the id of the message, and as such a message can only have a single thread created from it.
+   * When called on a `GUILD_TEXT` channel, creates a `GUILD_PUBLIC_THREAD`. When called on a `GUILD_NEWS` channel, creates a `GUILD_NEWS_THREAD`. Does not work on a [`GUILD_FORUM`](https://discord.dev/resources/channel#start-thread-in-forum-channel) channel. The id of the created thread will be the same as the id of the source message, and as such a message can only have a single thread created from it.
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -4155,15 +4121,52 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    * @param messageId https://discord.dev/resources/channel#message-object
    */
-  startThreadWithMessage(
+  startThreadFromMessage(
     channelId: Snowflake,
     messageId: Snowflake,
-    data: StartThreadWithMessageData,
+    data: StartThreadFromMessageData,
     reason?: string,
-  ): Promise<StartThreadWithMessageBody> {
+  ): Promise<StartThreadFromMessageBody> {
     return this.post(
       CHANNEL_MESSAGE_THREADS(channelId, messageId),
-      `startThreadWithMessage_${channelId}`,
+      `StartThreadFromMessage_${channelId}`,
+      {
+        data,
+        reason,
+      },
+    );
+  }
+
+  /**
+   * https://discord.dev/resources/channel#start-thread-in-forum-channel
+   *
+   * Creates a new thread in a forum channel, and sends a message within the created thread. Returns a [channel](https://discord.dev/resources/channel#channel-object) on success, and a 400 BAD REQUEST on invalid parameters. Fires a [Thread Create](https://discord.dev/topics/gateway#thread-create) and [Message Create](https://discord.dev/topics/gateway#message-create) Gateway event.
+   *
+   * - The type of the created thread is `GUILD_PUBLIC_THREAD`.
+   * - See [message formatting](https://discord.dev/reference#message-formatting) for more information on how to properly format messages.
+   * - The current user must have the `SEND_MESSAGES` permission (`CREATE_PUBLIC_THREADS` is ignored).
+   * - The maximum request size when sending a message is **8MiB**.
+   * - For the embed object, you can set every field except `type` (it will be `rich` regardless of if you try to set it), `provider`, `video`, and any `height`, `width`, or `proxy_url` values for images.
+   * - Examples for file uploads are available in [Uploading Files](https://discord.dev/reference#uploading-files).
+   * - Files must be attached using a `multipart/form-data` body as described in [Uploading Files](https://discord.dev/reference#uploading-files).
+   * - Note that when sending a message, you must provide a value for at **least one of** `content`, `embeds`, or `files[n]`.
+   *
+   * > warn
+   * > Discord may strip certain characters from message content, like invalid unicode characters or characters which cause unexpected message formatting. If you are passing user-generated strings into message content, consider sanitizing the data to prevent unexpected behavior and utilizing `allowed_mentions` to prevent unexpected mentions.
+   *
+   * > info
+   * > This endpoint supports the `X-Audit-Log-Reason` header.
+   *
+   * @param channelId https://discord.dev/resources/channel#channel-object
+   */
+  startThreadInForumChannel(
+    channelId: Snowflake,
+    data: StartThreadInForumChannelData,
+    reason?: string,
+  ): Promise<StartThreadInForumChannelBody> {
+    return this.post(
+      CHANNEL_THREADS(channelId),
+      `StartThreadInForumChannel_${channelId}`,
       {
         data,
         reason,
@@ -4174,7 +4177,7 @@ export class HttpClient {
   /**
    * https://discord.dev/resources/channel#start-thread-without-message
    *
-   * Creates a new thread that is not connected to an existing message. The created thread defaults to a `GUILD_PRIVATE_THREAD`\*. Returns a [channel](https://discord.dev/resources/channel#channel-object) on success, and a 400 BAD REQUEST on invalid parameters. Fires a [Thread Create](https://discord.dev/topics/gateway#thread-create) Gateway event.
+   * Creates a new thread that is not connected to an existing message. Returns a [channel](https://discord.dev/resources/channel#channel-object) on success, and a 400 BAD REQUEST on invalid parameters. Fires a [Thread Create](https://discord.dev/topics/gateway#thread-create) Gateway event.
    *
    * > info
    * > This endpoint supports the `X-Audit-Log-Reason` header.
@@ -4188,7 +4191,7 @@ export class HttpClient {
   ): Promise<StartThreadWithoutMessageBody> {
     return this.post(
       CHANNEL_THREADS(channelId),
-      `startThreadWithoutMessage_${channelId}`,
+      `StartThreadWithoutMessage_${channelId}`,
       {
         data,
         reason,
@@ -4210,7 +4213,7 @@ export class HttpClient {
   ): Promise<SyncGuildTemplateBody> {
     return this.put(
       GUILD_TEMPLATE(guildId, templateCode),
-      `syncGuildTemplate_${guildId}`,
+      `SyncGuildTemplate_${guildId}`,
     );
   }
 
@@ -4226,7 +4229,7 @@ export class HttpClient {
   ): Promise<TriggerTypingIndicatorBody> {
     return this.post(
       CHANNEL_TYPING(channelId),
-      `triggerTypingIndicator_${channelId}`,
+      `TriggerTypingIndicator_${channelId}`,
     );
   }
 
@@ -4248,9 +4251,89 @@ export class HttpClient {
   ): Promise<UnpinMessageBody> {
     return this.delete(
       CHANNEL_PIN(channelId, messageId),
-      `unpinMessage_${channelId}`,
+      `UnpinMessage_${channelId}`,
       {
         reason,
+      },
+    );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#update-achievement
+   *
+   * Updates the achievement for **\_\_ALL USERS\_\_**. This is **NOT** to update a single user's achievement progress; this is to edit the UserAchievement itself. This endpoint has a rate limit of 5 requests per 5 seconds per application.
+   *
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  updateAchievement(
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+    data: UpdateAchievementData,
+  ): Promise<UpdateAchievementBody> {
+    return this.patch(
+      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
+      "UpdateAchievement",
+      {
+        data,
+      },
+    );
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#update-lobby
+   *
+   * Updates a lobby.
+   *
+   * @param lobbyId https://discord.dev/lobbies#data-models-lobby-struct
+   */
+  updateLobby(
+    lobbyId: Snowflake,
+    data: UpdateLobbyData,
+  ): Promise<UpdateLobbyBody> {
+    return this.patch(LOBBY(lobbyId), "UpdateLobby", {
+      data,
+    });
+  }
+
+  /**
+   * https://discord.dev/game-sdk/lobbies#update-lobby-member
+   *
+   * `PATCH https://discord.com/api/v6/lobbies/<lobby_id>/members/<user_id>`
+   *
+   * Updates the metadata for a lobby member.
+   *
+   * @param lobbyId https://discord.dev/game-sdk/lobbies#data-models-lobby-struct
+   * @param userId https://discord.dev/resources/user#user-object
+   */
+  updateLobbyMember(
+    lobbyId: Snowflake,
+    userId: Snowflake,
+    data: UpdateLobbyMemberData,
+  ): Promise<UpdateLobbyMemberBody> {
+    return this.patch(LOBBY_MEMBER(lobbyId, userId), "UpdateLobbyMember", {
+      data,
+    });
+  }
+
+  /**
+   * https://discord.dev/game-sdk/achievements#update-user-achievement
+   *
+   * Updates the UserAchievement record for a given user. Use this endpoint to update `secure` achievement progress for users. This endpoint has a rate limit of 5 requests per 5 seconds per application.
+   *
+   * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
+   * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
+   */
+  updateUserAchievement(
+    applicationId: Snowflake,
+    achievementId: Snowflake,
+    data: UpdateUserAchievementData,
+  ): Promise<UpdateUserAchievementBody> {
+    return this.put(
+      APPLICATION_ACHIEVEMENT(applicationId, achievementId),
+      "UpdateUserAchievement",
+      {
+        data,
       },
     );
   }

@@ -39,8 +39,8 @@ export interface CreateLobbyData {
 /** https://discord.dev/game-sdk/lobbies#create-lobby */
 export type CreateLobbyBody = Lobby;
 
-/** https://discord.dev/game-sdk/lobbies#modify-lobby */
-export interface ModifyLobbyData {
+/** https://discord.dev/game-sdk/lobbies#update-lobby */
+export interface UpdateLobbyData {
   /** the type of lobby */
   type: LobbyType;
   /** metadata for the lobby - key/value pairs with types `string` */
@@ -49,20 +49,20 @@ export interface ModifyLobbyData {
   capacity: number;
 }
 
-/** https://discord.dev/game-sdk/lobbies#modify-lobby */
-export type ModifyLobbyBody = Lobby;
+/** https://discord.dev/game-sdk/lobbies#update-lobby */
+export type UpdateLobbyBody = Lobby;
 
 /** https://discord.dev/game-sdk/lobbies#delete-lobby */
 export type DeleteLobbyBody = void;
 
-/** https://discord.dev/game-sdk/lobbies#modify-lobby-member */
-export interface ModifyLobbyMemberData {
+/** https://discord.dev/game-sdk/lobbies#update-lobby-member */
+export interface UpdateLobbyMemberData {
   /** metadata for the lobby - key/value pairs with types `string` */
   metadata: Record<string, string>;
 }
 
-/** https://discord.dev/game-sdk/lobbies#modify-lobby-member */
-export type ModifyLobbyMemberBody = unknown;
+/** https://discord.dev/game-sdk/lobbies#update-lobby-member */
+export type UpdateLobbyMemberBody = unknown;
 
 /** https://discord.dev/game-sdk/lobbies#create-lobby-search */
 export interface CreateLobbySearchData {
@@ -79,7 +79,7 @@ export interface CreateLobbySearchData {
 /** https://discord.dev/game-sdk/lobbies#create-lobby-search */
 export type CreateLobbySearchBody = Lobby;
 
-/** https://discord.dev/game-sdk/lobbies#create-lobby-search-searchfilter-object */
+/** https://discord.dev/game-sdk/lobbies#create-lobby-search-post-lobbiessearch-searchfilter-object */
 export interface SearchFilter {
   /** the metadata key to search */
   key: string;
@@ -91,7 +91,7 @@ export interface SearchFilter {
   comparison: SearchComparisonTypes;
 }
 
-/** https://discord.dev/game-sdk/lobbies#create-lobby-search-searchcomparison-types */
+/** https://discord.dev/game-sdk/lobbies#create-lobby-search-post-lobbiessearch-searchcomparison-types */
 export enum SearchComparisonTypes {
   EqualToOrLessThan = -2,
   LessThan,
@@ -101,7 +101,7 @@ export enum SearchComparisonTypes {
   NotEqual,
 }
 
-/** https://discord.dev/game-sdk/lobbies#create-lobby-search-searchsort-object */
+/** https://discord.dev/game-sdk/lobbies#create-lobby-search-post-lobbiessearch-searchsort-object */
 export interface SearchSort {
   /** the metadata key on which to sort lobbies that meet the search criteria */
   key: string;
@@ -111,7 +111,7 @@ export interface SearchSort {
   near_value: string;
 }
 
-/** https://discord.dev/game-sdk/lobbies#create-lobby-search-searchcast-types */
+/** https://discord.dev/game-sdk/lobbies#create-lobby-search-post-lobbiessearch-searchcast-types */
 export enum SearchCastTypes {
   String = 1,
   Number,

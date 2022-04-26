@@ -793,16 +793,18 @@ export type GroupDMAddRecipientBody = void;
 /** https://discord.dev/resources/channel#group-dm-remove-recipient */
 export type GroupDMRemoveRecipientBody = void;
 
-/** https://discord.dev/resources/channel#start-thread-with-message */
+/** https://discord.dev/resources/channel#start-thread-from-message */
 export interface StartThreadFromMessageData {
   /** 1-100 character channel name */
   name: string;
   /** duration in minutes to automatically archive the thread after recent activity, can be set to: 60, 1440, 4320, 10080 */
-  auto_archive_duration: AutoArchiveDuration;
+  auto_archive_duration?: AutoArchiveDuration;
+  /** amount of seconds a user has to wait before sending another message (0-21600) */
+  rate_limit_per_user?: AutoArchiveDuration;
 }
 
-/** https://discord.dev/resources/channel#start-thread-with-message */
-export type StartThreadWithMessageBody = Channel;
+/** https://discord.dev/resources/channel#start-thread-from-message */
+export type StartThreadFromMessageBody = Channel;
 
 /** https://discord.dev/resources/channel#start-thread-without-message */
 export interface StartThreadWithoutMessageData
@@ -813,6 +815,14 @@ export interface StartThreadWithoutMessageData
 
 /** https://discord.dev/resources/channel#start-thread-without-message */
 export type StartThreadWithoutMessageBody = Channel;
+
+/** https://discord.dev/resources/channel#start-thread-in-forum-channel */
+export type StartThreadInForumChannelData =
+  & CreateMessageData
+  & StartThreadFromMessageData;
+
+/** https://discord.dev/resources/channel#start-thread-in-forum-channel */
+export type StartThreadInForumChannelBody = Channel;
 
 /** https://discord.dev/resources/channel#join-thread */
 export type JoinThreadBody = void;

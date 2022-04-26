@@ -53,11 +53,11 @@ export interface CreateAchievementData {
 /** https://discord.dev/game-sdk/achievements#create-achievement */
 export type CreateAchievementBody = Achievement;
 
-/** https://discord.dev/game-sdk/achievements#modify-achievement */
-export type ModifyAchievementData = CreateAchievementBody;
+/** https://discord.dev/game-sdk/achievements#update-achievement */
+export type UpdateAchievementData = CreateAchievementBody;
 
-/** https://discord.dev/game-sdk/achievements#modify-achievement */
-export type ModifyAchievementBody = Achievement;
+/** https://discord.dev/game-sdk/achievements#update-achievement */
+export type UpdateAchievementBody = Achievement;
 
 /** https://discord.dev/game-sdk/achievements#delete-achievement */
 export type DeleteAchievementBody = void;
@@ -69,7 +69,7 @@ export interface UpdateUserAchievementData {
 }
 
 /** https://discord.dev/game-sdk/achievements#update-user-achievement */
-export type ModifyUserAchievementBody = Record<string, never>;
+export type UpdateUserAchievementBody = Record<string, never>;
 
 /** https://discord.dev/game-sdk/achievements#get-user-achievements */
 export type GetUserAchievementsBody = Achievement[];
