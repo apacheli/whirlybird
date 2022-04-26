@@ -99,9 +99,8 @@ export class CacheClient {
         }
         const guild = this.guilds.get(payload.d.guild_id);
         const thread = guild?.threads.get(payload.d.id);
-        if (thread) {
-          // TODO: Optimize this modification. Object.assign() is kinda slow.
-          Object.assign(thread.member, payload.d);
+        if (thread?.member) {
+          thread.__threadMember__(payload.d);
         }
         break;
       }

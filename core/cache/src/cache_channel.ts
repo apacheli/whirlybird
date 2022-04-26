@@ -27,6 +27,13 @@ import type {
 import { CacheStructure } from "./cache_structure.ts";
 import { CacheUser } from "./cache_user.ts";
 
+/* export */ interface CacheThreadMember {
+  id: bigint;
+  flags: number;
+  joinTimestamp: number;
+  userId: bigint;
+}
+
 export class CacheChannel extends CacheStructure {
   type!: ChannelTypes;
   guildId?: bigint;
@@ -50,7 +57,7 @@ export class CacheChannel extends CacheStructure {
   messageCount?: number;
   memberCount?: number;
   threadMetadata?: ThreadMetadata;
-  member?: ThreadMember;
+  member?: CacheThreadMember;
   defaultAutoArchiveDuration?: number;
   permissions?: bigint;
   flags?: ChannelFlags;
@@ -125,8 +132,17 @@ export class CacheChannel extends CacheStructure {
       this.threadMetadata = data.thread_metadata;
     }
     if (data.member !== undefined) {
-      this.member = data.member;
+      this.__threadMember__(data.member);
     }
+  }
+
+  __threadMember__(member: ThreadMember) {
+    this.member = {
+      id: BigInt(member.id),
+      flags: member.flags,
+      joinTimestamp: Date.parse(member.join_timestamp),
+      userId: BigInt(member.user_id),
+    };
   }
 
   [ChannelTypes.GuildText](data: Partial<GuildTextChannel>) {
