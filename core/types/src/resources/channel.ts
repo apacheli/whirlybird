@@ -394,9 +394,9 @@ export type AutoArchiveDuration = 60 | 1440 | 4320 | 10080;
 /** https://discord.dev/resources/channel#thread-member-object */
 export interface ThreadMember {
   /** the id of the thread */
-  id: Snowflake;
-  /** mthe id of the user */
-  user_id: Snowflake;
+  id?: Snowflake;
+  /** the id of the user */
+  user_id?: Snowflake;
   /** the time the current user last joined the thread */
   join_timestamp: string;
   /** any user-thread settings, currently only used for notifications */

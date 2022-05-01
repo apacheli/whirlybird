@@ -1,4 +1,8 @@
-import { ChannelTypes, Message } from "../../types/src/resources/channel.ts";
+import {
+  AutoArchiveDuration,
+  ChannelTypes,
+  Message,
+} from "../../types/src/resources/channel.ts";
 import type {
   BaseTextChannel,
   BaseVoiceChannel,
@@ -31,10 +35,9 @@ import { CacheMessage } from "./cache_message.ts";
 import { MESSAGE_LIMIT } from "./constants.ts";
 
 /* export */ interface CacheThreadMember {
-  id: bigint;
   flags: number;
   joinTimestamp: number;
-  userId: bigint;
+  userId?: bigint;
 }
 
 export class CacheChannel extends CacheStructure {
@@ -61,7 +64,7 @@ export class CacheChannel extends CacheStructure {
   memberCount?: number;
   threadMetadata?: ThreadMetadata;
   member?: CacheThreadMember;
-  defaultAutoArchiveDuration?: number;
+  defaultAutoArchiveDuration?: AutoArchiveDuration;
   permissions?: bigint;
   flags?: ChannelFlags;
 
@@ -150,6 +153,9 @@ export class CacheChannel extends CacheStructure {
   }
 
   #baseThread(data: Partial<BaseThreadChannel>) {
+    this.#guild(data);
+    this.#baseText(data);
+
     if (data.message_count !== undefined) {
       this.messageCount = data.message_count;
     }
@@ -166,10 +172,8 @@ export class CacheChannel extends CacheStructure {
 
   __threadMember__(member: ThreadMember) {
     this.member = {
-      id: BigInt(member.id),
       flags: member.flags,
       joinTimestamp: Date.parse(member.join_timestamp),
-      userId: BigInt(member.user_id),
     };
   }
 
@@ -235,17 +239,14 @@ export class CacheChannel extends CacheStructure {
   }
 
   [ChannelTypes.GuildNewsThread](data: Partial<GuildNewsThreadChannel>) {
-    this.#guild(data);
     this.#baseThread(data);
   }
 
   [ChannelTypes.GuildPublicThread](data: Partial<GuildPublicThreadChannel>) {
-    this.#guild(data);
     this.#baseThread(data);
   }
 
   [ChannelTypes.GuildPrivateThread](data: Partial<GuildPrivateThreadChannel>) {
-    this.#guild(data);
     this.#baseThread(data);
   }
 

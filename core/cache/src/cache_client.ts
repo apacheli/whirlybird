@@ -126,7 +126,7 @@ export class CacheClient {
       }
 
       case GatewayEvents.ThreadMemberUpdate: {
-        if (!payload.d.guild_id) {
+        if (!payload.d.id || !payload.d.guild_id) {
           break;
         }
         const guild = this.guilds.get(payload.d.guild_id);
