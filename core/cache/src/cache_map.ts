@@ -1,10 +1,12 @@
 import type { Snowflake } from "../../types/src/reference.ts";
+import type { CacheClient } from "./cache_client.ts";
 import type { CacheStructure, Structure } from "./cache_structure.ts";
 
 export class CacheMap<V extends CacheStructure, T extends Structure>
   extends Map<bigint, V> {
   constructor(
-    public baseClass: new (data: T) => V,
+    public baseClass: new (data: T, client: CacheClient) => V,
+    public client: CacheClient,
     structures?: T[] | null,
     public limit?: number,
   ) {
@@ -46,7 +48,7 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
     if (this.limit === 0) {
       return;
     }
-    const item = new this.baseClass(data);
+    const item = new this.baseClass(data, this.client);
     item.__update__(data);
     this.set(item.id, item);
     return item;

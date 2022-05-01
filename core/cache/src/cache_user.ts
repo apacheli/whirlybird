@@ -3,6 +3,7 @@ import type {
   User,
   UserFlags,
 } from "../../types/src/resources/user.ts";
+import type { CacheClient } from "./cache_client.ts";
 import { CacheStructure } from "./cache_structure.ts";
 
 export class CacheUser extends CacheStructure {
@@ -21,8 +22,8 @@ export class CacheUser extends CacheStructure {
   premiumType?: PremiumTypes;
   publicFlags?: UserFlags;
 
-  constructor(data: User) {
-    super(data);
+  constructor(data: User, client: CacheClient) {
+    super(data, client);
 
     this.bot = data.bot;
     this.system = data.system;

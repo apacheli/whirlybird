@@ -23,6 +23,7 @@ import type {
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions } from "../../types/src/topics/permissions.ts";
 import { CacheChannel } from "./cache_channel.ts";
+import type { CacheClient } from "./cache_client.ts";
 import { CacheMap } from "./cache_map.ts";
 import { CacheRole } from "./cache_role.ts";
 import { CacheStructure } from "./cache_structure.ts";
@@ -80,17 +81,17 @@ export class CacheGuild extends CacheStructure {
   guildScheduledEvents?: GuildScheduledEvent[];
   premiumProgressBarEnabled?: boolean;
 
-  constructor(data: Guild) {
-    super(data);
+  constructor(data: Guild, client: CacheClient) {
+    super(data, client);
 
-    this.roles = new CacheMap(CacheRole, data.roles);
+    this.roles = new CacheMap(CacheRole, client, data.roles);
     this.emojis = data.emojis;
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
     this.large = data.large;
     this.voiceStates = data.voice_states;
     this.members = data.members;
-    this.channels = new CacheMap(CacheChannel, data.channels);
-    this.threads = new CacheMap(CacheChannel, data.threads);
+    this.channels = new CacheMap(CacheChannel, client, data.channels);
+    this.threads = new CacheMap(CacheChannel, client, data.threads);
     this.presences = data.presences;
     this.stageInstances = data.stage_instances;
     this.stickers = data.stickers;

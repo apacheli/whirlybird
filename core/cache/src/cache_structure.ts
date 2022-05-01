@@ -16,7 +16,7 @@ export interface Structure {
 export abstract class CacheStructure {
   id;
 
-  constructor(data: Structure, public client?: CacheClient) {
+  constructor(data: Structure, public client: CacheClient) {
     this.id = BigInt(data.id);
   }
 

@@ -1,4 +1,4 @@
-import { ChannelTypes } from "../../types/src/resources/channel.ts";
+import { ChannelTypes, Message } from "../../types/src/resources/channel.ts";
 import type {
   BaseTextChannel,
   BaseVoiceChannel,
@@ -25,7 +25,10 @@ import type {
   VideoQualityModes,
 } from "../../types/src/resources/channel.ts";
 import { CacheStructure } from "./cache_structure.ts";
-import { CacheUser } from "./cache_user.ts";
+import { CacheClient } from "./cache_client.ts";
+import { CacheMap } from "./cache_map.ts";
+import { CacheMessage } from "./cache_message.ts";
+import { MESSAGE_LIMIT } from "./constants.ts";
 
 /* export */ interface CacheThreadMember {
   id: bigint;
@@ -36,7 +39,7 @@ import { CacheUser } from "./cache_user.ts";
 
 export class CacheChannel extends CacheStructure {
   type!: ChannelTypes;
-  guildId?: bigint;
+  guildId;
   position?: number;
   permissionOverwrites?: Overwrite[];
   name?: string | null;
@@ -46,7 +49,7 @@ export class CacheChannel extends CacheStructure {
   bitrate?: number;
   userLimit?: number;
   rateLimitPerUser?: number;
-  recipients?: CacheUser[];
+  // recipients?: CacheUser[];
   icon?: string | null;
   ownerId?: bigint;
   applicationId?: bigint;
@@ -62,6 +65,26 @@ export class CacheChannel extends CacheStructure {
   permissions?: bigint;
   flags?: ChannelFlags;
 
+  messages?: CacheMap<CacheMessage, Message>;
+  recipientIds;
+
+  constructor(data: Channel, client: CacheClient) {
+    super(data, client);
+
+    if ("guild_id" in data) {
+      this.guildId = BigInt(data.guild_id);
+    }
+    if (client && "recipients" in data) {
+      this.recipientIds = [];
+      for (const recipient of data.recipients) {
+        const user = client.users.add(recipient);
+        if (user) {
+          this.recipientIds.push(user.id);
+        }
+      }
+    }
+  }
+
   __update__(data: Partial<Channel>) {
     if (data.type !== undefined) {
       this.type = data.type;
@@ -72,9 +95,6 @@ export class CacheChannel extends CacheStructure {
   }
 
   #guild(data: Partial<GuildChannel>) {
-    if (data.guild_id !== undefined) {
-      this.guildId = BigInt(data.guild_id);
-    }
     if (data.position !== undefined) {
       this.position = data.position;
     }
@@ -96,6 +116,14 @@ export class CacheChannel extends CacheStructure {
   }
 
   #baseText(data: Partial<BaseTextChannel>) {
+    if (this.messages === undefined) {
+      this.messages = new CacheMap(
+        CacheMessage,
+        this.client,
+        [],
+        this.client.options?.messageLimit ?? MESSAGE_LIMIT,
+      );
+    }
     if (data.last_message_id !== undefined) {
       this.lastMessageId = data.last_message_id && BigInt(data.last_message_id);
     }
@@ -162,10 +190,6 @@ export class CacheChannel extends CacheStructure {
 
   [ChannelTypes.DM](data: Partial<DMChannel>) {
     this.#baseText(data);
-
-    if (data.recipients) {
-      this.recipients = data.recipients.map((user) => new CacheUser(user));
-    }
   }
 
   [ChannelTypes.GuildVoice](data: Partial<GuildVoiceChannel>) {
@@ -178,9 +202,6 @@ export class CacheChannel extends CacheStructure {
 
     if (data.name !== undefined) {
       this.name = data.name;
-    }
-    if (data.recipients) {
-      this.recipients = data.recipients.map((user) => new CacheUser(user));
     }
     if (data.icon !== undefined) {
       this.icon = data.icon;
