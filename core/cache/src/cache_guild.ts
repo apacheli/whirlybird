@@ -5,7 +5,6 @@ import type {
   ExplicitContentFilterLevel,
   Guild,
   GuildFeatures,
-  GuildMember,
   GuildNsfwLevel,
   MfaLevel,
   PremiumTier,
@@ -24,11 +23,13 @@ import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/g
 import type { Permissions } from "../../types/src/topics/permissions.ts";
 import { CacheChannel } from "./cache_channel.ts";
 import type { CacheClient } from "./cache_client.ts";
+import { CacheGuildMember } from "./cache_guild_member.ts";
 import { CacheMap } from "./cache_map.ts";
 import { CacheRole } from "./cache_role.ts";
-import { CacheStructure } from "./cache_structure.ts";
 
-export class CacheGuild extends CacheStructure {
+export class CacheGuild {
+  id;
+
   name!: string;
   icon!: string | null;
   iconHash?: string | null;
@@ -58,7 +59,7 @@ export class CacheGuild extends CacheStructure {
   unavailable?: boolean;
   memberCount?: number;
   voiceStates?: Partial<VoiceState>[];
-  members?: GuildMember[];
+  members;
   channels;
   threads;
   presences?: DispatchPayloadPresenceUpdateData[];
@@ -82,20 +83,44 @@ export class CacheGuild extends CacheStructure {
   premiumProgressBarEnabled?: boolean;
 
   constructor(data: Guild, client: CacheClient) {
-    super(data, client);
+    this.id = BigInt(data.id);
 
-    this.roles = new CacheMap(CacheRole, client, data.roles);
+    this.roles = new CacheMap(CacheRole, client);
+    for (const role of data.roles) {
+      this.roles.add(role.id, role);
+    }
     this.emojis = data.emojis;
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
     this.large = data.large;
     this.voiceStates = data.voice_states;
-    this.members = data.members;
-    this.channels = new CacheMap(CacheChannel, client, data.channels);
-    this.threads = new CacheMap(CacheChannel, client, data.threads);
+    this.members = new CacheMap(CacheGuildMember, client);
+    this.channels = new CacheMap(CacheChannel, client);
+    if (data.channels) {
+      for (const channel of data.channels) {
+        this.channels.add(channel.id, channel);
+      }
+    }
+    this.threads = new CacheMap(CacheChannel, client);
+    if (data.threads) {
+      for (const thread of data.threads) {
+        this.channels.add(thread.id, thread);
+      }
+    }
     this.presences = data.presences;
     this.stageInstances = data.stage_instances;
     this.stickers = data.stickers;
     this.guildScheduledEvents = data.guild_scheduled_events;
+
+    if (data.members) {
+      for (const member of data.members) {
+        if (!member.user) {
+          console.log("no user");
+          continue;
+        }
+        client.users.add(member.user!.id, member.user);
+        this.members.add(member.user!.id, member);
+      }
+    }
   }
 
   __update__(data: Partial<Guild>) {

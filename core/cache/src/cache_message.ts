@@ -12,10 +12,11 @@ import type {
   Reaction,
 } from "../../types/src/resources/channel.ts";
 import type { StickerItem } from "../../types/src/resources/sticker.ts";
-import { CacheClient } from "./cache_client.ts";
-import { CacheStructure } from "./cache_structure.ts";
+import type { CacheClient } from "./cache_client.ts";
 
-export class CacheMessage extends CacheStructure {
+export class CacheMessage {
+  id;
+
   channelId;
   guildId;
   // author;
@@ -48,12 +49,12 @@ export class CacheMessage extends CacheStructure {
 
   authorId;
 
-  constructor(data: Message, client: CacheClient) {
-    super(data, client);
+  constructor(data: Message, public client: CacheClient) {
+    this.id = BigInt(data.id);
 
     this.channelId = BigInt(data.channel_id);
     this.guildId = data.guild_id && BigInt(data.guild_id);
-    this.authorId = client.users.modify(data.author)?.id ??
+    this.authorId = client.users.add(data.author.id, data.author)?.id ??
       BigInt(data.author.id);
     this.tts = data.tts;
     this.nonce = data.nonce;
@@ -75,7 +76,7 @@ export class CacheMessage extends CacheStructure {
     if (data.mentions !== undefined) {
       this.mentionIds = [];
       for (const user of data.mentions) {
-        const cachedUser = this.client?.users?.modify(user);
+        const cachedUser = this.client?.users?.add(user.id, user);
         if (cachedUser) {
           this.mentionIds.push(cachedUser.id);
         }

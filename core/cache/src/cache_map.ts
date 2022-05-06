@@ -1,38 +1,34 @@
 import type { Snowflake } from "../../types/src/reference.ts";
 import type { CacheClient } from "./cache_client.ts";
-import type { CacheStructure, Structure } from "./cache_structure.ts";
 
-export class CacheMap<V extends CacheStructure, T extends Structure>
-  extends Map<bigint, V> {
+/* export */ interface CacheStructure {
+  id: bigint;
+  __update__(data: unknown): void;
+}
+
+export class CacheMap<V extends CacheStructure, T> extends Map<bigint, V> {
   constructor(
     public baseClass: new (data: T, client: CacheClient) => V,
     public client: CacheClient,
-    structures?: T[] | null,
     public limit?: number,
   ) {
     super();
-
-    if (structures?.length) {
-      for (const structure of structures) {
-        this.add(structure);
-      }
-    }
   }
 
-  delete(key: Snowflake | bigint) {
+  delete(key: bigint | Snowflake) {
     return super.delete(BigInt(key));
   }
 
-  get(key: Snowflake | bigint) {
+  get(key: bigint | Snowflake) {
     return super.get(BigInt(key));
   }
 
-  has(key: Snowflake | bigint) {
+  has(key: bigint | Snowflake) {
     return super.has(BigInt(key));
   }
 
-  add(data: T) {
-    const existing = this.get(data.id);
+  add(key: bigint | Snowflake, data: T) {
+    const existing = this.get(key);
     if (existing) {
       existing.__update__(data);
       return;
@@ -54,8 +50,7 @@ export class CacheMap<V extends CacheStructure, T extends Structure>
     return item;
   }
 
-  // Calls CacheMap.add() under the hood but make this method an alias anyway.
-  modify(data: Partial<T>) {
-    return this.add(data as T);
+  modify(key: bigint | Snowflake, data: Partial<T>) {
+    return this.add(key, data as T);
   }
 }

@@ -51,9 +51,9 @@ export class CacheClient {
       case GatewayEvents.ChannelCreate: {
         if ("guild_id" in payload.d) {
           const guild = this.guilds.get(payload.d.guild_id);
-          guild?.channels.add(payload.d);
+          guild?.channels.add(payload.d.id, payload.d);
         } else {
-          this.channels.add(payload.d);
+          this.channels.add(payload.d.id, payload.d);
         }
         break;
       }
@@ -61,9 +61,9 @@ export class CacheClient {
       case GatewayEvents.ChannelUpdate: {
         if ("guild_id" in payload.d) {
           const guild = this.guilds.get(payload.d.guild_id);
-          guild?.channels.modify(payload.d);
+          guild?.channels.add(payload.d.id, payload.d);
         } else {
-          this.channels.modify(payload.d);
+          this.channels.add(payload.d.id, payload.d);
         }
         break;
       }
@@ -99,13 +99,13 @@ export class CacheClient {
 
       case GatewayEvents.ThreadCreate: {
         const guild = this.guilds.get(payload.d.guild_id);
-        guild?.threads.add(payload.d);
+        guild?.threads.add(payload.d.id, payload.d);
         break;
       }
 
       case GatewayEvents.ThreadUpdate: {
         const guild = this.guilds.get(payload.d.guild_id);
-        guild?.threads.modify(payload.d);
+        guild?.threads.add(payload.d.id, payload.d);
         break;
       }
 
@@ -119,7 +119,7 @@ export class CacheClient {
         const guild = this.guilds.get(payload.d.guild_id);
         if (guild) {
           for (const thread of payload.d.threads) {
-            guild.threads.modify(thread);
+            guild.threads.add(thread.id, thread);
           }
         }
         break;
@@ -148,21 +148,21 @@ export class CacheClient {
 
       case GatewayEvents.GuildCreate: {
         if ("unavailable" in payload.d) {
-          this.guilds.modify(payload.d);
+          this.guilds.add(payload.d.id, payload.d);
         } else {
-          this.guilds.add(payload.d);
+          this.guilds.add(payload.d.id, payload.d);
         }
         break;
       }
 
       case GatewayEvents.GuildUpdate: {
-        this.guilds.modify(payload.d);
+        this.guilds.add(payload.d.id, payload.d);
         break;
       }
 
       case GatewayEvents.GuildDelete: {
         if (payload.d.unavailable) {
-          this.guilds.modify(payload.d);
+          this.guilds.modify(payload.d.id, payload.d);
         } else {
           this.guilds.delete(payload.d.id);
         }
@@ -190,14 +190,20 @@ export class CacheClient {
       }
 
       case GatewayEvents.GuildMemberAdd: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.members.add(payload.d.user!.id, payload.d);
         break;
       }
 
       case GatewayEvents.GuildMemberRemove: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.members.delete(payload.d.user.id);
         break;
       }
 
       case GatewayEvents.GuildMemberUpdate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.members.modify(payload.d.user!.id, payload.d);
         break;
       }
 
@@ -207,13 +213,13 @@ export class CacheClient {
 
       case GatewayEvents.GuildRoleCreate: {
         const guild = this.guilds.get(payload.d.guild_id);
-        guild?.roles.add(payload.d.role);
+        guild?.roles.add(payload.d.role.id, payload.d.role);
         break;
       }
 
       case GatewayEvents.GuildRoleUpdate: {
         const guild = this.guilds.get(payload.d.guild_id);
-        guild?.roles.modify(payload.d.role);
+        guild?.roles.modify(payload.d.role.id, payload.d.role);
         break;
       }
 
@@ -275,7 +281,7 @@ export class CacheClient {
         } else {
           channel = this.channels.get(payload.d.channel_id);
         }
-        channel?.messages?.add(payload.d);
+        channel?.messages?.add(payload.d.id, payload.d);
         break;
       }
 
@@ -287,7 +293,7 @@ export class CacheClient {
         } else {
           channel = this.channels.get(payload.d.channel_id);
         }
-        channel?.messages?.modify(payload.d);
+        channel?.messages?.modify(payload.d.id, payload.d);
         break;
       }
 
@@ -344,7 +350,7 @@ export class CacheClient {
       }
 
       case GatewayEvents.UserUpdate: {
-        this.users.modify(payload.d);
+        this.users.add(payload.d.id, payload.d);
         break;
       }
 

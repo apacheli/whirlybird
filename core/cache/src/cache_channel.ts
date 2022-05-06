@@ -28,8 +28,7 @@ import type {
   Overwrite,
   VideoQualityModes,
 } from "../../types/src/resources/channel.ts";
-import { CacheStructure } from "./cache_structure.ts";
-import { CacheClient } from "./cache_client.ts";
+import type { CacheClient } from "./cache_client.ts";
 import { CacheMap } from "./cache_map.ts";
 import { CacheMessage } from "./cache_message.ts";
 import { MESSAGE_LIMIT } from "./constants.ts";
@@ -40,7 +39,9 @@ import { MESSAGE_LIMIT } from "./constants.ts";
   userId?: bigint;
 }
 
-export class CacheChannel extends CacheStructure {
+export class CacheChannel {
+  id;
+
   type!: ChannelTypes;
   guildId;
   position?: number;
@@ -71,8 +72,8 @@ export class CacheChannel extends CacheStructure {
   messages?: CacheMap<CacheMessage, Message>;
   recipientIds;
 
-  constructor(data: Channel, client: CacheClient) {
-    super(data, client);
+  constructor(data: Channel, public client: CacheClient) {
+    this.id = BigInt(data.id);
 
     if ("guild_id" in data) {
       this.guildId = BigInt(data.guild_id);
@@ -80,7 +81,7 @@ export class CacheChannel extends CacheStructure {
     if (client && "recipients" in data) {
       this.recipientIds = [];
       for (const recipient of data.recipients) {
-        const user = client.users.add(recipient);
+        const user = client.users.add(recipient.id, recipient);
         if (user) {
           this.recipientIds.push(user.id);
         }
@@ -120,12 +121,8 @@ export class CacheChannel extends CacheStructure {
 
   #baseText(data: Partial<BaseTextChannel>) {
     if (this.messages === undefined) {
-      this.messages = new CacheMap(
-        CacheMessage,
-        this.client,
-        [],
-        this.client.options?.messageLimit ?? MESSAGE_LIMIT,
-      );
+      const messageLimit = this.client.options?.messageLimit ?? MESSAGE_LIMIT;
+      this.messages = new CacheMap(CacheMessage, this.client, messageLimit);
     }
     if (data.last_message_id !== undefined) {
       this.lastMessageId = data.last_message_id && BigInt(data.last_message_id);

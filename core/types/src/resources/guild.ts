@@ -315,7 +315,7 @@ export interface GuildMember {
   /** total permissions of the member in the channel, including overwrites, returned when in the interaction object */
   permissions?: Permissions;
   /** when the user's [timeout](https://support.discord.com/hc/en-us/articles/4413305239191-Time-Out-FAQ) will expire and the user will be able to communicate in the guild again, null or a time in the past if the user is not timed out */
-  communication_disabled_until?: string;
+  communication_disabled_until?: string | null;
 }
 
 /** https://discord.dev/resources/guild#integration-object */

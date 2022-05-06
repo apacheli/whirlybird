@@ -1,7 +1,13 @@
 import type { Role } from "../../types/src/topics/permissions.ts";
-import { CacheStructure } from "./cache_structure.ts";
 
-export class CacheRole extends CacheStructure {
+export interface CacheRoleTags {
+  botId?: bigint;
+  integrationId?: bigint;
+  premiumSubscriber?: null;
+}
+
+export class CacheRole {
+  id;
   name!: string;
   color!: number;
   hoist!: boolean;
@@ -12,6 +18,10 @@ export class CacheRole extends CacheStructure {
   managed!: boolean;
   mentionable!: boolean;
   tags?: CacheRoleTags;
+
+  constructor(data: Role) {
+    this.id = BigInt(data.id);
+  }
 
   __update__(data: Partial<Role>) {
     if (data.name !== undefined) {
@@ -50,10 +60,4 @@ export class CacheRole extends CacheStructure {
       };
     }
   }
-}
-
-export interface CacheRoleTags {
-  botId?: bigint;
-  integrationId?: bigint;
-  premiumSubscriber?: null;
 }
