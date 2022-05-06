@@ -1,37 +1,33 @@
-import {
-  AutoArchiveDuration,
-  ChannelTypes,
-  Message,
-} from "../../types/src/resources/channel.ts";
+import { ChannelTypes } from "../../types/src/resources/channel.ts";
 import type {
+  AutoArchiveDuration,
   BaseTextChannel,
+  BaseThreadChannel,
   BaseVoiceChannel,
+  Channel,
   ChannelFlags,
+  DMChannel,
+  GroupDMChannel,
   GuildCategoryChannel,
   GuildChannel,
+  GuildNewsChannel,
   GuildNewsThreadChannel,
   GuildPrivateThreadChannel,
   GuildPublicThreadChannel,
-  GuildStoreChannel,
-  ThreadMember,
-  ThreadMetadata,
-} from "../../types/src/resources/channel.ts";
-import type {
-  BaseThreadChannel,
-  Channel,
-  DMChannel,
-  GroupDMChannel,
-  GuildNewsChannel,
   GuildStageVoiceChannel,
+  GuildStoreChannel,
   GuildTextChannel,
   GuildVoiceChannel,
+  Message,
   Overwrite,
+  ThreadMember,
+  ThreadMetadata,
   VideoQualityModes,
 } from "../../types/src/resources/channel.ts";
-import type { CacheClient } from "./cache_client.ts";
+import { CacheClient } from "./cache_client.ts";
 import { CacheMap } from "./cache_map.ts";
-import { CacheMessage } from "./cache_message.ts";
 import { MESSAGE_LIMIT } from "./constants.ts";
+import { CacheMessage } from "./message.ts";
 
 /* export */ interface CacheThreadMember {
   flags: number;

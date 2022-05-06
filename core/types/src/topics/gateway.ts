@@ -1271,6 +1271,7 @@ export type DispatchPayload =
   | DispatchPayloadGuildBanAdd
   | DispatchPayloadGuildBanRemove
   | DispatchPayloadGuildEmojisUpdate
+  | DispatchPayloadGuildStickersUpdate
   | DispatchPayloadGuildIntegrationsUpdate
   | DispatchPayloadGuildMemberAdd
   | DispatchPayloadGuildMemberRemove

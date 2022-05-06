@@ -2,10 +2,10 @@ import {
   type DispatchPayload,
   GatewayEvents,
 } from "../../types/src/topics/gateway.ts";
-import { CacheChannel } from "./cache_channel.ts";
-import { CacheGuild } from "./cache_guild.ts";
 import { CacheMap } from "./cache_map.ts";
-import { CacheUser } from "./cache_user.ts";
+import { CacheChannel } from "./channel.ts";
+import { CacheGuild } from "./guild.ts";
+import { CacheUser } from "./user.ts";
 
 export interface CacheClientOptions {
   disableEvents?: Record<GatewayEvents, boolean>;
@@ -181,9 +181,15 @@ export class CacheClient {
         break;
       }
 
-      /* case GatewayEvents.GuildStickersUpdate: {
+      case GatewayEvents.GuildStickersUpdate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        if (guild) {
+          for (const sticker of payload.d.stickers) {
+            guild.stickers.modify(sticker.id, sticker);
+          }
+        }
         break;
-      } */
+      }
 
       case GatewayEvents.GuildIntegrationsUpdate: {
         break;
@@ -230,14 +236,20 @@ export class CacheClient {
       }
 
       case GatewayEvents.GuildScheduledEventCreate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.guildScheduledEvents.add(payload.d.id, payload.d);
         break;
       }
 
       case GatewayEvents.GuildScheduledEventUpdate: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.guildScheduledEvents.modify(payload.d.id, payload.d);
         break;
       }
 
       case GatewayEvents.GuildScheduledEventDelete: {
+        const guild = this.guilds.get(payload.d.guild_id);
+        guild?.guildScheduledEvents.delete(payload.d.id);
         break;
       }
 

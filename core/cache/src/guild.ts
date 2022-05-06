@@ -12,7 +12,6 @@ import type {
   VerificationLevel,
   WelcomeScreen,
 } from "../../types/src/resources/guild.ts";
-import type { GuildScheduledEvent } from "../../types/src/resources/guild_scheduled_event.ts";
 import type { StageInstance } from "../../types/src/resources/stage_instance.ts";
 import type { Sticker } from "../../types/src/resources/sticker.ts";
 import type {
@@ -21,11 +20,13 @@ import type {
 } from "../../types/src/resources/voice.ts";
 import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions } from "../../types/src/topics/permissions.ts";
-import { CacheChannel } from "./cache_channel.ts";
 import type { CacheClient } from "./cache_client.ts";
-import { CacheGuildMember } from "./cache_guild_member.ts";
 import { CacheMap } from "./cache_map.ts";
-import { CacheRole } from "./cache_role.ts";
+import { CacheChannel } from "./channel.ts";
+import { CacheGuildMember } from "./guild_member.ts";
+import { CacheGuildScheduledEvent } from "./guild_scheduled_event.ts";
+import { CacheRole } from "./role.ts";
+import { CacheSticker } from "./sticker.ts";
 
 export class CacheGuild {
   id;
@@ -78,8 +79,8 @@ export class CacheGuild {
   welcomeScreen?: WelcomeScreen;
   nsfwLevel!: GuildNsfwLevel;
   stageInstances?: StageInstance;
-  stickers?: Sticker[];
-  guildScheduledEvents?: GuildScheduledEvent[];
+  stickers;
+  guildScheduledEvents;
   premiumProgressBarEnabled?: boolean;
 
   constructor(data: Guild, client: CacheClient) {
@@ -90,35 +91,43 @@ export class CacheGuild {
       this.roles.add(role.id, role);
     }
     this.emojis = data.emojis;
-    this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : void 0;
+    this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : undefined;
     this.large = data.large;
     this.voiceStates = data.voice_states;
     this.members = new CacheMap(CacheGuildMember, client);
+    if (data.members) {
+      for (const member of data.members) {
+        client.users.add(member.user!.id, member.user!);
+        this.members.add(member.user!.id, member);
+      }
+    }
     this.channels = new CacheMap(CacheChannel, client);
-    if (data.channels) {
+    if (data.channels?.length) {
       for (const channel of data.channels) {
         this.channels.add(channel.id, channel);
       }
     }
     this.threads = new CacheMap(CacheChannel, client);
-    if (data.threads) {
+    if (data.threads?.length) {
       for (const thread of data.threads) {
         this.channels.add(thread.id, thread);
       }
     }
     this.presences = data.presences;
     this.stageInstances = data.stage_instances;
-    this.stickers = data.stickers;
-    this.guildScheduledEvents = data.guild_scheduled_events;
-
-    if (data.members) {
-      for (const member of data.members) {
-        if (!member.user) {
-          console.log("no user");
-          continue;
-        }
-        client.users.add(member.user!.id, member.user);
-        this.members.add(member.user!.id, member);
+    this.stickers = new CacheMap(CacheSticker, client);
+    if (data.stickers) {
+      for (const sticker of data.stickers) {
+        this.stickers.add(sticker.id, sticker);
+      }
+    }
+    this.guildScheduledEvents = new CacheMap(CacheGuildScheduledEvent, client);
+    if (data.guild_scheduled_events?.length) {
+      for (const guildScheduledEvent of data.guild_scheduled_events) {
+        this.guildScheduledEvents.add(
+          guildScheduledEvent.id,
+          guildScheduledEvent,
+        );
       }
     }
   }
