@@ -80,7 +80,7 @@ export class HttpClient {
     }
 
     const body = requestBody(options?.data, options?.files);
-    if (options?.data !== undefined) {
+    if (options?.data !== undefined && !options.files?.length) {
       headers["Content-Type"] = "application/json; charset=utf-8";
     }
 
