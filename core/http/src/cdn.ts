@@ -24,7 +24,7 @@ import {
   USER_AVATAR,
   USER_BANNER,
 } from "./cdn_routes.ts";
-import { REQUEST_DELAY, USER_AGENT } from "./constants.ts";
+import { DELAY, USER_AGENT } from "./constants.ts";
 
 export interface ImageOptions<I extends ImageFormats = ImageFormats> {
   format?: I;
@@ -40,15 +40,10 @@ const request = async (path: string, options?: ImageOptions) => {
     url += `?size=${options.size}`;
   }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), REQUEST_DELAY);
-
   const response = await fetch(url, {
     headers: { "User-Agent": USER_AGENT },
-    signal: controller.signal,
+    signal: AbortSignal.timeout(DELAY),
   });
-
-  clearTimeout(timeout);
 
   if (response.ok) {
     return new Uint8Array(await response.arrayBuffer());

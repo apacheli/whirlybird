@@ -13,7 +13,6 @@ import type {
   WelcomeScreen,
 } from "../../types/src/resources/guild.ts";
 import type { StageInstance } from "../../types/src/resources/stage_instance.ts";
-import type { Sticker } from "../../types/src/resources/sticker.ts";
 import type {
   VoiceRegion,
   VoiceState,

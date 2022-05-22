@@ -545,7 +545,7 @@ export type ModifyGuildChannelPositionsData = {
 export type ModifyGuildChannelPositionsBody = void;
 
 /** https://discord.dev/resources/guild#list-active-threads */
-export interface ListActiveThreadsBody {
+export interface ListActiveGuildThreadsBody {
   /** the active threads */
   threads: ThreadChannel[];
   /** a thread member object for each returned thread the current user has joined */

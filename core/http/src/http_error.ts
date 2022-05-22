@@ -14,18 +14,18 @@ export class HttpError extends Error {
   }
 
   get message() {
-    const list = this.body.errors ? this.#formatErrors() : "";
+    const list = this.body.errors ? this.formatErrors() : "";
     return logger.highlight(`[${this.body.code}] ${this.body.message}${list}`);
   }
 
-  #formatErrors(errors = this.body.errors, x = "") {
-    if (errors?._errors instanceof Array) {
-      return errors._errors.reduce((a, b) => `${a}\n${x}: ${b.message}`, "");
+  formatErrors(errors = this.body.errors, x = "") {
+    if (errors?._errors?.constructor === Array) {
+      return errors._errors.reduce((a, b) => `${a}\n  ${x}: ${b.message}`, "");
     }
     let str = "";
     for (const key in errors) {
       const e = errors[key as keyof typeof errors] as typeof errors;
-      str += this.#formatErrors(e, `${x}.${key}`);
+      str += this.formatErrors(e, `${x}.${key}`);
     }
     return str;
   }

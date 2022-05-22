@@ -1,7 +1,7 @@
 // https://discord.dev/reference
 
 /** https://discord.dev/reference#api-reference-base-url */
-export const BaseUrl = "https://discord.com/api";
+// export const baseUrl = "https://discord.com/api";
 
 /** https://discord.dev/reference#api-versioning */
 export type ApiVersions = 10;

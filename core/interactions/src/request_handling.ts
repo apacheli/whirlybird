@@ -1,4 +1,4 @@
-import { buildRequestBody } from "../../http/src/build_request_body.ts";
+import { requestBody } from "../../http/src/request_body.ts";
 import {
   type Interaction,
   type InteractionCallbackData,
@@ -33,7 +33,7 @@ export const handleRequestEvent = async (
   const signature = request.headers.get(SIGNATURE);
   const timestamp = request.headers.get(TIMESTAMP);
 
-  const respond = (body: BodyInit, status: number, headers?: HeadersInit) =>
+  const respond = (status: number, body?: BodyInit, headers?: HeadersInit) =>
     respondWith(new Response(body, { headers, status }));
 
   if (
@@ -42,21 +42,21 @@ export const handleRequestEvent = async (
     request.headers.get("Content-Type") !== "application/json" ||
     request.method !== "POST"
   ) {
-    return respond("400 Bad Request", HttpResponseCodes.BadRequest);
+    return respond(HttpResponseCodes.BadRequest, "400 Bad Request");
   }
 
   const body = await request.text();
 
   if (!verifyRequest(publicKey, signature, timestamp, body)) {
-    return respond("401 Unauthorized", HttpResponseCodes.Unauthorized);
+    return respond(HttpResponseCodes.Unauthorized, "401 Unauthorized");
   }
 
   const interaction: Interaction = JSON.parse(body);
 
   const callback: Callback = (type, data, files) =>
     respond(
-      buildRequestBody({ data, type }, files),
       HttpResponseCodes.Ok,
+      requestBody({ data, type }, files),
       files?.length ? undefined : { "Content-Type": "application/json" },
     );
 

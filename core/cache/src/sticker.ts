@@ -3,6 +3,7 @@ import type { CacheClient } from "./cache_client.ts";
 
 export class CacheSticker {
   id;
+
   packId;
   name!: string;
   description!: string;
