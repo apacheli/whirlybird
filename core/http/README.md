@@ -27,6 +27,18 @@ await http.createMessage("826605722397442089", {
 });
 ```
 
+If rate limits become unused for too long, you may clear them with the
+`.clearRateLimits()` method.
+
+```ts
+http.clearRateLimits();
+
+// with an interval:
+const interval = setInterval(() => {
+  http.clearRateLimits();
+}, 3_600_000);
+```
+
 ### Documentation
 
 The generated documentation is available

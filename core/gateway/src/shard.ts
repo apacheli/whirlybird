@@ -14,7 +14,9 @@ import type { GatewayClient } from "./gateway_client.ts";
 export class Shard extends DiscordSocket {
   heartbeatInterval?: number;
   lastHeartbeatSentAt = -1;
+  /** Heartbeat acknowledgement response time. */
   latency = -1;
+  /** If the shard received a `READY` dispatch payload. */
   ready = false;
   seq = 0;
   sessionId?: string;
@@ -23,7 +25,7 @@ export class Shard extends DiscordSocket {
     super(client.data.url);
   }
 
-  handlePayload(payload: GatewayPayload) {
+  protected handlePayload(payload: GatewayPayload) {
     switch (payload.op) {
       case GatewayOpcodes.Dispatch: {
         if (this.seq > payload.s) {
@@ -77,7 +79,7 @@ export class Shard extends DiscordSocket {
     this.client.handleShardPayload(payload, this);
   }
 
-  handleSocketClose(event: CloseEvent) {
+  protected handleSocketClose(event: CloseEvent) {
     clearInterval(this.heartbeatInterval);
     this.client.handleShardClose(event, this);
   }

@@ -65,7 +65,9 @@ const handleEvent: HandleEvent = async (payload) => {
 
 const gateway = new GatewayClient(token, {
   handleEvent,
-  intents: GatewayIntents.GuildMessages,
+  identifyData: {
+    intents: GatewayIntents.GuildMessages,
+  },
   ready: () => console.log("Hello, World!"),
   url: "wss://gateway.discord.gg?v=9",
 });
