@@ -36,7 +36,7 @@ export class Shard extends DiscordSocket {
             this.sessionId = payload.d.session_id;
 
             logger.info(
-              `Shard ${this.id} is ready - "${payload.d.application.id}"`,
+              `Shard ${this.id} is ready as "${payload.d.application.id}"`,
               `("${payload.d.user.username}#${payload.d.user.discriminator}")`,
             );
 
@@ -61,6 +61,7 @@ export class Shard extends DiscordSocket {
       }
 
       case GatewayOpcodes.InvalidSession: {
+        logger.debug(`Shard ${this.id} encountered an invalid session`);
         if (payload.d) {
           this.resume();
         }

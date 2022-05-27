@@ -1,3 +1,4 @@
+import { RateLimit } from "../../http/src/rate_limit.ts";
 import type {
   DispatchPayload,
   GatewayPayload,
@@ -8,7 +9,6 @@ import {
   GatewayOpcodes,
 } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
-import { sleep } from "../../util/src/sleep.ts";
 import { Shard } from "./shard.ts";
 
 export type HandleEvent = (payload: DispatchPayload, shard: Shard) => void;
@@ -35,10 +35,11 @@ export interface GatewayClientData {
 
 export class GatewayClient {
   data;
+  rateLimit = new RateLimit();
   shards: Shard[] = [];
 
   constructor(public token: string, data: GatewayClientData) {
-    this.data = {
+    const { maxConcurrency } = this.data = {
       firstShardId: 0,
       lastShardId: data.shards ?? 1,
       maxConcurrency: 1,
@@ -46,6 +47,8 @@ export class GatewayClient {
       url: "wss://gateway.discord.gg?v=10",
       ...data,
     };
+
+    this.rateLimit.update(maxConcurrency, maxConcurrency, 5_000);
   }
 
   /** Connect to the gateway. */
@@ -59,9 +62,10 @@ export class GatewayClient {
     );
 
     for (let i = 0; i < shardCount; i++) {
-      this.shards[i] = new Shard(this, i);
+      const shard = new Shard(this, i);
+      this.shards[i] = shard;
+      await this.connectShard(shard);
     }
-    await this.connectShards();
   }
 
   /** Disconnect all shards. */
@@ -71,17 +75,18 @@ export class GatewayClient {
     }
   }
 
-  /** Connect shards. */
-  async connectShards() {
-    for (let i = 0; i < this.shards.length;) {
-      for (let j = 0; j < this.data.maxConcurrency; j++) {
-        const shard = this.shards[i++];
-        await shard.connect();
-        logger.debug(`Shard ${shard.id} connected to "${this.data.url}"`);
-        shard.identify();
-      }
-      await sleep(5_000);
+  async connectShard(shard: Shard, resume?: boolean) {
+    if (this.rateLimit.rateLimited) {
+      await this.rateLimit.sleep();
     }
+    await shard.connect();
+    logger.debug(`Shard ${shard.id} connected to "${this.data.url}"`);
+    if (resume) {
+      shard.resume();
+    } else {
+      shard.identify();
+    }
+    this.rateLimit.update();
   }
 
   handleShardPayload(payload: GatewayPayload, shard: Shard) {
@@ -95,7 +100,7 @@ export class GatewayClient {
 
   async handleShardClose(event: CloseEvent, shard: Shard) {
     logger.error(
-      `Shard ${shard.id} disconnected from the gateway | Code: ${event.code}`,
+      `Shard ${shard.id} disconnected | Code: ${event.code}`,
       `Reason: "${event.reason}"`,
     );
 
@@ -105,16 +110,14 @@ export class GatewayClient {
       case GatewayCloseEventCodes.InvalidSeq:
       case GatewayCloseEventCodes.RateLimited:
       case GatewayCloseEventCodes.SessionTimedOut: {
-        await shard.connect();
-        shard.identify();
+        await this.connectShard(shard);
         break;
       }
 
       case 0:
       case 1001:
       case GatewayCloseEventCodes.UnknownError: {
-        await shard.connect();
-        shard.resume();
+        await this.connectShard(shard, true);
         break;
       }
     }

@@ -36,7 +36,7 @@ export class RateLimit {
     this.promise = undefined;
   }
 
-  update(left: number, max: number, reset: number) {
+  update(left = this.left - 1, max = this.max, reset = this.reset) {
     this.lastUpdatedAt = Date.now();
     this.left = left;
     this.max = max;
