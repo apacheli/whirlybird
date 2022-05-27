@@ -35,7 +35,7 @@ body:
   - type: input
     attributes:
       label: Deno Version
-      description: Make sure your Deno version is higher or equal to the minimum required Deno version to run Whirlybird.
+      description: Make sure your Deno version is higher or equal to the minimum required Deno version to run whirlybird.
     validations:
       required: true
 
@@ -48,8 +48,8 @@ body:
 
   - type: input
     attributes:
-      label: Whirlybird Version
-      description: The version of Whirlybird you are using.
+      label: whirlybird Version
+      description: The version of whirlybird that your project is using.
     validations:
       required: true
 

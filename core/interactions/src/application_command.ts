@@ -20,7 +20,7 @@ const a = (type: ApplicationCommandTypes) =>
     ...extra,
   });
 
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   /** Chat input application command (because the genuises at Discord did not call it "slash command") */
   chatInputCommand = a(ApplicationCommandTypes.ChatInput),
@@ -41,7 +41,7 @@ const o = (type: ApplicationCommandOptionType) =>
     ...extra,
   });
 
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   /** Application command sub command option */
   subCommandOption = o(ApplicationCommandOptionType.SubCommand),

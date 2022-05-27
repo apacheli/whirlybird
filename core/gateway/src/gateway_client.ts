@@ -9,6 +9,7 @@ import {
   GatewayOpcodes,
 } from "../../types/src/topics/opcodes_and_status_codes.ts";
 import * as logger from "../../util/src/logger.ts";
+import { GATEWAY_URL, MAX_CONCURRENCY, SHARD_DELAY } from "./constants.ts";
 import { Shard } from "./shard.ts";
 
 export type HandleEvent = (payload: DispatchPayload, shard: Shard) => void;
@@ -39,16 +40,15 @@ export class GatewayClient {
   shards: Shard[] = [];
 
   constructor(public token: string, data: GatewayClientData) {
-    const { maxConcurrency } = this.data = {
+    const { maxConcurrency = MAX_CONCURRENCY } = this.data = {
       firstShardId: 0,
       lastShardId: data.shards ?? 1,
-      maxConcurrency: 1,
       shards: (data.lastShardId ?? 1) - (data.firstShardId ?? 0),
-      url: "wss://gateway.discord.gg?v=10",
+      url: GATEWAY_URL,
       ...data,
     };
 
-    this.rateLimit.update(maxConcurrency, maxConcurrency, 5_000);
+    this.rateLimit.update(maxConcurrency, maxConcurrency, SHARD_DELAY);
   }
 
   /** Connect to the gateway. */

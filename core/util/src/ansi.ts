@@ -2,7 +2,7 @@ export const formatColor = (input: string, open: number, close: number) =>
   `\x1b[${open}m${input}\x1b[${close}m`;
 
 //#region styles
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   reset         = (input: string) => formatColor(input, 0, 0),
   bold          = (input: string) => formatColor(input, 1, 22),
@@ -17,7 +17,7 @@ export const
 //#endregion styles
 
 //#region colors
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   black                   = (input: string) => formatColor(input, 30, 39),
   red                     = (input: string) => formatColor(input, 31, 39),

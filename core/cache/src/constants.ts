@@ -1,3 +1,3 @@
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   MESSAGE_LIMIT = 100;

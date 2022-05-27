@@ -11,9 +11,24 @@ with the [Discord API](https://discord.dev/). whirlybird aims to provide
 end-users as much control over their application as possible while also doing
 the complicated bits to improve the overall development experience.
 
+### Core Modules
+
+Learn more about the purpose of the individual core modules in their respective
+READMEs.
+
+- [`core/cache`](core/cache)
+- [`core/gateway`](core/gateway)
+- [`core/http`](core/http)
+- [`core/interactions`](core/interactions)
+- [`core/types`](core/types)
+- [`core/util`](core/util)
+- [`core/voice`](core/voice)
+
 ### Getting Started
 
-You will need Deno v1.21.0 at minimum.
+You will need Deno v1.22.0 at minimum.
+[See the Deno installation instructions](https://deno.land/#installation) to
+learn how you can install Deno on your operating system.
 
 Run an [example](examples/example.ts) directly from the CLI:
 
@@ -22,8 +37,6 @@ $ BOT_TOKEN=""\
   deno run --allow-env --allow-net\
   https://github.com/apacheli/whirlybird/raw/dev/examples/example.ts
 ```
-
-More examples are available [here](examples).
 
 Using whirlybird to power a Discord bot:
 
@@ -69,7 +82,6 @@ const gateway = new GatewayClient(token, {
     intents: GatewayIntents.GuildMessages,
   },
   ready: () => console.log("Hello, World!"),
-  url: "wss://gateway.discord.gg?v=9",
 });
 
 await gateway.connect();
@@ -81,18 +93,7 @@ To run the program:
 $ BOT_TOKEN="" deno run --allow-env --allow-net main.ts
 ```
 
-A more in-depth explanation for the core modules is available in their
-respective READMEs.
-
-### Core Modules
-
-- [`core/cache`](core/cache)
-- [`core/gateway`](core/gateway)
-- [`core/http`](core/http)
-- [`core/interactions`](core/interactions)
-- [`core/types`](core/types)
-- [`core/util`](core/util)
-- [`core/voice`](core/voice)
+More examples are available [here](examples).
 
 ### Resources
 
@@ -103,6 +104,6 @@ respective READMEs.
 - [whirlybird Manual](https://apacheli.github.io/whirlybird/)
 
 Feel free to come hang out with us at the
-[whirlybird Discord server](https://discord.gg/GtyB7gmx9Q)! (All participating
+[whirlybird Discord server](https://discord.gg/GtyB7gmx9Q). (All participating
 members must abide by the terms of the
 [whirlybird code of conduct](CODE_OF_CONDUCT.md).)

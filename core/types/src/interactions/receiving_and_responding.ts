@@ -189,7 +189,7 @@ export interface InteractionCallbackDataModal {
   components: Component[];
 }
 
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   SIGNATURE = "X-Signature-Ed25519",
   TIMESTAMP = "X-Signature-Timestamp";

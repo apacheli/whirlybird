@@ -33,7 +33,7 @@ export const log = (level: string, ...args: unknown[]) =>
   );
 
 //#region levels
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   debug = (...args: unknown[]) => log(brightBlack("DBG"), ...args),
   error = (...args: unknown[]) => log(red("ERR"), ...args),

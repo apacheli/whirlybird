@@ -1,6 +1,6 @@
 import type { Snowflake } from "../../types/src/reference.ts";
 
-// deno-fmt-ignore-next-line
+// deno-fmt-ignore
 export const
   ACHIEVEMENT_ICON            = (applicationId: Snowflake, achievementId: Snowflake, iconHash: string) => `/app-assets/${applicationId}/achievements/${achievementId}/icons/${iconHash}`,
   APPLICATION_ASSET           = (applicationId: Snowflake, assetId: Snowflake) => `/app-assets/${applicationId}/${assetId}`,
