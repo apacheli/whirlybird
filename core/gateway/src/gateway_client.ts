@@ -75,18 +75,15 @@ export class GatewayClient {
     }
   }
 
-  async connectShard(shard: Shard, resume?: boolean) {
+  async connectShard(shard: Shard) {
     if (this.rateLimit.rateLimited) {
       await this.rateLimit.sleep();
     }
     await shard.connect();
     logger.debug(`Shard ${shard.id} connected to "${this.data.url}"`);
-    if (resume) {
-      shard.resume();
-    } else {
-      shard.identify();
-    }
+    shard.identify();
     this.rateLimit.update();
+    this.rateLimit.next();
   }
 
   handleShardPayload(payload: GatewayPayload, shard: Shard) {
@@ -117,7 +114,9 @@ export class GatewayClient {
       case 0:
       case 1001:
       case GatewayCloseEventCodes.UnknownError: {
-        await this.connectShard(shard, true);
+        await shard.connect();
+        logger.debug(`Shard ${shard.id} is attempt to resume`);
+        shard.resume();
         break;
       }
     }

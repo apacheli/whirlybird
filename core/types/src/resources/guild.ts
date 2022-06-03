@@ -121,7 +121,7 @@ export interface Guild {
   /** [guild NSFW level](https://discord.dev/resources/guild#guild-object-guild-nsfw-level) */
   nsfw_level: GuildNsfwLevel;
   /** Stage instances in the guild */
-  stage_instances?: StageInstance;
+  stage_instances?: StageInstance[];
   /** custom guild stickers */
   stickers?: Sticker[];
   /** the scheduled events in the guild */

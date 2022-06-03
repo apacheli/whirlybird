@@ -49,6 +49,7 @@ export class Shard extends DiscordSocket {
           }
 
           case GatewayEvents.Resumed: {
+            this.ready = true;
             logger.debug(`Shard ${this.id} resumed`);
             break;
           }
@@ -64,6 +65,7 @@ export class Shard extends DiscordSocket {
 
       case GatewayOpcodes.InvalidSession: {
         logger.debug(`Shard ${this.id} encountered an invalid session`);
+        this.ready = false;
         if (payload.d) {
           this.resume();
         }
@@ -81,6 +83,7 @@ export class Shard extends DiscordSocket {
 
   protected handleSocketClose(event: CloseEvent) {
     clearInterval(this.heartbeatInterval);
+    this.ready = false;
     this.client.handleShardClose(event, this);
   }
 

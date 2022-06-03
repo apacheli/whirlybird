@@ -1,5 +1,4 @@
 import type { AcceptedLocales } from "../../types/src/reference.ts";
-import type { Emoji } from "../../types/src/resources/emoji.ts";
 import type {
   DefaultMessageNotificationLevel,
   ExplicitContentFilterLevel,
@@ -12,19 +11,20 @@ import type {
   VerificationLevel,
   WelcomeScreen,
 } from "../../types/src/resources/guild.ts";
-import type { StageInstance } from "../../types/src/resources/stage_instance.ts";
 import type {
   VoiceRegion,
   VoiceState,
 } from "../../types/src/resources/voice.ts";
-import type { DispatchPayloadPresenceUpdateData } from "../../types/src/topics/gateway.ts";
 import type { Permissions } from "../../types/src/topics/permissions.ts";
 import type { CacheClient } from "./cache_client.ts";
 import { CacheMap } from "./cache_map.ts";
 import { CacheChannel } from "./channel.ts";
+import { CacheEmoji } from "./emoji.ts";
 import { CacheGuildMember } from "./guild_member.ts";
 import { CacheGuildScheduledEvent } from "./guild_scheduled_event.ts";
+import { CachePresence } from "./presence.ts";
 import { CacheRole } from "./role.ts";
+import { CacheStageInstance } from "./stage_instance.ts";
 import { CacheSticker } from "./sticker.ts";
 
 export class CacheGuild {
@@ -47,7 +47,7 @@ export class CacheGuild {
   defaultMessageNotifications!: DefaultMessageNotificationLevel;
   explicitContentFilter!: ExplicitContentFilterLevel;
   roles;
-  emojis: Emoji[];
+  emojis;
   features!: GuildFeatures[];
   mfaLevel!: MfaLevel;
   applicationId!: bigint | null;
@@ -62,7 +62,7 @@ export class CacheGuild {
   members;
   channels;
   threads;
-  presences?: DispatchPayloadPresenceUpdateData[];
+  presences;
   maxPresences?: number | null;
   maxMembers?: number;
   vanityUrlCode!: string | null;
@@ -77,7 +77,7 @@ export class CacheGuild {
   approximatePresenceCount?: number;
   welcomeScreen?: WelcomeScreen;
   nsfwLevel!: GuildNsfwLevel;
-  stageInstances?: StageInstance;
+  stageInstances;
   stickers;
   guildScheduledEvents;
   premiumProgressBarEnabled?: boolean;
@@ -89,7 +89,10 @@ export class CacheGuild {
     for (const role of data.roles) {
       this.roles.add(role.id, role);
     }
-    this.emojis = data.emojis;
+    this.emojis = new CacheMap(CacheEmoji, client);
+    for (const emoji of data.emojis) {
+      this.emojis.add(emoji.id, emoji);
+    }
     this.joinedAt = data.joined_at ? Date.parse(data.joined_at) : undefined;
     this.large = data.large;
     this.voiceStates = data.voice_states;
@@ -112,8 +115,18 @@ export class CacheGuild {
         this.channels.add(thread.id, thread);
       }
     }
-    this.presences = data.presences;
-    this.stageInstances = data.stage_instances;
+    this.presences = new CacheMap(CachePresence, client);
+    if (data.presences) {
+      for (const presence of data.presences) {
+        this.presences.add(presence.user.id, presence);
+      }
+    }
+    this.stageInstances = new CacheMap(CacheStageInstance, client);
+    if (data.stage_instances?.length) {
+      for (const stangeInstance of data.stage_instances) {
+        this.stageInstances.add(stangeInstance.id, stangeInstance);
+      }
+    }
     this.stickers = new CacheMap(CacheSticker, client);
     if (data.stickers) {
       for (const sticker of data.stickers) {

@@ -174,6 +174,7 @@ export class HttpClient {
     }
   }
 
+  //#region endpoints
   /**
    * https://discord.dev/resources/guild#add-guild-member
    *
@@ -190,8 +191,8 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    * @param userId https://discord.dev/resources/user#user-object
    */
-  addGuildMember(guildId: Snowflake, userId: Snowflake, data: AddGuildMemberData): Promise<AddGuildMemberBody> {
-    return this.request("PUT", GUILD_MEMBER(guildId, userId), `PUT /guilds/:guildId/members/:userId ${guildId},${userId}`, {
+   addGuildMember(guildId: Snowflake, userId: Snowflake, data: AddGuildMemberData): Promise<AddGuildMemberBody> {
+    return this.request("PUT", GUILD_MEMBER(guildId, userId), `AddGuildMember ${guildId}`, {
       data,
     });
   }
@@ -209,7 +210,7 @@ export class HttpClient {
    * @param roleId https://discord.dev/topics/permissions#role-object
    */
   addGuildMemberRole(guildId: Snowflake, userId: Snowflake, roleId: Snowflake, reason?: string): Promise<AddGuildMemberRoleBody> {
-    return this.request("PUT", GUILD_MEMBER_ROLE(guildId, userId, roleId), `PUT /guilds/:guildId/members/:userId/roles/:roleId ${guildId},${userId},${roleId}`, {
+    return this.request("PUT", GUILD_MEMBER_ROLE(guildId, userId, roleId), `AddGuildMemberRole ${guildId}`, {
       reason,
     });
   }
@@ -223,7 +224,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   addThreadMember(channelId: Snowflake, userId: Snowflake): Promise<AddThreadMemberBody> {
-    return this.request("PUT", CHANNEL_THREAD_MEMBER(channelId, userId), `PUT /channels/:channelId/thread-members/:userId ${channelId},${userId}`);
+    return this.request("PUT", CHANNEL_THREAD_MEMBER(channelId, userId), `AddThreadMember ${channelId}`);
   }
 
   /**
@@ -237,7 +238,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   batchEditApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, data: BatchEditApplicationCommandPermissionsData): Promise<BatchEditApplicationCommandPermissionsBody> {
-    return this.request("PUT", APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId), `PUT /applications/:applicationId/guilds/:guildId/commands/permissions ${applicationId},${guildId}`, {
+    return this.request("PUT", APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId), `BatchEditApplicationCommandPermissions ${guildId}`, {
       data,
     });
   }
@@ -255,7 +256,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   beginGuildPrune(guildId: Snowflake, data: BeginGuildPruneData, reason?: string): Promise<BeginGuildPruneBody> {
-    return this.request("POST", GUILD_PRUNE(guildId), `POST /guilds/:guildId/prune ${guildId}`, {
+    return this.request("POST", GUILD_PRUNE(guildId), `BeginGuildPrune ${guildId}`, {
       data,
       reason,
     });
@@ -277,7 +278,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   bulkDeleteMessages(channelId: Snowflake, data: BulkDeleteMessagesData, reason?: string): Promise<BulkDeleteMessagesBody> {
-    return this.request("POST", CHANNEL_MESSAGES_BULK_DELETE(channelId), `POST /channels/:channelId/messages/bulk-delete ${channelId}`, {
+    return this.request("POST", CHANNEL_MESSAGES_BULK_DELETE(channelId), `BulkDeleteMessages ${channelId}`, {
       data,
       reason,
     });
@@ -294,7 +295,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/resources/application#application-object
    */
   bulkOverwriteGlobalApplicationCommands(applicationId: Snowflake, data: BulkOverwriteGlobalApplicationCommandsData): Promise<BulkOverwriteGlobalApplicationCommandsBody> {
-    return this.request("PUT", APPLICATION_COMMANDS(applicationId), `PUT /applications/:applicationId/commands ${applicationId}`, {
+    return this.request("PUT", APPLICATION_COMMANDS(applicationId), "BulkOverwriteGlobalApplicationCommands", {
       data,
     });
   }
@@ -311,7 +312,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   bulkOverwriteGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, data: BulkOverwriteGuildApplicationCommandsData): Promise<BulkOverwriteGuildApplicationCommandsBody> {
-    return this.request("PUT", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `PUT /applications/:applicationId/guilds/:guildId/commands ${applicationId},${guildId}`, {
+    return this.request("PUT", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `BulkOverwriteGuildApplicationCommands ${guildId}`, {
       data,
     });
   }
@@ -325,7 +326,7 @@ export class HttpClient {
    * @param entitlementId https://discord.dev/game-sdk/store#data-models-entitlement-struct
    */
   consumeSKU(applicationId: Snowflake, entitlementId: Snowflake): Promise<ConsumeSKUBody> {
-    return this.request("POST", APPLICATION_ENTITLEMENT_CONSUME(applicationId, entitlementId), `POST /applications/:applicationId/entitlements/:entitlementId/consume ${applicationId},${entitlementId}`);
+    return this.request("POST", APPLICATION_ENTITLEMENT_CONSUME(applicationId, entitlementId), "ConsumeSKU");
   }
 
   /**
@@ -336,7 +337,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   createAchievement(applicationId: Snowflake, data: CreateAchievementData): Promise<CreateAchievementBody> {
-    return this.request("POST", APPLICATION_ACHIEVEMENTS(applicationId), `POST /applications/:applicationId/achievements ${applicationId}`, {
+    return this.request("POST", APPLICATION_ACHIEVEMENTS(applicationId), "CreateAchievement", {
       data,
     });
   }
@@ -352,7 +353,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   createChannelInvite(channelId: Snowflake, data: CreateChannelInviteData, reason?: string): Promise<CreateChannelInviteBody> {
-    return this.request("POST", CHANNEL_INVITES(channelId), `POST /channels/:channelId/invites ${channelId}`, {
+    return this.request("POST", CHANNEL_INVITES(channelId), `CreateChannelInvite ${channelId}`, {
       data,
       reason,
     });
@@ -367,7 +368,7 @@ export class HttpClient {
    * > You should not use this endpoint to DM everyone in a server about something. DMs should generally be initiated by a user action. If you open a significant amount of DMs too quickly, your bot may be rate limited or blocked from opening new ones.
    */
   createDM(data: CreateDMData): Promise<CreateDMBody> {
-    return this.request("POST", USER_ME_CHANNELS, "POST /users/@me/channels -", {
+    return this.request("POST", USER_ME_CHANNELS, "CreateDM", {
       data,
     });
   }
@@ -383,7 +384,7 @@ export class HttpClient {
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
    */
   createFollowupMessage(applicationId: Snowflake, interactionToken: string, data: CreateFollowupMessageData, files?: File[]): Promise<CreateFollowupMessageBody> {
-    return this.request("POST", WEBHOOK_TOKEN(applicationId, interactionToken), `POST /webhooks/:applicationId/:interactionToken ${applicationId},${interactionToken}`, {
+    return this.request("POST", WEBHOOK_TOKEN(applicationId, interactionToken), `CreateFollowupMessage ${interactionToken}`, {
       data,
       files,
     });
@@ -400,7 +401,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/resources/application#application-object
    */
   createGlobalApplicationCommand(applicationId: Snowflake, data: CreateGlobalApplicationCommandData): Promise<CreateGlobalApplicationCommandBody> {
-    return this.request("POST", APPLICATION_COMMANDS(applicationId), `POST /applications/:applicationId/commands ${applicationId}`, {
+    return this.request("POST", APPLICATION_COMMANDS(applicationId), "CreateGlobalApplicationCommand", {
       data,
     });
   }
@@ -414,7 +415,7 @@ export class HttpClient {
    * > This endpoint is limited to 10 active group DMs.
    */
   createGroupDM(data: CreateGroupDMData): Promise<CreateGroupDMBody> {
-    return this.request("POST", USER_ME_CHANNELS, "POST /users/@me/channels -", {
+    return this.request("POST", USER_ME_CHANNELS, "CreateGroupDM", {
       data,
     });
   }
@@ -428,7 +429,7 @@ export class HttpClient {
    * > This endpoint can be used only by bots in less than 10 guilds.
    */
   createGuild(data: CreateGuildData): Promise<CreateGuildBody> {
-    return this.request("POST", GUILDS, "POST /guilds -", {
+    return this.request("POST", GUILDS, "CreateGuild", {
       data,
     });
   }
@@ -445,7 +446,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, data: CreateGuildApplicationCommandData): Promise<CreateGuildApplicationCommandBody> {
-    return this.request("POST", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `POST /applications/:applicationId/guilds/:guildId/commands ${applicationId},${guildId}`, {
+    return this.request("POST", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `CreateGuildApplicationCommand ${guildId}`, {
       data,
     });
   }
@@ -462,7 +463,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   createGuildBan(guildId: Snowflake, userId: Snowflake, data: CreateGuildBanData, reason?: string): Promise<CreateGuildBanBody> {
-    return this.request("PUT", GUILD_BAN(guildId, userId), `PUT /guilds/:guildId/bans/:userId ${guildId},${userId}`, {
+    return this.request("PUT", GUILD_BAN(guildId, userId), `CreateGuildBan ${guildId}`, {
       data,
       reason,
     });
@@ -482,7 +483,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildChannel(guildId: Snowflake, data: CreateGuildChannelData, reason?: string): Promise<CreateGuildChannelBody> {
-    return this.request("POST", GUILD_CHANNELS(guildId), `POST /guilds/:guildId/channels ${guildId}`, {
+    return this.request("POST", GUILD_CHANNELS(guildId), `CreateGuildChannel ${guildId}`, {
       data,
       reason,
     });
@@ -502,7 +503,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildEmoji(guildId: Snowflake, data: CreateGuildEmojiData, reason?: string): Promise<CreateGuildEmojiBody> {
-    return this.request("POST", GUILD_EMOJIS(guildId), `POST /guilds/:guildId/emojis ${guildId}`, {
+    return this.request("POST", GUILD_EMOJIS(guildId), `CreateGuildEmoji ${guildId}`, {
       data,
       reason,
     });
@@ -519,7 +520,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   createGuildFromGuildTemplate(templateCode: string, data: CreateGuildFromGuildTemplateData): Promise<CreateGuildFromGuildTemplateBody> {
-    return this.request("POST", GUILDS_TEMPLATE(templateCode), `POST /guilds/templates/:templateCode ${templateCode}`, {
+    return this.request("POST", GUILDS_TEMPLATE(templateCode), "CreateGuildFromGuildTemplate", {
       data,
     });
   }
@@ -535,7 +536,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildRole(guildId: Snowflake, data: CreateGuildRoleData, reason?: string): Promise<CreateGuildRoleBody> {
-    return this.request("POST", GUILD_ROLES(guildId), `POST /guilds/:guildId/roles ${guildId}`, {
+    return this.request("POST", GUILD_ROLES(guildId), `CreateGuildRole ${guildId}`, {
       data,
       reason,
     });
@@ -555,7 +556,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildScheduledEvent(guildId: Snowflake, data: CreateGuildScheduledEventData, reason?: string): Promise<CreateGuildScheduledEventBody> {
-    return this.request("POST", GUILD_SCHEDULED_EVENTS(guildId), `POST /guilds/:guildId/scheduled-events ${guildId}`, {
+    return this.request("POST", GUILD_SCHEDULED_EVENTS(guildId), `CreateGuildScheduledEvent ${guildId}`, {
       data,
       reason,
     });
@@ -575,7 +576,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildSticker(guildId: Snowflake, files?: File[], reason?: string): Promise<CreateGuildStickerBody> {
-    return this.request("POST", GUILD_STICKERS(guildId), `POST /guilds/:guildId/stickers ${guildId}`, {
+    return this.request("POST", GUILD_STICKERS(guildId), `CreateGuildSticker ${guildId}`, {
       files,
       reason,
     });
@@ -589,7 +590,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   createGuildTemplate(guildId: Snowflake, data: CreateGuildTemplateData): Promise<CreateGuildTemplateBody> {
-    return this.request("POST", GUILD_TEMPLATES(guildId), `POST /guilds/:guildId/templates ${guildId}`, {
+    return this.request("POST", GUILD_TEMPLATES(guildId), `CreateGuildTemplate ${guildId}`, {
       data,
     });
   }
@@ -605,7 +606,7 @@ export class HttpClient {
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
    */
   createInteractionResponse(interactionId: Snowflake, interactionToken: string, data: CreateInteractionResponseData, files?: File[]): Promise<CreateInteractionResponseBody> {
-    return this.request("POST", INTERACTION_TOKEN_CALLBACK(interactionId, interactionToken), `POST /interactions/:interactionId/:interactionToken/callback ${interactionId},${interactionToken}`, {
+    return this.request("POST", INTERACTION_TOKEN_CALLBACK(interactionId, interactionToken), `CreateInteractionResponse ${interactionToken}`, {
       data,
       files,
     });
@@ -619,7 +620,7 @@ export class HttpClient {
    * To get a list of valid regions, call the [List Voice Regions](https://discord.com/developers/docs/resources/voice#list-voice-regions) endpoint.
    */
   createLobby(data: CreateLobbyData): Promise<CreateLobbyBody> {
-    return this.request("POST", LOBBIES, "POST /lobbies -", {
+    return this.request("POST", LOBBIES, "CreateLobby", {
       data,
     });
   }
@@ -630,7 +631,7 @@ export class HttpClient {
    * Creates a lobby search for matchmaking around given criteria.
    */
   createLobbySearch(data: CreateLobbySearchData): Promise<CreateLobbySearchBody> {
-    return this.request("POST", LOBBIES_SEARCH, "POST /lobbies/search -", {
+    return this.request("POST", LOBBIES_SEARCH, "CreateLobbySearch", {
       data,
     });
   }
@@ -650,7 +651,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   createMessage(channelId: Snowflake, data: CreateMessageData, files?: File[]): Promise<CreateMessageBody> {
-    return this.request("POST", CHANNEL_MESSAGES(channelId), `POST /channels/:channelId/messages ${channelId}`, {
+    return this.request("POST", CHANNEL_MESSAGES(channelId), `CreateMessage ${channelId}`, {
       data,
       files,
     });
@@ -665,7 +666,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   createPurchaseDiscount(skuId: Snowflake, userId: Snowflake, data: CreatePurchaseDiscountData): Promise<CreatePurchaseDiscountBody> {
-    return this.request("PUT", STORE_SKU_DISCOUNT(skuId, userId), `PUT /store/skus/:skuId/discounts/:userId ${skuId},${userId}`, {
+    return this.request("PUT", STORE_SKU_DISCOUNT(skuId, userId), "CreatePurchaseDiscount", {
       data,
     });
   }
@@ -681,7 +682,7 @@ export class HttpClient {
    * @param emoji https://discord.dev/resources/emoji#emoji-object
    */
   createReaction(channelId: Snowflake, messageId: Snowflake, emoji: string): Promise<CreateReactionBody> {
-    return this.request("PUT", CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji), `PUT /channels/:channelId/messages/:messageId/reactions/:emoji/@me ${channelId},${messageId},${emoji}`);
+    return this.request("PUT", CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji), `CreateReaction ${channelId}`);
   }
 
   /**
@@ -695,7 +696,7 @@ export class HttpClient {
    * > This endpoint supports the `X-Audit-Log-Reason` header.
    */
   createStageInstance(data: CreateStageInstanceData, reason?: string): Promise<CreateStageInstanceBody> {
-    return this.request("POST", STAGE_INSTANCES, "POST /stage-instances -", {
+    return this.request("POST", STAGE_INSTANCES, "CreateStageInstance", {
       data,
       reason,
     });
@@ -716,7 +717,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   createWebhook(channelId: Snowflake, data: CreateWebhookData, reason?: string): Promise<CreateWebhookBody> {
-    return this.request("POST", CHANNEL_WEBHOOKS(channelId), `POST /channels/:channelId/webhooks ${channelId}`, {
+    return this.request("POST", CHANNEL_WEBHOOKS(channelId), `CreateWebhook ${channelId}`, {
       data,
       reason,
     });
@@ -733,7 +734,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   crosspostMessage(channelId: Snowflake, messageId: Snowflake): Promise<CrosspostMessageBody> {
-    return this.request("POST", CHANNEL_MESSAGE_CROSSPOST(channelId, messageId), `POST /channels/:channelId/messages/:messageId/crosspost ${channelId},${messageId}`);
+    return this.request("POST", CHANNEL_MESSAGE_CROSSPOST(channelId, messageId), `CrosspostMessage ${channelId}`);
   }
 
   /**
@@ -745,7 +746,7 @@ export class HttpClient {
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   deleteAchievement(applicationId: Snowflake, achievementId: Snowflake): Promise<DeleteAchievementBody> {
-    return this.request("DELETE", APPLICATION_ACHIEVEMENT(applicationId, achievementId), `DELETE /applications/:applicationId/achievements/:achievementId ${applicationId},${achievementId}`);
+    return this.request("DELETE", APPLICATION_ACHIEVEMENT(applicationId, achievementId), "DeleteAchievement");
   }
 
   /**
@@ -757,7 +758,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   deleteAllReactions(channelId: Snowflake, messageId: Snowflake): Promise<DeleteAllReactionsBody> {
-    return this.request("DELETE", CHANNEL_MESSAGE_REACTIONS(channelId, messageId), `DELETE /channels/:channelId/messages/:messageId/reactions ${channelId},${messageId}`);
+    return this.request("DELETE", CHANNEL_MESSAGE_REACTIONS(channelId, messageId), `DeleteAllReactions ${channelId}`);
   }
 
   /**
@@ -771,7 +772,7 @@ export class HttpClient {
    * @param emoji https://discord.dev/resources/emoji#emoji-object
    */
   deleteAllReactionsForEmoji(channelId: Snowflake, messageId: Snowflake, emoji: string): Promise<DeleteAllReactionsForEmojiBody> {
-    return this.request("DELETE", CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), `DELETE /channels/:channelId/messages/:messageId/reactions/:emoji ${channelId},${messageId},${emoji}`);
+    return this.request("DELETE", CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), `DeleteAllReactionsForEmoji ${channelId}`);
   }
 
   /**
@@ -791,7 +792,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   deleteChannel(channelId: Snowflake, reason?: string): Promise<DeleteChannelBody> {
-    return this.request("DELETE", CHANNEL(channelId), `DELETE /channels/:channelId ${channelId}`, {
+    return this.request("DELETE", CHANNEL(channelId), `DeleteChannel ${channelId}`, {
       reason,
     });
   }
@@ -808,7 +809,7 @@ export class HttpClient {
    * @param overwriteId https://discord.dev/resources/channel#overwrite-object
    */
   deleteChannelPermission(channelId: Snowflake, overwriteId: Snowflake, reason?: string): Promise<DeleteChannelPermissionBody> {
-    return this.request("DELETE", CHANNEL_PERMISSION(channelId, overwriteId), `DELETE /channels/:channelId/permissions/:overwriteId ${channelId},${overwriteId}`, {
+    return this.request("DELETE", CHANNEL_PERMISSION(channelId, overwriteId), `DeleteChannelPermission ${channelId}`, {
       reason,
     });
   }
@@ -824,7 +825,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   deleteFollowupMessage(applicationId: Snowflake, interactionToken: string, messageId: Snowflake): Promise<DeleteFollowupMessageBody> {
-    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `DELETE /webhooks/:applicationId/:interactionToken/messages/:messageId ${applicationId},${interactionToken},${messageId}`);
+    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `DeleteFollowupMessage ${interactionToken}`);
   }
 
   /**
@@ -836,7 +837,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   deleteGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake): Promise<DeleteGlobalApplicationCommandBody> {
-    return this.request("DELETE", APPLICATION_COMMAND(applicationId, commandId), `DELETE /applications/:applicationId/commands/:commandId ${applicationId},${commandId}`);
+    return this.request("DELETE", APPLICATION_COMMAND(applicationId, commandId), "DeleteGlobalApplicationCommand");
   }
 
   /**
@@ -847,7 +848,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   deleteGuild(guildId: Snowflake): Promise<DeleteGuildBody> {
-    return this.request("DELETE", GUILD(guildId), `DELETE /guilds/:guildId ${guildId}`);
+    return this.request("DELETE", GUILD(guildId), `DeleteGuild ${guildId}`);
   }
 
   /**
@@ -860,7 +861,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   deleteGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake): Promise<DeleteGuildApplicationCommandBody> {
-    return this.request("DELETE", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `DELETE /applications/:applicationId/guilds/:guildId/commands/:commandId ${applicationId},${guildId},${commandId}`);
+    return this.request("DELETE", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `DeleteGuildApplicationCommand ${guildId}`);
   }
 
   /**
@@ -876,7 +877,7 @@ export class HttpClient {
    * @param emojiId https://discord.dev/resources/emoji#emoji-object
    */
   deleteGuildEmoji(guildId: Snowflake, emojiId: Snowflake, reason?: string): Promise<DeleteGuildEmojiBody> {
-    return this.request("DELETE", GUILD_EMOJI(guildId, emojiId), `DELETE /guilds/:guildId/emojis/:emojiId ${guildId},${emojiId}`, {
+    return this.request("DELETE", GUILD_EMOJI(guildId, emojiId), `DeleteGuildEmoji ${guildId}`, {
       reason,
     });
   }
@@ -893,7 +894,7 @@ export class HttpClient {
    * @param integrationId https://discord.dev/resources/guild#integration-object
    */
   deleteGuildIntegration(guildId: Snowflake, integrationId: Snowflake, reason?: string): Promise<DeleteGuildIntegrationBody> {
-    return this.request("DELETE", GUILD_INTEGRATION(guildId, integrationId), `DELETE /guilds/:guildId/integrations/:integrationId ${guildId},${integrationId}`, {
+    return this.request("DELETE", GUILD_INTEGRATION(guildId, integrationId), `DeleteGuildIntegration ${guildId}`, {
       reason,
     });
   }
@@ -910,7 +911,7 @@ export class HttpClient {
    * @param roleId https://discord.dev/topics/permissions#role-object
    */
   deleteGuildRole(guildId: Snowflake, roleId: Snowflake, reason?: string): Promise<DeleteGuildRoleBody> {
-    return this.request("DELETE", GUILD_ROLE(guildId, roleId), `DELETE /guilds/:guildId/roles/:roleId ${guildId},${roleId}`, {
+    return this.request("DELETE", GUILD_ROLE(guildId, roleId), `DeleteGuildRole ${guildId}`, {
       reason,
     });
   }
@@ -924,7 +925,7 @@ export class HttpClient {
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
   deleteGuildScheduledEvent(guildId: Snowflake, guildScheduledEventId: Snowflake): Promise<DeleteGuildScheduledEventBody> {
-    return this.request("DELETE", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `DELETE /guilds/:guildId/scheduled-events/:guildScheduledEventId ${guildId},${guildScheduledEventId}`);
+    return this.request("DELETE", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `DeleteGuildScheduledEvent ${guildId}`);
   }
 
   /**
@@ -940,7 +941,7 @@ export class HttpClient {
    * @param stickerId https://discord.dev/resources/sticker#sticker-object
    */
   deleteGuildSticker(guildId: Snowflake, stickerId: Snowflake, reason?: string): Promise<DeleteGuildStickerBody> {
-    return this.request("DELETE", GUILD_STICKER(guildId, stickerId), `DELETE /guilds/:guildId/stickers/:stickerId ${guildId},${stickerId}`, {
+    return this.request("DELETE", GUILD_STICKER(guildId, stickerId), `DeleteGuildSticker ${guildId}`, {
       reason,
     });
   }
@@ -955,7 +956,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   deleteGuildTemplate(guildId: Snowflake, templateCode: string): Promise<DeleteGuildTemplateBody> {
-    return this.request("DELETE", GUILD_TEMPLATE(guildId, templateCode), `DELETE /guilds/:guildId/templates/:templateCode ${guildId},${templateCode}`);
+    return this.request("DELETE", GUILD_TEMPLATE(guildId, templateCode), `DeleteGuildTemplate ${guildId}`);
   }
 
   /**
@@ -970,7 +971,7 @@ export class HttpClient {
    * @param inviteCode https://discord.dev/resources/invite#invite-object
    */
   deleteInvite(inviteCode: string, reason?: string): Promise<DeleteInviteBody> {
-    return this.request("DELETE", INVITE(inviteCode), `DELETE /invites/:inviteCode ${inviteCode}`, {
+    return this.request("DELETE", INVITE(inviteCode), "DeleteInvite", {
       reason,
     });
   }
@@ -983,7 +984,7 @@ export class HttpClient {
    * @param lobbyId https://discord.dev/game-sdk/lobbies#data-models-lobby-struct
    */
   deleteLobby(lobbyId: Snowflake): Promise<DeleteLobbyBody> {
-    return this.request("DELETE", LOBBY(lobbyId), `DELETE /lobbies/:lobbyId ${lobbyId}`);
+    return this.request("DELETE", LOBBY(lobbyId), "DeleteLobby");
   }
 
   /**
@@ -998,7 +999,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   deleteMessage(channelId: Snowflake, messageId: Snowflake, reason?: string): Promise<DeleteMessageBody> {
-    return this.request("DELETE", CHANNEL_MESSAGE(channelId, messageId), `DELETE /channels/:channelId/messages/:messageId ${channelId},${messageId}`, {
+    return this.request("DELETE", CHANNEL_MESSAGE(channelId, messageId), `DeleteMessage ${channelId}`, {
       reason,
     });
   }
@@ -1012,7 +1013,7 @@ export class HttpClient {
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
    */
   deleteOriginalInteractionResponse(applicationId: Snowflake, interactionToken: string): Promise<DeleteOriginalInteractionResponseBody> {
-    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `DELETE /webhooks/:applicationId/:interactionToken/messages/@original ${applicationId},${interactionToken}`);
+    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `DeleteOriginalInteractionResponse ${interactionToken}`);
   }
 
   /**
@@ -1026,7 +1027,7 @@ export class HttpClient {
    * @param emoji https://discord.dev/resources/emoji#emoji-object
    */
   deleteOwnReaction(channelId: Snowflake, messageId: Snowflake, emoji: string): Promise<DeleteOwnReactionBody> {
-    return this.request("DELETE", CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji), `DELETE /channels/:channelId/messages/:messageId/reactions/:emoji/@me ${channelId},${messageId},${emoji}`);
+    return this.request("DELETE", CHANNEL_MESSAGE_REACTION_ME(channelId, messageId, emoji), `DeleteOwnReaction ${channelId}`);
   }
 
   /**
@@ -1038,7 +1039,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   deletePurchaseDiscount(skuId: Snowflake, userId: Snowflake): Promise<DeletePurchaseDiscountBody> {
-    return this.request("DELETE", STORE_SKU_DISCOUNT(skuId, userId), `DELETE /store/skus/:skuId/discounts/:userId ${skuId},${userId}`);
+    return this.request("DELETE", STORE_SKU_DISCOUNT(skuId, userId), "DeletePurchaseDiscount");
   }
 
   /**
@@ -1055,7 +1056,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   deleteStageInstance(channelId: Snowflake, reason?: string): Promise<DeleteStageInstanceBody> {
-    return this.request("DELETE", STAGE_INSTANCE(channelId), `DELETE /stage-instances/:channelId ${channelId}`, {
+    return this.request("DELETE", STAGE_INSTANCE(channelId), `DeleteStageInstance ${channelId}`, {
       reason,
     });
   }
@@ -1069,7 +1070,7 @@ export class HttpClient {
    * @param entitlementId https://discord.dev/game-sdk/store#data-models-entitlement-struct
    */
   deleteTestEntitlement(applicationId: Snowflake, entitlementId: Snowflake): Promise<DeleteTestEntitlementBody> {
-    return this.request("DELETE", APPLICATION_ENTITLEMENT(applicationId, entitlementId), `DELETE /applications/:applicationId/entitlements/:entitlementId ${applicationId},${entitlementId}`);
+    return this.request("DELETE", APPLICATION_ENTITLEMENT(applicationId, entitlementId), "DeleteTestEntitlement");
   }
 
   /**
@@ -1084,7 +1085,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   deleteUserReaction(channelId: Snowflake, messageId: Snowflake, emoji: string, userId: Snowflake): Promise<DeleteUserReactionBody> {
-    return this.request("DELETE", CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), `DELETE /channels/:channelId/messages/:messageId/reactions/:emoji/:userId ${channelId},${messageId},${emoji},${userId}`);
+    return this.request("DELETE", CHANNEL_MESSAGE_REACTION_USER(channelId, messageId, emoji, userId), `DeleteUserReaction ${channelId}`);
   }
 
   /**
@@ -1098,7 +1099,7 @@ export class HttpClient {
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
   deleteWebhook(webhookId: Snowflake, reason?: string): Promise<DeleteWebhookBody> {
-    return this.request("DELETE", WEBHOOK(webhookId), `DELETE /webhooks/:webhookId ${webhookId}`, {
+    return this.request("DELETE", WEBHOOK(webhookId), `DeleteWebhook ${webhookId}`, {
       reason,
     });
   }
@@ -1113,7 +1114,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   deleteWebhookMessage(webhookId: Snowflake, webhookToken: string, messageId: Snowflake, query: DeleteWebhookMessageQuery): Promise<DeleteWebhookMessageBody> {
-    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `DELETE /webhooks/:webhookId/:webhookToken/messages/:messageId ${webhookId},${webhookToken},${messageId}`, {
+    return this.request("DELETE", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `DeleteWebhookMessage ${webhookId},${webhookToken}`, {
       query,
     });
   }
@@ -1127,7 +1128,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   deleteWebhookWithToken(webhookId: Snowflake, webhookToken: string): Promise<DeleteWebhookWithTokenBody> {
-    return this.request("DELETE", WEBHOOK_TOKEN(webhookId, webhookToken), `DELETE /webhooks/:webhookId/:webhookToken ${webhookId},${webhookToken}`, {
+    return this.request("DELETE", WEBHOOK_TOKEN(webhookId, webhookToken), `DeleteWebhookWithToken ${webhookId},${webhookToken}`, {
       authorization: false,
     });
   }
@@ -1153,7 +1154,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: EditApplicationCommandPermissionsData): Promise<EditApplicationCommandPermissionsBody> {
-    return this.request("PUT", APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId), `PUT /applications/:applicationId/guilds/:guildId/commands/:commandId/permissions ${applicationId},${guildId},${commandId}`, {
+    return this.request("PUT", APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId), `EditApplicationCommandPermissions ${guildId}`, {
       data,
     });
   }
@@ -1170,7 +1171,7 @@ export class HttpClient {
    * @param overwriteId https://discord.dev/resources/channel#overwrite-object
    */
   editChannelPermissions(channelId: Snowflake, overwriteId: Snowflake, data: EditChannelPermissionsData, reason?: string): Promise<EditChannelPermissionsBody> {
-    return this.request("PUT", CHANNEL_PERMISSION(channelId, overwriteId), `PUT /channels/:channelId/permissions/:overwriteId ${channelId},${overwriteId}`, {
+    return this.request("PUT", CHANNEL_PERMISSION(channelId, overwriteId), `EditChannelPermissions ${channelId}`, {
       data,
       reason,
     });
@@ -1186,7 +1187,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   editFollowupMessage(applicationId: Snowflake, interactionToken: string, messageId: Snowflake, data: EditFollowupMessageData, files?: File[]): Promise<EditFollowupMessageBody> {
-    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `PATCH /webhooks/:applicationId/:interactionToken/messages/:messageId ${applicationId},${interactionToken},${messageId}`, {
+    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `EditFollowupMessage ${interactionToken}`, {
       data,
       files,
     });
@@ -1204,7 +1205,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake, data: EditGlobalApplicationCommandData): Promise<EditGlobalApplicationCommandBody> {
-    return this.request("PATCH", APPLICATION_COMMAND(applicationId, commandId), `PATCH /applications/:applicationId/commands/:commandId ${applicationId},${commandId}`, {
+    return this.request("PATCH", APPLICATION_COMMAND(applicationId, commandId), "EditGlobalApplicationCommand", {
       data,
     });
   }
@@ -1222,7 +1223,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   editGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake, data: EditGuildApplicationCommandData): Promise<EditGuildApplicationCommandBody> {
-    return this.request("PATCH", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `PATCH /applications/:applicationId/guilds/:guildId/commands/:commandId ${applicationId},${guildId},${commandId}`, {
+    return this.request("PATCH", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `EditGuildApplicationCommand ${guildId}`, {
       data,
     });
   }
@@ -1249,7 +1250,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   editMessage(channelId: Snowflake, messageId: Snowflake, data: EditMessageData, files?: File[]): Promise<EditMessageBody> {
-    return this.request("PATCH", CHANNEL_MESSAGE(channelId, messageId), `PATCH /channels/:channelId/messages/:messageId ${channelId},${messageId}`, {
+    return this.request("PATCH", CHANNEL_MESSAGE(channelId, messageId), `EditMessage ${channelId}`, {
       data,
       files,
     });
@@ -1264,7 +1265,7 @@ export class HttpClient {
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
    */
   editOriginalInteractionResponse(applicationId: Snowflake, interactionToken: string, data: EditOriginalInteractionResponseData, files?: File[]): Promise<EditOriginalInteractionResponseBody> {
-    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `PATCH /webhooks/:applicationId/:interactionToken/messages/@original ${applicationId},${interactionToken}`, {
+    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `EditOriginalInteractionResponse ${interactionToken}`, {
       data,
       files,
     });
@@ -1291,7 +1292,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   editWebhookMessage(webhookId: Snowflake, webhookToken: string, messageId: Snowflake, data: EditWebhookMessageData, query: EditWebhookMessageQuery, files?: File[]): Promise<EditWebhookMessageBody> {
-    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `PATCH /webhooks/:webhookId/:webhookToken/messages/:messageId ${webhookId},${webhookToken},${messageId}`, {
+    return this.request("PATCH", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `EditWebhookMessage ${webhookId},${webhookToken}`, {
       data,
       query,
       files,
@@ -1307,7 +1308,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   executeGitHubCompatibleWebhook(webhookId: Snowflake, webhookToken: string, query: ExecuteGitHubCompatibleWebhookQuery): Promise<ExecuteGitHubCompatibleWebhookBody> {
-    return this.request("POST", WEBHOOK_TOKEN_GITHUB(webhookId, webhookToken), `POST /webhooks/:webhookId/:webhookToken/github ${webhookId},${webhookToken}`, {
+    return this.request("POST", WEBHOOK_TOKEN_GITHUB(webhookId, webhookToken), `ExecuteGitHubCompatibleWebhook ${webhookId},${webhookToken}`, {
       query,
     });
   }
@@ -1321,7 +1322,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   executeSlackCompatibleWebhook(webhookId: Snowflake, webhookToken: string, query: ExecuteSlackCompatibleWebhookQuery): Promise<ExecuteSlackCompatibleWebhookBody> {
-    return this.request("POST", WEBHOOK_TOKEN_SLACK(webhookId, webhookToken), `POST /webhooks/:webhookId/:webhookToken/slack ${webhookId},${webhookToken}`, {
+    return this.request("POST", WEBHOOK_TOKEN_SLACK(webhookId, webhookToken), `ExecuteSlackCompatibleWebhook ${webhookId},${webhookToken}`, {
       query,
     });
   }
@@ -1338,7 +1339,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   executeWebhook(webhookId: Snowflake, webhookToken: string, data: ExecuteWebhookData, query: ExecuteWebhookQuery, files?: File[]): Promise<ExecuteWebhookBody> {
-    return this.request("POST", WEBHOOK_TOKEN(webhookId, webhookToken), `POST /webhooks/:webhookId/:webhookToken ${webhookId},${webhookToken}`, {
+    return this.request("POST", WEBHOOK_TOKEN(webhookId, webhookToken), `ExecuteWebhook ${webhookId},${webhookToken}`, {
       authorization: false,
       data,
       query,
@@ -1354,7 +1355,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   followNewsChannel(channelId: Snowflake, data: FollowNewsChannelData): Promise<FollowNewsChannelBody> {
-    return this.request("POST", CHANNEL_FOLLOWERS(channelId), `POST /channels/:channelId/followers ${channelId}`, {
+    return this.request("POST", CHANNEL_FOLLOWERS(channelId), `FollowNewsChannel ${channelId}`, {
       data,
     });
   }
@@ -1368,7 +1369,7 @@ export class HttpClient {
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   getAchievement(applicationId: Snowflake, achievementId: Snowflake): Promise<GetAchievementBody> {
-    return this.request("GET", APPLICATION_ACHIEVEMENT(applicationId, achievementId), `GET /applications/:applicationId/achievements/:achievementId ${applicationId},${achievementId}`);
+    return this.request("GET", APPLICATION_ACHIEVEMENT(applicationId, achievementId), "GetAchievement");
   }
 
   /**
@@ -1379,7 +1380,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getAchievements(applicationId: Snowflake): Promise<GetAchievementsBody> {
-    return this.request("GET", APPLICATION_ACHIEVEMENTS(applicationId), `GET /applications/:applicationId/achievements ${applicationId}`);
+    return this.request("GET", APPLICATION_ACHIEVEMENTS(applicationId), "GetAchievements");
   }
 
   /**
@@ -1392,7 +1393,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake): Promise<GetApplicationCommandPermissionsBody> {
-    return this.request("GET", APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId), `GET /applications/:applicationId/guilds/:guildId/commands/:commandId/permissions ${applicationId},${guildId},${commandId}`);
+    return this.request("GET", APPLICATION_GUILD_COMMAND_PERMISSIONS(applicationId, guildId, commandId), `GetApplicationCommandPermissions ${guildId}`);
   }
 
   /**
@@ -1403,7 +1404,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getChannel(channelId: Snowflake): Promise<GetChannelBody> {
-    return this.request("GET", CHANNEL(channelId), `GET /channels/:channelId ${channelId}`);
+    return this.request("GET", CHANNEL(channelId), `GetChannel ${channelId}`);
   }
 
   /**
@@ -1414,7 +1415,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getChannelInvites(channelId: Snowflake): Promise<GetChannelInvitesBody> {
-    return this.request("GET", CHANNEL_INVITES(channelId), `GET /channels/:channelId/invites ${channelId}`);
+    return this.request("GET", CHANNEL_INVITES(channelId), `GetChannelInvites ${channelId}`);
   }
 
   /**
@@ -1426,7 +1427,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   getChannelMessage(channelId: Snowflake, messageId: Snowflake): Promise<GetChannelMessageBody> {
-    return this.request("GET", CHANNEL_MESSAGE(channelId, messageId), `GET /channels/:channelId/messages/:messageId ${channelId},${messageId}`);
+    return this.request("GET", CHANNEL_MESSAGE(channelId, messageId), `GetChannelMessage ${channelId}`);
   }
 
   /**
@@ -1440,7 +1441,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getChannelMessages(channelId: Snowflake, query: GetChannelMessagesQuery): Promise<GetChannelMessagesBody> {
-    return this.request("GET", CHANNEL_MESSAGES(channelId), `GET /channels/:channelId/messages ${channelId}`, {
+    return this.request("GET", CHANNEL_MESSAGES(channelId), `GetChannelMessages ${channelId}`, {
       query,
     });
   }
@@ -1453,7 +1454,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getChannelWebhooks(channelId: Snowflake): Promise<GetChannelWebhooksBody> {
-    return this.request("GET", CHANNEL_WEBHOOKS(channelId), `GET /channels/:channelId/webhooks ${channelId}`);
+    return this.request("GET", CHANNEL_WEBHOOKS(channelId), `GetChannelWebhooks ${channelId}`);
   }
 
   /**
@@ -1462,7 +1463,7 @@ export class HttpClient {
    * Returns info about the current authorization. Requires authentication with a bearer token.
    */
   getCurrentAuthorizationInformation(): Promise<GetCurrentAuthorizationInformationBody> {
-    return this.request("GET", OAUTH2_ME, "GET /oauth2/@me -");
+    return this.request("GET", OAUTH2_ME, "GetCurrentAuthorizationInformation");
   }
 
   /**
@@ -1471,7 +1472,7 @@ export class HttpClient {
    * Returns the bot's [application](https://discord.dev/resources/application#application-object) object.
    */
   getCurrentBotApplicationInformation(): Promise<GetCurrentBotApplicationInformationBody> {
-    return this.request("GET", OAUTH2_APPLICATION_ME, "GET /oauth2/applications/@me -");
+    return this.request("GET", OAUTH2_APPLICATION_ME, "GetCurrentBotApplicationInformation");
   }
 
   /**
@@ -1480,7 +1481,7 @@ export class HttpClient {
    * Returns the [user](https://discord.dev/resources/user#user-object) object of the requester's account. For OAuth2, this requires the `identify` scope, which will return the object _without_ an email, and optionally the `email` scope, which returns the object _with_ an email.
    */
   getCurrentUser(): Promise<GetCurrentUserBody> {
-    return this.request("GET", USER_ME, "GET /users/@me -");
+    return this.request("GET", USER_ME, "GetCurrentUser");
   }
 
   /**
@@ -1491,7 +1492,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getCurrentUserGuildMember(guildId: Snowflake): Promise<GetCurrentUserGuildMemberBody> {
-    return this.request("GET", USER_ME_GUILD_MEMBER(guildId), `GET /users/@me/guilds/:guildId/member ${guildId}`);
+    return this.request("GET", USER_ME_GUILD_MEMBER(guildId), `GetCurrentUserGuildMember ${guildId}`);
   }
 
   /**
@@ -1500,7 +1501,7 @@ export class HttpClient {
    * Returns a list of partial [guild](https://discord.dev/resources/guild#guild-object) objects the current user is a member of. Requires the `guilds` OAuth2 scope.
    */
   getCurrentUserGuilds(query: GetCurrentUserGuildsQuery): Promise<GetCurrentUserGuildsBody> {
-    return this.request("GET", USER_ME_GUILDS, "GET /users/@me/guilds -", {
+    return this.request("GET", USER_ME_GUILDS, "GetCurrentUserGuilds", {
       query,
     });
   }
@@ -1514,7 +1515,7 @@ export class HttpClient {
    * @param entitlementId https://discord.dev/game-sdk/store#data-models-entitlement-struct
    */
   getEntitlement(applicationId: Snowflake, entitlementId: Snowflake, query: GetEntitlementQuery): Promise<GetEntitlementBody> {
-    return this.request("GET", APPLICATION_ENTITLEMENT(applicationId, entitlementId), `GET /applications/:applicationId/entitlements/:entitlementId ${applicationId},${entitlementId}`, {
+    return this.request("GET", APPLICATION_ENTITLEMENT(applicationId, entitlementId), "GetEntitlement", {
       query,
     });
   }
@@ -1527,7 +1528,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getEntitlements(applicationId: Snowflake, query: GetEntitlementsQuery): Promise<GetEntitlementsBody> {
-    return this.request("GET", APPLICATION_ENTITLEMENTS(applicationId), `GET /applications/:applicationId/entitlements ${applicationId}`, {
+    return this.request("GET", APPLICATION_ENTITLEMENTS(applicationId), "GetEntitlements", {
       query,
     });
   }
@@ -1542,7 +1543,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   getFollowupMessage(applicationId: Snowflake, interactionToken: string, messageId: Snowflake): Promise<GetFollowupMessageBody> {
-    return this.request("GET", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `GET /webhooks/:applicationId/:interactionToken/messages/:messageId ${applicationId},${interactionToken},${messageId}`);
+    return this.request("GET", WEBHOOK_TOKEN_MESSAGE(applicationId, interactionToken, messageId), `GetFollowupMessage ${interactionToken}`);
   }
 
   /**
@@ -1554,7 +1555,7 @@ export class HttpClient {
    * Returns an object with a single valid WSS URL, which the client can use for [Connecting](https://discord.dev/topics/gateway#connecting). Clients **should** cache this value and only call this endpoint to retrieve a new URL if they are unable to properly establish a connection using the cached version of the URL.
    */
   getGateway(): Promise<GetGatewayBody> {
-    return this.request("GET", GATEWAY, "GET /gateway -", {
+    return this.request("GET", GATEWAY, "GetGateway", {
       authorization: false,
     });
   }
@@ -1568,7 +1569,7 @@ export class HttpClient {
    * Returns an object based on the information in [Get Gateway](https://discord.dev/topics/gateway#get-gateway), plus additional metadata that can help during the operation of large or [sharded](https://discord.dev/topics/gateway#sharding) bots. Unlike the [Get Gateway](https://discord.dev/topics/gateway#get-gateway), this route should not be cached for extended periods of time as the value is not guaranteed to be the same per-call, and changes as the bot joins/leaves guilds.
    */
   getGatewayBot(): Promise<GetGatewayBotBody> {
-    return this.request("GET", GATEWAY_BOT, "GET /gateway/bot -");
+    return this.request("GET", GATEWAY_BOT, "GetGatewayBot");
   }
 
   /**
@@ -1580,7 +1581,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getGlobalApplicationCommand(applicationId: Snowflake, commandId: Snowflake): Promise<GetGlobalApplicationCommandBody> {
-    return this.request("GET", APPLICATION_COMMAND(applicationId, commandId), `GET /applications/:applicationId/commands/:commandId ${applicationId},${commandId}`);
+    return this.request("GET", APPLICATION_COMMAND(applicationId, commandId), "GetGlobalApplicationCommand");
   }
 
   /**
@@ -1594,7 +1595,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/resources/application#application-object
    */
   getGlobalApplicationCommands(applicationId: Snowflake, query: GetGlobalApplicationCommandsQuery): Promise<GetGlobalApplicationCommandsBody> {
-    return this.request("GET", APPLICATION_COMMANDS(applicationId), `GET /applications/:applicationId/commands ${applicationId}`, {
+    return this.request("GET", APPLICATION_COMMANDS(applicationId), "GetGlobalApplicationCommands", {
       query,
     });
   }
@@ -1607,7 +1608,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuild(guildId: Snowflake, query: GetGuildQuery): Promise<GetGuildBody> {
-    return this.request("GET", GUILD(guildId), `GET /guilds/:guildId ${guildId}`, {
+    return this.request("GET", GUILD(guildId), `GetGuild ${guildId}`, {
       query,
     });
   }
@@ -1622,7 +1623,7 @@ export class HttpClient {
    * @param commandId https://discord.dev/interactions/application/commands#application-command-object
    */
   getGuildApplicationCommand(applicationId: Snowflake, guildId: Snowflake, commandId: Snowflake): Promise<GetGuildApplicationCommandBody> {
-    return this.request("GET", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `GET /applications/:applicationId/guilds/:guildId/commands/:commandId ${applicationId},${guildId},${commandId}`);
+    return this.request("GET", APPLICATION_GUILD_COMMAND(applicationId, guildId, commandId), `GetGuildApplicationCommand ${guildId}`);
   }
 
   /**
@@ -1634,7 +1635,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildApplicationCommandPermissions(applicationId: Snowflake, guildId: Snowflake): Promise<GetGuildApplicationCommandPermissionsBody> {
-    return this.request("GET", APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId), `GET /applications/:applicationId/guilds/:guildId/commands/permissions ${applicationId},${guildId}`);
+    return this.request("GET", APPLICATION_GUILD_COMMANDS_PERMISSIONS(applicationId, guildId), `GetGuildApplicationCommandPermissions ${guildId}`);
   }
 
   /**
@@ -1649,7 +1650,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildApplicationCommands(applicationId: Snowflake, guildId: Snowflake, query: GetGuildApplicationCommandsQuery): Promise<GetGuildApplicationCommandsBody> {
-    return this.request("GET", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `GET /applications/:applicationId/guilds/:guildId/commands ${applicationId},${guildId}`, {
+    return this.request("GET", APPLICATION_GUILD_COMMANDS(applicationId, guildId), `GetGuildApplicationCommands ${guildId}`, {
       query,
     });
   }
@@ -1662,7 +1663,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildAuditLog(guildId: Snowflake, query: GetGuildAuditLogQuery): Promise<GetGuildAuditLogBody> {
-    return this.request("GET", GUILD_AUDIT_LOGS(guildId), `GET /guilds/:guildId/audit-logs ${guildId}`, {
+    return this.request("GET", GUILD_AUDIT_LOGS(guildId), `GetGuildAuditLog ${guildId}`, {
       query,
     });
   }
@@ -1676,7 +1677,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getGuildBan(guildId: Snowflake, userId: Snowflake): Promise<GetGuildBanBody> {
-    return this.request("GET", GUILD_BAN(guildId, userId), `GET /guilds/:guildId/bans/:userId ${guildId},${userId}`);
+    return this.request("GET", GUILD_BAN(guildId, userId), `GetGuildBan ${guildId}`);
   }
 
   /**
@@ -1687,7 +1688,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildBans(guildId: Snowflake, query: GetGuildBansQuery): Promise<GetGuildBansBody> {
-    return this.request("GET", GUILD_BANS(guildId), `GET /guilds/:guildId/bans ${guildId}`, {
+    return this.request("GET", GUILD_BANS(guildId), `GetGuildBans ${guildId}`, {
       query,
     });
   }
@@ -1700,7 +1701,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildChannels(guildId: Snowflake): Promise<GetGuildChannelsBody> {
-    return this.request("GET", GUILD_CHANNELS(guildId), `GET /guilds/:guildId/channels ${guildId}`);
+    return this.request("GET", GUILD_CHANNELS(guildId), `GetGuildChannels ${guildId}`);
   }
 
   /**
@@ -1712,7 +1713,7 @@ export class HttpClient {
    * @param emojiId https://discord.dev/resources/emoji#emoji-object
    */
   getGuildEmoji(guildId: Snowflake, emojiId: Snowflake): Promise<GetGuildEmojiBody> {
-    return this.request("GET", GUILD_EMOJI(guildId, emojiId), `GET /guilds/:guildId/emojis/:emojiId ${guildId},${emojiId}`);
+    return this.request("GET", GUILD_EMOJI(guildId, emojiId), `GetGuildEmoji ${guildId}`);
   }
 
   /**
@@ -1723,7 +1724,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildIntegrations(guildId: Snowflake): Promise<GetGuildIntegrationsBody> {
-    return this.request("GET", GUILD_INTEGRATIONS(guildId), `GET /guilds/:guildId/integrations ${guildId}`);
+    return this.request("GET", GUILD_INTEGRATIONS(guildId), `GetGuildIntegrations ${guildId}`);
   }
 
   /**
@@ -1734,7 +1735,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildInvites(guildId: Snowflake): Promise<GetGuildInvitesBody> {
-    return this.request("GET", GUILD_INVITES(guildId), `GET /guilds/:guildId/invites ${guildId}`);
+    return this.request("GET", GUILD_INVITES(guildId), `GetGuildInvites ${guildId}`);
   }
 
   /**
@@ -1746,7 +1747,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getGuildMember(guildId: Snowflake, userId: Snowflake): Promise<GetGuildMemberBody> {
-    return this.request("GET", GUILD_MEMBER(guildId, userId), `GET /guilds/:guildId/members/:userId ${guildId},${userId}`);
+    return this.request("GET", GUILD_MEMBER(guildId, userId), `GetGuildMember ${guildId}`);
   }
 
   /**
@@ -1757,7 +1758,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildPreview(guildId: Snowflake): Promise<GetGuildPreviewBody> {
-    return this.request("GET", GUILD_PREVIEW(guildId), `GET /guilds/:guildId/preview ${guildId}`);
+    return this.request("GET", GUILD_PREVIEW(guildId), `GetGuildPreview ${guildId}`);
   }
 
   /**
@@ -1770,7 +1771,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildPruneCount(guildId: Snowflake, query: GetGuildPruneCountQuery): Promise<GetGuildPruneCountBody> {
-    return this.request("GET", GUILD_PRUNE(guildId), `GET /guilds/:guildId/prune ${guildId}`, {
+    return this.request("GET", GUILD_PRUNE(guildId), `GetGuildPruneCount ${guildId}`, {
       query,
     });
   }
@@ -1783,7 +1784,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildRoles(guildId: Snowflake): Promise<GetGuildRolesBody> {
-    return this.request("GET", GUILD_ROLES(guildId), `GET /guilds/:guildId/roles ${guildId}`);
+    return this.request("GET", GUILD_ROLES(guildId), `GetGuildRoles ${guildId}`);
   }
 
   /**
@@ -1795,7 +1796,7 @@ export class HttpClient {
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
   getGuildScheduledEvent(guildId: Snowflake, guildScheduledEventId: Snowflake, query: GetGuildScheduledEventQuery): Promise<GetGuildScheduledEventBody> {
-    return this.request("GET", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `GET /guilds/:guildId/scheduled-events/:guildScheduledEventId ${guildId},${guildScheduledEventId}`, {
+    return this.request("GET", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `GetGuildScheduledEvent ${guildId}`, {
       query,
     });
   }
@@ -1809,7 +1810,7 @@ export class HttpClient {
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
   getGuildScheduledEventUsers(guildId: Snowflake, guildScheduledEventId: Snowflake, data: GetGuildScheduledEventUsersData): Promise<GetGuildScheduledEventUsersBody> {
-    return this.request("GET", GUILD_SCHEDULED_EVENT_USERS(guildId, guildScheduledEventId), `GET /guilds/:guildId/scheduled-events/:guildScheduledEventId/users ${guildId},${guildScheduledEventId}`, {
+    return this.request("GET", GUILD_SCHEDULED_EVENT_USERS(guildId, guildScheduledEventId), `GetGuildScheduledEventUsers ${guildId}`, {
       data,
     });
   }
@@ -1823,7 +1824,7 @@ export class HttpClient {
    * @param stickerId https://discord.dev/resources/sticker#sticker-object
    */
   getGuildSticker(guildId: Snowflake, stickerId: Snowflake): Promise<GetGuildStickerBody> {
-    return this.request("GET", GUILD_STICKER(guildId, stickerId), `GET /guilds/:guildId/stickers/:stickerId ${guildId},${stickerId}`);
+    return this.request("GET", GUILD_STICKER(guildId, stickerId), `GetGuildSticker ${guildId}`);
   }
 
   /**
@@ -1834,7 +1835,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   getGuildTemplate(templateCode: string): Promise<GetGuildTemplateBody> {
-    return this.request("GET", GUILDS_TEMPLATE(templateCode), `GET /guilds/templates/:templateCode ${templateCode}`);
+    return this.request("GET", GUILDS_TEMPLATE(templateCode), "GetGuildTemplate");
   }
 
   /**
@@ -1845,7 +1846,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildTemplates(guildId: Snowflake): Promise<GetGuildTemplatesBody> {
-    return this.request("GET", GUILD_TEMPLATES(guildId), `GET /guilds/:guildId/templates ${guildId}`);
+    return this.request("GET", GUILD_TEMPLATES(guildId), `GetGuildTemplates ${guildId}`);
   }
 
   /**
@@ -1856,7 +1857,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildVanityURL(guildId: Snowflake): Promise<GetGuildVanityURLBody> {
-    return this.request("GET", GUILD_VANITY_URL(guildId), `GET /guilds/:guildId/vanity-url ${guildId}`);
+    return this.request("GET", GUILD_VANITY_URL(guildId), `GetGuildVanityURL ${guildId}`);
   }
 
   /**
@@ -1867,7 +1868,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildVoiceRegions(guildId: Snowflake): Promise<GetGuildVoiceRegionsBody> {
-    return this.request("GET", GUILD_REGIONS(guildId), `GET /guilds/:guildId/regions ${guildId}`);
+    return this.request("GET", GUILD_REGIONS(guildId), `GetGuildVoiceRegions ${guildId}`);
   }
 
   /**
@@ -1878,7 +1879,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWebhooks(guildId: Snowflake): Promise<GetGuildWebhooksBody> {
-    return this.request("GET", GUILD_WEBHOOKS(guildId), `GET /guilds/:guildId/webhooks ${guildId}`);
+    return this.request("GET", GUILD_WEBHOOKS(guildId), `GetGuildWebhooks ${guildId}`);
   }
 
   /**
@@ -1889,7 +1890,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWelcomeScreen(guildId: Snowflake): Promise<GetGuildWelcomeScreenBody> {
-    return this.request("GET", GUILD_WELCOME_SCREEN(guildId), `GET /guilds/:guildId/welcome-screen ${guildId}`);
+    return this.request("GET", GUILD_WELCOME_SCREEN(guildId), `GetGuildWelcomeScreen ${guildId}`);
   }
 
   /**
@@ -1900,7 +1901,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWidget(guildId: Snowflake): Promise<GetGuildWidgetBody> {
-    return this.request("GET", GUILD_WIDGET_JSON(guildId), `GET /guilds/:guildId/widget.json ${guildId}`, {
+    return this.request("GET", GUILD_WIDGET_JSON(guildId), `GetGuildWidget ${guildId}`, {
       authorization: false,
     });
   }
@@ -1916,7 +1917,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWidgetImage(guildId: Snowflake, query: GetGuildWidgetImageQuery): Promise<GetGuildWidgetImageBody> {
-    return this.request("GET", GUILD_WIDGET_PNG(guildId), `GET /guilds/:guildId/widget.png ${guildId}`, {
+    return this.request("GET", GUILD_WIDGET_PNG(guildId), `GetGuildWidgetImage ${guildId}`, {
       authorization: false,
       query,
     });
@@ -1930,7 +1931,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   getGuildWidgetSettings(guildId: Snowflake): Promise<GetGuildWidgetSettingsBody> {
-    return this.request("GET", GUILD_WIDGET(guildId), `GET /guilds/:guildId/widget ${guildId}`);
+    return this.request("GET", GUILD_WIDGET(guildId), `GetGuildWidgetSettings ${guildId}`);
   }
 
   /**
@@ -1941,7 +1942,7 @@ export class HttpClient {
    * @param inviteCode https://discord.dev/resources/invite#invite-object
    */
   getInvite(inviteCode: string, query: GetInviteQuery): Promise<GetInviteBody> {
-    return this.request("GET", INVITE(inviteCode), `GET /invites/:inviteCode ${inviteCode}`, {
+    return this.request("GET", INVITE(inviteCode), "GetInvite", {
       authorization: false,
       query,
     });
@@ -1956,7 +1957,7 @@ export class HttpClient {
    * @param interactionToken https://discord.dev/interactions/receiving-and-responding#interaction-object
    */
   getOriginalInteractionResponse(applicationId: Snowflake, interactionToken: string): Promise<GetOriginalInteractionResponseBody> {
-    return this.request("GET", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `GET /webhooks/:applicationId/:interactionToken/messages/@original ${applicationId},${interactionToken}`);
+    return this.request("GET", WEBHOOK_TOKEN_MESSAGE_ORIGINAL(applicationId, interactionToken), `GetOriginalInteractionResponse ${interactionToken}`);
   }
 
   /**
@@ -1967,7 +1968,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getPinnedMessages(channelId: Snowflake): Promise<GetPinnedMessagesBody> {
-    return this.request("GET", CHANNEL_PINS(channelId), `GET /channels/:channelId/pins ${channelId}`);
+    return this.request("GET", CHANNEL_PINS(channelId), `GetPinnedMessages ${channelId}`);
   }
 
   /**
@@ -1981,7 +1982,7 @@ export class HttpClient {
    * @param emoji https://discord.dev/resources/emoji#emoji-object
    */
   getReactions(channelId: Snowflake, messageId: Snowflake, emoji: string, query: GetReactionsQuery): Promise<GetReactionsBody> {
-    return this.request("GET", CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), `GET /channels/:channelId/messages/:messageId/reactions/:emoji ${channelId},${messageId},${emoji}`, {
+    return this.request("GET", CHANNEL_MESSAGE_REACTION(channelId, messageId, emoji), `GetReactions ${channelId}`, {
       query,
     });
   }
@@ -1994,7 +1995,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getSKUs(applicationId: Snowflake): Promise<GetSKUsBody> {
-    return this.request("GET", APPLICATION_SKUS(applicationId), `GET /applications/:applicationId/skus ${applicationId}`);
+    return this.request("GET", APPLICATION_SKUS(applicationId), "GetSKUs");
   }
 
   /**
@@ -2005,7 +2006,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   getStageInstance(channelId: Snowflake): Promise<GetStageInstanceBody> {
-    return this.request("GET", STAGE_INSTANCE(channelId), `GET /stage-instances/:channelId ${channelId}`);
+    return this.request("GET", STAGE_INSTANCE(channelId), `GetStageInstance ${channelId}`);
   }
 
   /**
@@ -2016,7 +2017,7 @@ export class HttpClient {
    * @param stickerId https://discord.dev/resources/sticker#sticker-object
    */
   getSticker(stickerId: Snowflake): Promise<GetStickerBody> {
-    return this.request("GET", STICKER(stickerId), `GET /stickers/:stickerId ${stickerId}`);
+    return this.request("GET", STICKER(stickerId), "GetSticker");
   }
 
   /**
@@ -2028,7 +2029,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getThreadMember(channelId: Snowflake, userId: Snowflake): Promise<GetThreadMemberBody> {
-    return this.request("GET", CHANNEL_THREAD_MEMBER(channelId, userId), `GET /channels/:channelId/thread-members/:userId ${channelId},${userId}`);
+    return this.request("GET", CHANNEL_THREAD_MEMBER(channelId, userId), `GetThreadMember ${channelId}`);
   }
 
   /**
@@ -2039,7 +2040,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   getUser(userId: Snowflake): Promise<GetUserBody> {
-    return this.request("GET", USER(userId), `GET /users/:userId ${userId}`);
+    return this.request("GET", USER(userId), "GetUser");
   }
 
   /**
@@ -2053,7 +2054,7 @@ export class HttpClient {
    * @param applicationId https://discord.dev/game-sdk/sdk-starter-guide#get-set-up
    */
   getUserAchievements(applicationId: Snowflake): Promise<GetUserAchievementsBody> {
-    return this.request("GET", USER_ME_APPLICATION_ACHIEVEMENTS(applicationId), `GET /users/@me/applications/:applicationId/achievements ${applicationId}`);
+    return this.request("GET", USER_ME_APPLICATION_ACHIEVEMENTS(applicationId), "GetUserAchievements");
   }
 
   /**
@@ -2063,7 +2064,7 @@ export class HttpClient {
    * 
    */
   getUserConnections(): Promise<GetUserConnectionsBody> {
-    return this.request("GET", USER_ME_CONNECTIONS, "GET /users/@me/connections -");
+    return this.request("GET", USER_ME_CONNECTIONS, "GetUserConnections");
   }
 
   /**
@@ -2074,7 +2075,7 @@ export class HttpClient {
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
   getWebhook(webhookId: Snowflake): Promise<GetWebhookBody> {
-    return this.request("GET", WEBHOOK(webhookId), `GET /webhooks/:webhookId ${webhookId}`);
+    return this.request("GET", WEBHOOK(webhookId), `GetWebhook ${webhookId}`);
   }
 
   /**
@@ -2087,7 +2088,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   getWebhookMessage(webhookId: Snowflake, webhookToken: string, messageId: Snowflake, query: GetWebhookMessageQuery): Promise<GetWebhookMessageBody> {
-    return this.request("GET", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `GET /webhooks/:webhookId/:webhookToken/messages/:messageId ${webhookId},${webhookToken},${messageId}`, {
+    return this.request("GET", WEBHOOK_TOKEN_MESSAGE(webhookId, webhookToken, messageId), `GetWebhookMessage ${webhookId},${webhookToken}`, {
       query,
     });
   }
@@ -2101,7 +2102,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   getWebhookWithToken(webhookId: Snowflake, webhookToken: string): Promise<GetWebhookWithTokenBody> {
-    return this.request("GET", WEBHOOK_TOKEN(webhookId, webhookToken), `GET /webhooks/:webhookId/:webhookToken ${webhookId},${webhookToken}`, {
+    return this.request("GET", WEBHOOK_TOKEN(webhookId, webhookToken), `GetWebhookWithToken ${webhookId},${webhookToken}`, {
       authorization: false,
     });
   }
@@ -2115,7 +2116,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   groupDMAddRecipient(channelId: Snowflake, userId: Snowflake, data: GroupDMAddRecipientData): Promise<GroupDMAddRecipientBody> {
-    return this.request("PUT", CHANNEL_RECIPIENT(channelId, userId), `PUT /channels/:channelId/recipients/:userId ${channelId},${userId}`, {
+    return this.request("PUT", CHANNEL_RECIPIENT(channelId, userId), `GroupDMAddRecipient ${channelId}`, {
       data,
     });
   }
@@ -2129,7 +2130,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   groupDMRemoveRecipient(channelId: Snowflake, userId: Snowflake): Promise<GroupDMRemoveRecipientBody> {
-    return this.request("DELETE", CHANNEL_RECIPIENT(channelId, userId), `DELETE /channels/:channelId/recipients/:userId ${channelId},${userId}`);
+    return this.request("DELETE", CHANNEL_RECIPIENT(channelId, userId), `GroupDMRemoveRecipient ${channelId}`);
   }
 
   /**
@@ -2140,7 +2141,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   joinThread(channelId: Snowflake): Promise<JoinThreadBody> {
-    return this.request("PUT", CHANNEL_THREAD_MEMBER_ME(channelId), `PUT /channels/:channelId/thread-members/@me ${channelId}`);
+    return this.request("PUT", CHANNEL_THREAD_MEMBER_ME(channelId), `JoinThread ${channelId}`);
   }
 
   /**
@@ -2151,7 +2152,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   leaveGuild(guildId: Snowflake): Promise<LeaveGuildBody> {
-    return this.request("DELETE", USER_ME_GUILD(guildId), `DELETE /users/@me/guilds/:guildId ${guildId}`);
+    return this.request("DELETE", USER_ME_GUILD(guildId), `LeaveGuild ${guildId}`);
   }
 
   /**
@@ -2162,7 +2163,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   leaveThread(channelId: Snowflake): Promise<LeaveThreadBody> {
-    return this.request("DELETE", CHANNEL_THREAD_MEMBER_ME(channelId), `DELETE /channels/:channelId/thread-members/@me ${channelId}`);
+    return this.request("DELETE", CHANNEL_THREAD_MEMBER_ME(channelId), `LeaveThread ${channelId}`);
   }
 
   /**
@@ -2173,7 +2174,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listActiveGuildThreads(guildId: Snowflake): Promise<ListActiveGuildThreadsBody> {
-    return this.request("GET", GUILD_THREADS_ACTIVE(guildId), `GET /guilds/:guildId/threads/active ${guildId}`);
+    return this.request("GET", GUILD_THREADS_ACTIVE(guildId), `ListActiveGuildThreads ${guildId}`);
   }
 
   /**
@@ -2184,7 +2185,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listGuildEmojis(guildId: Snowflake): Promise<ListGuildEmojisBody> {
-    return this.request("GET", GUILD_EMOJIS(guildId), `GET /guilds/:guildId/emojis ${guildId}`);
+    return this.request("GET", GUILD_EMOJIS(guildId), `ListGuildEmojis ${guildId}`);
   }
 
   /**
@@ -2201,7 +2202,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listGuildMembers(guildId: Snowflake, query: ListGuildMembersQuery): Promise<ListGuildMembersBody> {
-    return this.request("GET", GUILD_MEMBERS(guildId), `GET /guilds/:guildId/members ${guildId}`, {
+    return this.request("GET", GUILD_MEMBERS(guildId), `ListGuildMembers ${guildId}`, {
       query,
     });
   }
@@ -2214,7 +2215,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listGuildStickers(guildId: Snowflake): Promise<ListGuildStickersBody> {
-    return this.request("GET", GUILD_STICKERS(guildId), `GET /guilds/:guildId/stickers ${guildId}`);
+    return this.request("GET", GUILD_STICKERS(guildId), `ListGuildStickers ${guildId}`);
   }
 
   /**
@@ -2225,7 +2226,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   listJoinedPrivateArchivedThreads(channelId: Snowflake, query: ListJoinedPrivateArchivedThreadsQuery): Promise<ListJoinedPrivateArchivedThreadsBody> {
-    return this.request("GET", CHANNEL_USER_ME_THREADS_ARCHIVED_PRIVATE(channelId), `GET /channels/:channelId/users/@me/threads/archived/private ${channelId}`, {
+    return this.request("GET", CHANNEL_USER_ME_THREADS_ARCHIVED_PRIVATE(channelId), `ListJoinedPrivateArchivedThreads ${channelId}`, {
       query,
     });
   }
@@ -2236,7 +2237,7 @@ export class HttpClient {
    * Returns the list of sticker packs available to Nitro subscribers.
    */
   listNitroStickerPacks(): Promise<ListNitroStickerPacksBody> {
-    return this.request("GET", STICKER_PACKS, "GET /sticker-packs -");
+    return this.request("GET", STICKER_PACKS, "ListNitroStickerPacks");
   }
 
   /**
@@ -2247,7 +2248,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   listPrivateArchivedThreads(channelId: Snowflake, query: ListPrivateArchivedThreadsQuery): Promise<ListPrivateArchivedThreadsBody> {
-    return this.request("GET", CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), `GET /channels/:channelId/threads/archived/private ${channelId}`, {
+    return this.request("GET", CHANNEL_THREADS_ARCHIVED_PRIVATE(channelId), `ListPrivateArchivedThreads ${channelId}`, {
       query,
     });
   }
@@ -2260,7 +2261,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   listPublicArchivedThreads(channelId: Snowflake, query: ListPublicArchivedThreadsQuery): Promise<ListPublicArchivedThreadsBody> {
-    return this.request("GET", CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), `GET /channels/:channelId/threads/archived/public ${channelId}`, {
+    return this.request("GET", CHANNEL_THREADS_ARCHIVED_PUBLIC(channelId), `ListPublicArchivedThreads ${channelId}`, {
       query,
     });
   }
@@ -2273,7 +2274,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   listScheduledEventsForGuild(guildId: Snowflake, query: ListScheduledEventsForGuildQuery): Promise<ListScheduledEventsForGuildBody> {
-    return this.request("GET", GUILD_SCHEDULED_EVENTS(guildId), `GET /guilds/:guildId/scheduled-events ${guildId}`, {
+    return this.request("GET", GUILD_SCHEDULED_EVENTS(guildId), `ListScheduledEventsForGuild ${guildId}`, {
       query,
     });
   }
@@ -2289,7 +2290,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   listThreadMembers(channelId: Snowflake): Promise<ListThreadMembersBody> {
-    return this.request("GET", CHANNEL_THREAD_MEMBERS(channelId), `GET /channels/:channelId/thread-members ${channelId}`);
+    return this.request("GET", CHANNEL_THREAD_MEMBERS(channelId), `ListThreadMembers ${channelId}`);
   }
 
   /**
@@ -2299,7 +2300,7 @@ export class HttpClient {
    * 
    */
   listVoiceRegions(): Promise<ListVoiceRegionsBody> {
-    return this.request("GET", VOICE_REGIONS, "GET /voice/regions -");
+    return this.request("GET", VOICE_REGIONS, "ListVoiceRegions");
   }
 
   /**
@@ -2313,7 +2314,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   modifyChannel(channelId: Snowflake, data: ModifyChannelData, reason?: string): Promise<ModifyChannelBody> {
-    return this.request("PATCH", CHANNEL(channelId), `PATCH /channels/:channelId ${channelId}`, {
+    return this.request("PATCH", CHANNEL(channelId), `ModifyChannel ${channelId}`, {
       data,
       reason,
     });
@@ -2330,7 +2331,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyCurrentMember(guildId: Snowflake, data: ModifyCurrentMemberData, reason?: string): Promise<ModifyCurrentMemberBody> {
-    return this.request("PATCH", GUILD_MEMBER_ME(guildId), `PATCH /guilds/:guildId/members/@me ${guildId}`, {
+    return this.request("PATCH", GUILD_MEMBER_ME(guildId), `ModifyCurrentMember ${guildId}`, {
       data,
       reason,
     });
@@ -2345,7 +2346,7 @@ export class HttpClient {
    * > All parameters to this endpoint are optional.
    */
   modifyCurrentUser(data: ModifyCurrentUserData): Promise<ModifyCurrentUserBody> {
-    return this.request("PATCH", USER_ME, "PATCH /users/@me -", {
+    return this.request("PATCH", USER_ME, "ModifyCurrentUser", {
       data,
     });
   }
@@ -2364,7 +2365,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyCurrentUserNick(guildId: Snowflake, data: ModifyCurrentUserNickData, reason?: string): Promise<ModifyCurrentUserNickBody> {
-    return this.request("PATCH", GUILD_MEMBER_ME_NICK(guildId), `PATCH /guilds/:guildId/members/@me/nick ${guildId}`, {
+    return this.request("PATCH", GUILD_MEMBER_ME_NICK(guildId), `ModifyCurrentUserNick ${guildId}`, {
       data,
       reason,
     });
@@ -2378,7 +2379,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyCurrentUserVoiceState(guildId: Snowflake, data: ModifyCurrentUserVoiceStateData): Promise<ModifyCurrentUserVoiceStateBody> {
-    return this.request("PATCH", GUILD_VOICE_STATE_ME(guildId), `PATCH /guilds/:guildId/voice-states/@me ${guildId}`, {
+    return this.request("PATCH", GUILD_VOICE_STATE_ME(guildId), `ModifyCurrentUserVoiceState ${guildId}`, {
       data,
     });
   }
@@ -2400,7 +2401,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuild(guildId: Snowflake, data: ModifyGuildData, reason?: string): Promise<ModifyGuildBody> {
-    return this.request("PATCH", GUILD(guildId), `PATCH /guilds/:guildId ${guildId}`, {
+    return this.request("PATCH", GUILD(guildId), `ModifyGuild ${guildId}`, {
       data,
       reason,
     });
@@ -2422,7 +2423,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuildChannelPositions(guildId: Snowflake, data: ModifyGuildChannelPositionsData, reason?: string): Promise<ModifyGuildChannelPositionsBody> {
-    return this.request("PATCH", GUILD_CHANNELS(guildId), `PATCH /guilds/:guildId/channels ${guildId}`, {
+    return this.request("PATCH", GUILD_CHANNELS(guildId), `ModifyGuildChannelPositions ${guildId}`, {
       data,
       reason,
     });
@@ -2443,7 +2444,7 @@ export class HttpClient {
    * @param emojiId https://discord.dev/resources/emoji#emoji-object
    */
   modifyGuildEmoji(guildId: Snowflake, emojiId: Snowflake, data: ModifyGuildEmojiData, reason?: string): Promise<ModifyGuildEmojiBody> {
-    return this.request("PATCH", GUILD_EMOJI(guildId, emojiId), `PATCH /guilds/:guildId/emojis/:emojiId ${guildId},${emojiId}`, {
+    return this.request("PATCH", GUILD_EMOJI(guildId, emojiId), `ModifyGuildEmoji ${guildId}`, {
       data,
       reason,
     });
@@ -2464,7 +2465,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   modifyGuildMember(guildId: Snowflake, userId: Snowflake, data: ModifyGuildMemberData, reason?: string): Promise<ModifyGuildMemberBody> {
-    return this.request("PATCH", GUILD_MEMBER(guildId, userId), `PATCH /guilds/:guildId/members/:userId ${guildId},${userId}`, {
+    return this.request("PATCH", GUILD_MEMBER(guildId, userId), `ModifyGuildMember ${guildId}`, {
       data,
       reason,
     });
@@ -2485,7 +2486,7 @@ export class HttpClient {
    * @param roleId https://discord.dev/topics/permissions#role-object
    */
   modifyGuildRole(guildId: Snowflake, roleId: Snowflake, data: ModifyGuildRoleData, reason?: string): Promise<ModifyGuildRoleBody> {
-    return this.request("PATCH", GUILD_ROLE(guildId, roleId), `PATCH /guilds/:guildId/roles/:roleId ${guildId},${roleId}`, {
+    return this.request("PATCH", GUILD_ROLE(guildId, roleId), `ModifyGuildRole ${guildId}`, {
       data,
       reason,
     });
@@ -2504,7 +2505,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuildRolePositions(guildId: Snowflake, data: ModifyGuildRolePositionsData, reason?: string): Promise<ModifyGuildRolePositionsBody> {
-    return this.request("PATCH", GUILD_ROLES(guildId), `PATCH /guilds/:guildId/roles ${guildId}`, {
+    return this.request("PATCH", GUILD_ROLES(guildId), `ModifyGuildRolePositions ${guildId}`, {
       data,
       reason,
     });
@@ -2528,7 +2529,7 @@ export class HttpClient {
    * @param guildScheduledEventId https://discord.dev/resources/guild-scheduled-event#guild-scheduled-event-object
    */
   modifyGuildScheduledEvent(guildId: Snowflake, guildScheduledEventId: Snowflake, data: ModifyGuildScheduledEventData, reason?: string): Promise<ModifyGuildScheduledEventBody> {
-    return this.request("PATCH", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `PATCH /guilds/:guildId/scheduled-events/:guildScheduledEventId ${guildId},${guildScheduledEventId}`, {
+    return this.request("PATCH", GUILD_SCHEDULED_EVENT(guildId, guildScheduledEventId), `ModifyGuildScheduledEvent ${guildId}`, {
       data,
       reason,
     });
@@ -2549,7 +2550,7 @@ export class HttpClient {
    * @param stickerId https://discord.dev/resources/sticker#sticker-object
    */
   modifyGuildSticker(guildId: Snowflake, stickerId: Snowflake, data: ModifyGuildStickerData, reason?: string): Promise<ModifyGuildStickerBody> {
-    return this.request("PATCH", GUILD_STICKER(guildId, stickerId), `PATCH /guilds/:guildId/stickers/:stickerId ${guildId},${stickerId}`, {
+    return this.request("PATCH", GUILD_STICKER(guildId, stickerId), `ModifyGuildSticker ${guildId}`, {
       data,
       reason,
     });
@@ -2564,7 +2565,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   modifyGuildTemplate(guildId: Snowflake, templateCode: string, data: ModifyGuildTemplateData): Promise<ModifyGuildTemplateBody> {
-    return this.request("PATCH", GUILD_TEMPLATE(guildId, templateCode), `PATCH /guilds/:guildId/templates/:templateCode ${guildId},${templateCode}`, {
+    return this.request("PATCH", GUILD_TEMPLATE(guildId, templateCode), `ModifyGuildTemplate ${guildId}`, {
       data,
     });
   }
@@ -2583,7 +2584,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuildWelcomeScreen(guildId: Snowflake, data: ModifyGuildWelcomeScreenData, reason?: string): Promise<ModifyGuildWelcomeScreenBody> {
-    return this.request("PATCH", GUILD_WELCOME_SCREEN(guildId), `PATCH /guilds/:guildId/welcome-screen ${guildId}`, {
+    return this.request("PATCH", GUILD_WELCOME_SCREEN(guildId), `ModifyGuildWelcomeScreen ${guildId}`, {
       data,
       reason,
     });
@@ -2600,7 +2601,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   modifyGuildWidget(guildId: Snowflake, data: ModifyGuildWidgetData, reason?: string): Promise<ModifyGuildWidgetBody> {
-    return this.request("PATCH", GUILD_WIDGET(guildId), `PATCH /guilds/:guildId/widget ${guildId}`, {
+    return this.request("PATCH", GUILD_WIDGET(guildId), `ModifyGuildWidget ${guildId}`, {
       data,
       reason,
     });
@@ -2619,7 +2620,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   modifyStageInstance(channelId: Snowflake, data: ModifyStageInstanceData, reason?: string): Promise<ModifyStageInstanceBody> {
-    return this.request("PATCH", STAGE_INSTANCE(channelId), `PATCH /stage-instances/:channelId ${channelId}`, {
+    return this.request("PATCH", STAGE_INSTANCE(channelId), `ModifyStageInstance ${channelId}`, {
       data,
       reason,
     });
@@ -2634,7 +2635,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   modifyUserVoiceState(guildId: Snowflake, userId: Snowflake, data: ModifyUserVoiceStateData): Promise<ModifyUserVoiceStateBody> {
-    return this.request("PATCH", GUILD_VOICE_STATE(guildId, userId), `PATCH /guilds/:guildId/voice-states/:userId ${guildId},${userId}`, {
+    return this.request("PATCH", GUILD_VOICE_STATE(guildId, userId), `ModifyUserVoiceState ${guildId}`, {
       data,
     });
   }
@@ -2653,7 +2654,7 @@ export class HttpClient {
    * @param webhookId https://discord.dev/resources/webhook#webhook-object
    */
   modifyWebhook(webhookId: Snowflake, data: ModifyWebhookData, reason?: string): Promise<ModifyWebhookBody> {
-    return this.request("PATCH", WEBHOOK(webhookId), `PATCH /webhooks/:webhookId ${webhookId}`, {
+    return this.request("PATCH", WEBHOOK(webhookId), `ModifyWebhook ${webhookId}`, {
       data,
       reason,
     });
@@ -2668,7 +2669,7 @@ export class HttpClient {
    * @param webhookToken https://discord.dev/resources/webhook#webhook-object
    */
   modifyWebhookWithToken(webhookId: Snowflake, webhookToken: string, data: ModifyWebhookWithTokenData): Promise<ModifyWebhookWithTokenBody> {
-    return this.request("PATCH", WEBHOOK_TOKEN(webhookId, webhookToken), `PATCH /webhooks/:webhookId/:webhookToken ${webhookId},${webhookToken}`, {
+    return this.request("PATCH", WEBHOOK_TOKEN(webhookId, webhookToken), `ModifyWebhookWithToken ${webhookId},${webhookToken}`, {
       authorization: false,
       data,
     });
@@ -2689,7 +2690,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   pinMessage(channelId: Snowflake, messageId: Snowflake, reason?: string): Promise<PinMessageBody> {
-    return this.request("PUT", CHANNEL_PIN(channelId, messageId), `PUT /channels/:channelId/pins/:messageId ${channelId},${messageId}`, {
+    return this.request("PUT", CHANNEL_PIN(channelId, messageId), `PinMessage ${channelId}`, {
       reason,
     });
   }
@@ -2706,7 +2707,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   removeGuildBan(guildId: Snowflake, userId: Snowflake, reason?: string): Promise<RemoveGuildBanBody> {
-    return this.request("DELETE", GUILD_BAN(guildId, userId), `DELETE /guilds/:guildId/bans/:userId ${guildId},${userId}`, {
+    return this.request("DELETE", GUILD_BAN(guildId, userId), `RemoveGuildBan ${guildId}`, {
       reason,
     });
   }
@@ -2723,7 +2724,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   removeGuildMember(guildId: Snowflake, userId: Snowflake, reason?: string): Promise<RemoveGuildMemberBody> {
-    return this.request("DELETE", GUILD_MEMBER(guildId, userId), `DELETE /guilds/:guildId/members/:userId ${guildId},${userId}`, {
+    return this.request("DELETE", GUILD_MEMBER(guildId, userId), `RemoveGuildMember ${guildId}`, {
       reason,
     });
   }
@@ -2741,7 +2742,7 @@ export class HttpClient {
    * @param roleId https://discord.dev/topics/permissions#role-object
    */
   removeGuildMemberRole(guildId: Snowflake, userId: Snowflake, roleId: Snowflake, reason?: string): Promise<RemoveGuildMemberRoleBody> {
-    return this.request("DELETE", GUILD_MEMBER_ROLE(guildId, userId, roleId), `DELETE /guilds/:guildId/members/:userId/roles/:roleId ${guildId},${userId},${roleId}`, {
+    return this.request("DELETE", GUILD_MEMBER_ROLE(guildId, userId, roleId), `RemoveGuildMemberRole ${guildId}`, {
       reason,
     });
   }
@@ -2755,7 +2756,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   removeThreadMember(channelId: Snowflake, userId: Snowflake): Promise<RemoveThreadMemberBody> {
-    return this.request("DELETE", CHANNEL_THREAD_MEMBER(channelId, userId), `DELETE /channels/:channelId/thread-members/:userId ${channelId},${userId}`);
+    return this.request("DELETE", CHANNEL_THREAD_MEMBER(channelId, userId), `RemoveThreadMember ${channelId}`);
   }
 
   /**
@@ -2769,7 +2770,7 @@ export class HttpClient {
    * @param guildId https://discord.dev/resources/guild#guild-object
    */
   searchGuildMembers(guildId: Snowflake, query: SearchGuildMembersQuery): Promise<SearchGuildMembersBody> {
-    return this.request("GET", GUILD_MEMBERS_SEARCH(guildId), `GET /guilds/:guildId/members/search ${guildId}`, {
+    return this.request("GET", GUILD_MEMBERS_SEARCH(guildId), `SearchGuildMembers ${guildId}`, {
       query,
     });
   }
@@ -2784,7 +2785,7 @@ export class HttpClient {
    * @param lobbyId https://discord.dev/game-sdk/lobbies#data-models-lobby-struct
    */
   sendLobbyData(lobbyId: Snowflake, data: SendLobbyDataData): Promise<SendLobbyDataBody> {
-    return this.request("POST", LOBBY_SEND(lobbyId), `POST /lobbies/:lobbyId/send ${lobbyId}`, {
+    return this.request("POST", LOBBY_SEND(lobbyId), "SendLobbyData", {
       data,
     });
   }
@@ -2803,7 +2804,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   startThreadFromMessage(channelId: Snowflake, messageId: Snowflake, data: StartThreadFromMessageData, reason?: string): Promise<StartThreadFromMessageBody> {
-    return this.request("POST", CHANNEL_MESSAGE_THREADS(channelId, messageId), `POST /channels/:channelId/messages/:messageId/threads ${channelId},${messageId}`, {
+    return this.request("POST", CHANNEL_MESSAGE_THREADS(channelId, messageId), `StartThreadFromMessage ${channelId}`, {
       data,
       reason,
     });
@@ -2832,7 +2833,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   startThreadInForumChannel(channelId: Snowflake, data: StartThreadInForumChannelData, reason?: string): Promise<StartThreadInForumChannelBody> {
-    return this.request("POST", CHANNEL_THREADS(channelId), `POST /channels/:channelId/threads ${channelId}`, {
+    return this.request("POST", CHANNEL_THREADS(channelId), `StartThreadInForumChannel ${channelId}`, {
       data,
       reason,
     });
@@ -2852,7 +2853,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   startThreadWithoutMessage(channelId: Snowflake, data: StartThreadWithoutMessageData, reason?: string): Promise<StartThreadWithoutMessageBody> {
-    return this.request("POST", CHANNEL_THREADS(channelId), `POST /channels/:channelId/threads ${channelId}`, {
+    return this.request("POST", CHANNEL_THREADS(channelId), `StartThreadWithoutMessage ${channelId}`, {
       data,
       reason,
     });
@@ -2867,7 +2868,7 @@ export class HttpClient {
    * @param templateCode https://discord.dev/resources/guild-template#guild-template-object
    */
   syncGuildTemplate(guildId: Snowflake, templateCode: string): Promise<SyncGuildTemplateBody> {
-    return this.request("PUT", GUILD_TEMPLATE(guildId, templateCode), `PUT /guilds/:guildId/templates/:templateCode ${guildId},${templateCode}`);
+    return this.request("PUT", GUILD_TEMPLATE(guildId, templateCode), `SyncGuildTemplate ${guildId}`);
   }
 
   /**
@@ -2878,7 +2879,7 @@ export class HttpClient {
    * @param channelId https://discord.dev/resources/channel#channel-object
    */
   triggerTypingIndicator(channelId: Snowflake): Promise<TriggerTypingIndicatorBody> {
-    return this.request("POST", CHANNEL_TYPING(channelId), `POST /channels/:channelId/typing ${channelId}`);
+    return this.request("POST", CHANNEL_TYPING(channelId), `TriggerTypingIndicator ${channelId}`);
   }
 
   /**
@@ -2893,7 +2894,7 @@ export class HttpClient {
    * @param messageId https://discord.dev/resources/channel#message-object
    */
   unpinMessage(channelId: Snowflake, messageId: Snowflake, reason?: string): Promise<UnpinMessageBody> {
-    return this.request("DELETE", CHANNEL_PIN(channelId, messageId), `DELETE /channels/:channelId/pins/:messageId ${channelId},${messageId}`, {
+    return this.request("DELETE", CHANNEL_PIN(channelId, messageId), `UnpinMessage ${channelId}`, {
       reason,
     });
   }
@@ -2907,7 +2908,7 @@ export class HttpClient {
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   updateAchievement(applicationId: Snowflake, achievementId: Snowflake, data: UpdateAchievementData): Promise<UpdateAchievementBody> {
-    return this.request("PATCH", APPLICATION_ACHIEVEMENT(applicationId, achievementId), `PATCH /applications/:applicationId/achievements/:achievementId ${applicationId},${achievementId}`, {
+    return this.request("PATCH", APPLICATION_ACHIEVEMENT(applicationId, achievementId), "UpdateAchievement", {
       data,
     });
   }
@@ -2920,7 +2921,7 @@ export class HttpClient {
    * @param lobbyId https://discord.dev/lobbies#data-models-lobby-struct
    */
   updateLobby(lobbyId: Snowflake, data: UpdateLobbyData): Promise<UpdateLobbyBody> {
-    return this.request("PATCH", LOBBY(lobbyId), `PATCH /lobbies/:lobbyId ${lobbyId}`, {
+    return this.request("PATCH", LOBBY(lobbyId), "UpdateLobby", {
       data,
     });
   }
@@ -2934,7 +2935,7 @@ export class HttpClient {
    * @param userId https://discord.dev/resources/user#user-object
    */
   updateLobbyMember(lobbyId: Snowflake, userId: Snowflake, data: UpdateLobbyMemberData): Promise<UpdateLobbyMemberBody> {
-    return this.request("PATCH", LOBBY_MEMBER(lobbyId, userId), `PATCH /lobbies/:lobbyId/members/:userId ${lobbyId},${userId}`, {
+    return this.request("PATCH", LOBBY_MEMBER(lobbyId, userId), "UpdateLobbyMember", {
       data,
     });
   }
@@ -2948,8 +2949,9 @@ export class HttpClient {
    * @param achievementId https://discord.dev/game-sdk/achievements#data-models-achievement-struct
    */
   updateUserAchievement(applicationId: Snowflake, achievementId: Snowflake, data: UpdateUserAchievementData): Promise<UpdateUserAchievementBody> {
-    return this.request("PUT", APPLICATION_ACHIEVEMENT(applicationId, achievementId), `PUT /applications/:applicationId/achievements/:achievementId ${applicationId},${achievementId}`, {
+    return this.request("PUT", APPLICATION_ACHIEVEMENT(applicationId, achievementId), "UpdateUserAchievement", {
       data,
     });
   }
+  //#endregion endpoints
 }
