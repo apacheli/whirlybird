@@ -31,6 +31,50 @@ Deno using [configuration file](https://deno.land/manual/getting_started/configu
 
 See [releases](https://github.com/apacheli/whirlybird/releases) for bundled + minified files.
 
+### Getting Started
+
+An example:
+
+```js
+import { CacheClient, closeOnInterrupt, GatewayClient, RestClient } from "whirlybird";
+
+const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
+
+const cache = new CacheClient();
+const rest = new RestClient(token);
+
+const handleEvent = async (event, data) => {
+  cache.handleEvent(event, data);
+
+  switch (event) {
+    case "MESSAGE_CREATE": {
+      if (data.content === "!ping") {
+        await rest.createMessage(data.channel_id, {
+          body: {
+            content: "Hello, World!",
+          },
+        });
+      }
+    }
+  }
+};
+
+const gateway = new GatewayClient({
+  handleEvent,
+  identifyOptions: {
+    intents: 1 << 9 | 1 << 15,
+  },
+  token,
+  url: "wss://gateway.discord.gg",
+});
+
+gateway.connect();
+
+closeOnInterrupt(gateway);
+```
+
+Information regarding core modules can be found in their respective READMEs.
+
 ### Development
 
-Use `deno lint` and `deno fmt` for code styling. Install [EditorConfig for VS Code](https://github.com/editorconfig/editorconfig-vscode) if using Visual Studio Code.
+Use `deno lint` and `deno fmt` for code styling.

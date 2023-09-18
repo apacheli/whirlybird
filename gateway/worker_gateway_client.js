@@ -18,24 +18,23 @@ export class WorkerGatewayClient extends GatewayClient {
     self.postMessage({ opcode: 2 });
   }
 
-  async message(event) {
-    const payload = event.data;
-    switch (payload.opcode) {
+  message(event) {
+    const { data, opcode } = event.data;
+    switch (opcode) {
       case 0: {
-        const firstShard = payload.data.index * this.options.workerShardCount;
-        const lastShard = (payload.data.index + 1) * this.options.workerShardCount;
+        const firstShard = data.index * this.options.workerShardCount;
+        const lastShard = (data.index + 1) * this.options.workerShardCount;
         this.connect(firstShard, lastShard);
         break;
       }
 
       case 1: {
-        this.identifyShard(this.shards.get(payload.data.shard));
+        this.identifyShard(this.shards.get(data.shard));
         break;
       }
 
       case 2: {
-        await this.disconnect(payload.data.code, payload.data.reason);
-        self.close();
+        this.disconnect(data.code, data.reason).then(() => self.close());
         break;
       }
     }
