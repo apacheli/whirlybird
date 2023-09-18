@@ -1,3 +1,4 @@
+import { warn } from "whirlybird/util/lib.js";
 import { debug } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { ShardClient } from "./shard_client.js";
@@ -14,8 +15,8 @@ export class GatewayClient {
 
   connect(firstShard = 0, lastShard = this.options.shardCount ?? 1) {
     debug(
-      `Connecting ${lastShard - firstShard}/${this.options.shardCount ?? 1}`,
-      `shards (${firstShard}-${lastShard - 1}) to "${this.options.url}"`,
+      `Connecting ${lastShard - firstShard}/${this.options.shardCount ?? 1} shards`,
+      `(${firstShard}-${lastShard - 1}) to "${this.options.url}"`,
     );
     for (let i = firstShard; i < lastShard; i++) {
       const shard = new ShardClient(this, i);
@@ -29,9 +30,7 @@ export class GatewayClient {
   }
 
   disconnect(code = 3001, reason) {
-    for (const shard of this.shards.values()) {
-      shard.disconnect(code, reason);
-    }
+    return Promise.all([...this.shards.values()].map((shard) => shard.disconnect(code, reason)));
   }
 
   identifyShard(shard) {
@@ -56,8 +55,12 @@ export class GatewayClient {
     this.rateLimit.unlock();
   }
 
-  close(code, reason, shard) {
+  async close(code, reason, shard) {
     switch (code) {
+      case 1005: {
+        break;
+      }
+
       case 4004:
       case 4010:
       case 4011:
@@ -77,7 +80,11 @@ export class GatewayClient {
       }
 
       default: {
-        if (code > 3099 && code < 4000) {
+        if (code < 1000) {
+          warn(`[Shard ${shard.id}]: Network error(?) reconnecting in 30 seconds...`);
+          await new Promise((resolve) => setTimeout(resolve, 30_000));
+        }
+        if (code < 3000 || code > 3999) {
           this.connectShard(shard).then(() => shard.resume(this.options.token));
         }
         break;

@@ -3,7 +3,10 @@ import { debug, info, warn } from "../util/logger.js";
 export class ShardClient {
   heartbeatInterval;
   id;
+  lastHeartbeat = 0;
+  latency;
   options;
+  ready = false;
   resumeGatewayUrl;
   seq = 0;
   sessionId;
@@ -23,6 +26,9 @@ export class ShardClient {
   }
 
   disconnect(code = 3000, reason) {
+    if (!this.socket) {
+      return;
+    }
     this.socket.close(code, reason);
     return new Promise((resolve) => this.socket.addEventListener("close", resolve));
   }
@@ -32,6 +38,7 @@ export class ShardClient {
   }
 
   heartbeat() {
+    this.lastHeartbeat = Date.now();
     this.sendPayload(1, this.seq);
   }
 
@@ -64,6 +71,7 @@ export class ShardClient {
   close({ code, reason }) {
     warn(`[Shard ${this.id}]: Closed code: ${code} reason: "${reason}"`);
     clearInterval(this.heartbeatInterval);
+    this.ready = false;
     this.socket = undefined;
     this.options?.close?.(code, reason, this);
   }
@@ -83,7 +91,8 @@ export class ShardClient {
           } /* falls through */
 
           case "RESUMED": {
-            info(`[Shard ${this.id}]: received "${payload.t}"`);
+            info(`[Shard ${this.id}]: Received session state "${payload.t}"`);
+            this.ready = true;
             break;
           }
         }
@@ -91,13 +100,19 @@ export class ShardClient {
       }
 
       case 9: {
-        debug(`[Shard ${this.id}]: Invalid session resume: ${payload.d}`);
+        warn(`[Shard ${this.id}]: Encountered an invalid session resume: ${payload.d}`);
+        this.ready = false;
         break;
       }
 
       case 10: {
         const delay = d.heartbeat_interval;
         this.heartbeatInterval = setInterval(() => this.heartbeat(), delay);
+        break;
+      }
+
+      case 11: {
+        this.latency = Date.now() - this.lastHeartbeat;
         break;
       }
     }

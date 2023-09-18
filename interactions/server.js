@@ -1,8 +1,9 @@
+import { encodeBody } from "../util/http.js";
 import { createKey, verify } from "./key.js";
 
 export const startServer = async (port, publicKey, handle) => {
   const key = await createKey(publicKey);
-  return Deno.serve({ port }, (request) => handleRequest(request, key, handle));
+  return Deno.serve({ port }, (request) => handleRequest(request, key, handle)).finished;
 };
 
 export const isBadRequest = (signature, timestamp, request) =>
@@ -19,13 +20,19 @@ export const handleRequest = async (request, key, handle) => {
     return new Response("Bad Request", { status: 400 });
   }
 
-  const body = await request.text();
+  const text = await request.text();
 
-  if (!await verify(key, signature, timestamp, body)) {
+  if (!await verify(key, signature, timestamp, text)) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const data = JSON.parse(body);
+  const json = JSON.parse(text);
 
-  return Response.json(data.type === 1 ? { type: 1 } : await handle(data));
+  if (json.type === 1) {
+    return Response.json({ type: 1 });
+  }
+
+  const { body, files } = await handle(json);
+  const headers = {};
+  return new Response(encodeBody(body, files, headers), { headers });
 };

@@ -1,4 +1,5 @@
-import { encodeQuery } from "../util/query.js";
+import { encodeBody, encodeQuery } from "../util/http.js";
+import { warn } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { HttpError } from "./http_error.js";
 
@@ -30,20 +31,7 @@ export class RestClient {
       headers["X-Audit-Log-Reason"] = reason;
     }
 
-    let b;
-    if (files) {
-      b = new FormData();
-      if (body) {
-        b.append("payload_json", JSON.stringify(body));
-      }
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        b.append(`files[${i}]`, file, file.name);
-      }
-    } else if (body) {
-      b = JSON.stringify(body);
-      headers["Content-Type"] = "application/json";
-    }
+    const data = encodeBody(body, files, headers);
 
     let url = `https://discord.com/api/v10${pathname}`;
     if (query) {
@@ -60,7 +48,7 @@ export class RestClient {
 
     let attempts = 5, response;
     do {
-      response = await fetch(url, { body: b, headers, method });
+      response = await fetch(url, { body: data, headers, method });
       const newBucket = response.headers.get("X-RateLimit-Bucket");
       if (newBucket) {
         this.buckets.set(bucketId, newBucket);
@@ -80,6 +68,7 @@ export class RestClient {
         );
         if (response.status === 429) {
           const retryAfter = +response.headers.get("Retry-After") * 1e+3;
+          warn(`Rate limit at "${pathname}" retry after: ${retryAfter} (${attempts} attempts)`);
           await new Promise((resolve) => setTimeout(resolve, retryAfter));
           continue;
         }

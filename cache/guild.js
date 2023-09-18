@@ -1,25 +1,18 @@
 import { CacheMap } from "./cache_map.js";
-import { createChannel, updateChannel } from "./channel.js";
-import { createEmoji, updateEmoji } from "./emoji.js";
-import { createMember, updateMember } from "./member.js";
-import { createRole, updateRole } from "./role.js";
-import { createScheduledEvent, updateScheduledEvent } from "./scheduled_event.js";
-import { createStageInstance, updateStageInstance } from "./stage_instance.js";
-import { createSticker, updateSticker } from "./sticker.js";
 
-export const createGuild = (id, data) =>
+export const createGuild = (id, data, c) =>
   updateGuild({
     id,
     joinedAt: Date.parse(data.joined_at),
     large: data.large,
     memberCount: data.member_count,
-    channels: new CacheMap(createChannel, updateChannel),
-    emojis: new CacheMap(createEmoji, updateEmoji),
-    members: new CacheMap(createMember, updateMember),
-    roles: new CacheMap(createRole, updateRole),
-    scheduledEvents: new CacheMap(createScheduledEvent, updateScheduledEvent),
-    stageInstances: new CacheMap(createStageInstance, updateStageInstance),
-    stickers: new CacheMap(createSticker, updateSticker),
+    channels: new CacheMap(c.options.createChannel, c.options.updateChannel, c),
+    emojis: new CacheMap(c.options.createEmoji, c.options.updateEmoji, c),
+    members: new CacheMap(c.options.createMember, c.options.updateMember, c),
+    roles: new CacheMap(c.options.createRole, c.options.updateRole, c),
+    scheduledEvents: new CacheMap(c.options.createScheduledEvent, c.options.updateScheduledEvent, c),
+    stageInstances: new CacheMap(c.options.createStageInstance, c.options.updateStageInstance, c),
+    stickers: new CacheMap(c.options.createSticker, c.options.updateSticker, c),
   }, data);
 
 export const updateGuild = (guild, data) => {

@@ -1,8 +1,6 @@
 import { GatewayClient } from "./gateway_client.js";
 
 export class WorkerGatewayClient extends GatewayClient {
-  x;
-
   constructor(options) {
     super(options);
 
@@ -20,12 +18,12 @@ export class WorkerGatewayClient extends GatewayClient {
     self.postMessage({ opcode: 2 });
   }
 
-  message(event) {
+  async message(event) {
     const payload = event.data;
     switch (payload.opcode) {
       case 0: {
-        const firstShard = index * this.options.workerShardCount;
-        const lastShard = (index + 1) * this.options.workerShardCount;
+        const firstShard = payload.data.index * this.options.workerShardCount;
+        const lastShard = (payload.data.index + 1) * this.options.workerShardCount;
         this.connect(firstShard, lastShard);
         break;
       }
@@ -36,6 +34,8 @@ export class WorkerGatewayClient extends GatewayClient {
       }
 
       case 2: {
+        await this.disconnect(payload.data.code, payload.data.reason);
+        self.close();
         break;
       }
     }

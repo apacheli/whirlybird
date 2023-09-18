@@ -18,10 +18,12 @@ import { startServer } from "whirlybird/interactions/lib.js";
 startServer(1337, Deno.env.get("PUBLIC_KEY"), (interaction) => {
   if (interaction.data.name === "ping") {
     return {
-      data: {
-        content: "pong",
+      body: {
+        data: {
+          content: "pong",
+        },
+        type: 4,
       },
-      type: 4,
     };
   }
 });
@@ -38,7 +40,7 @@ const handle = async (interaction) => {
   // ...
 };
 
-await Deno.serve({ port: 1337 }, async (request) => {
+Deno.serve({ port: 1337 }, async (request) => {
   const response = await handleRequest(request, key, handle);
   return response;
 });

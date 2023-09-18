@@ -14,7 +14,7 @@ export const formatDate = (date = new Date()) => {
 export const highlight = (input) =>
   input.replace(
     // deno-lint-ignore no-control-regex
-    /('.+?'|".+?"|`.+?`)|(?<!\x1b\[)-?\d+(?:\.\d+)?(?!m)|true|false/g,
+    /('.*?'|".*?"|`.*?`)|(?<!\x1b\[)-?\d+(?:\.\d+)?(?!m)|true|false/g,
     (a, b) => b ? green(b) : yellow(a),
   );
 

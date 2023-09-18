@@ -1,4 +1,4 @@
-const r = (type) => (data) => ({ type, data });
+const r = (type) => (data, files) => ({ body: { type, data }, files });
 
 // deno-fmt-ignore
 export const

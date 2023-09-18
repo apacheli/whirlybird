@@ -22,6 +22,12 @@ export class ClusterClient {
     }
   }
 
+  disconnect(code = 3002, reason) {
+    for (const worker of this.workers) {
+      worker.postMessage({ opcode: 2, data: { code, reason } });
+    }
+  }
+
   message(event, worker) {
     const payload = event.data;
     switch (payload.opcode) {

@@ -1,4 +1,4 @@
-import { encodeQuery } from "../util/query.js";
+import { encodeQuery } from "../util/http.js";
 
 /* export */ const request = async (pathname, options) => {
   let url = `https://cdn.discordapp.com${pathname}`;

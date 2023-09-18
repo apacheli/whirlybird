@@ -63,6 +63,7 @@ if (self.postMessage) {
     url: "wss://gateway.discord.gg",
     workerShardCount: 2,
   });
+  // gateway.connect() is called automatically
 } else {
   const cluster = new ClusterClient({
     specifier: import.meta.url,

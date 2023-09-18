@@ -1,10 +1,12 @@
 export class CacheMap extends Map {
+  cache;
   create;
   update;
 
-  constructor(create, update) {
+  constructor(create, update, cache) {
     super();
 
+    this.cache = cache;
     this.create = create;
     this.update = update;
   }
@@ -21,9 +23,9 @@ export class CacheMap extends Map {
     id = BigInt(id);
     let item = this.get(id);
     if (item) {
-      this.update(item, data);
+      this.update(item, data, this.cache);
     } else {
-      item = this.create(id, data);
+      item = this.create(id, data, this.cache);
       super.set(id, item);
     }
     return item;
