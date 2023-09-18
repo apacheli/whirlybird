@@ -1,0 +1,9 @@
+{
+  "fmt": {
+    "lineWidth": 800
+  },
+  "imports": {
+    "whirlybird": "./lib.js",
+    "whirlybird/": "./"
+  }
+}

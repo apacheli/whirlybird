@@ -1,0 +1,51 @@
+const color = (a, b, c) => `\x1b[${b}m${a}\x1b[${c}m`;
+
+// deno-fmt-ignore
+export const
+  reset         = (input) => color(input, 0, 0),
+  bold          = (input) => color(input, 1, 22),
+  dim           = (input) => color(input, 2, 22),
+  italic        = (input) => color(input, 3, 23),
+  underline     = (input) => color(input, 4, 24),
+  inverse       = (input) => color(input, 7, 27),
+  hidden        = (input) => color(input, 8, 28),
+  strikethrough = (input) => color(input, 9, 29);
+
+// deno-fmt-ignore
+export const
+  black           = (input) => color(input, 30, 39),
+  red             = (input) => color(input, 31, 39),
+  green           = (input) => color(input, 32, 39),
+  yellow          = (input) => color(input, 33, 39),
+  blue            = (input) => color(input, 34, 39),
+  magenta         = (input) => color(input, 35, 39),
+  cyan            = (input) => color(input, 36, 39),
+  white           = (input) => color(input, 37, 39),
+  gray            = (input) => color(input, 90, 39),
+  grey            = gray,
+  brightBlack     = gray,
+  brightRed       = (input) => color(input, 91, 39),
+  brightGreen     = (input) => color(input, 92, 39),
+  brightYellow    = (input) => color(input, 93, 39),
+  brightBlue      = (input) => color(input, 94, 39),
+  brightMagenta   = (input) => color(input, 95, 39),
+  brightCyan      = (input) => color(input, 96, 39),
+  brightWhite     = (input) => color(input, 97, 39),
+  bgBlack         = (input) => color(input, 40, 49),
+  bgRed           = (input) => color(input, 41, 49),
+  bgGreen         = (input) => color(input, 42, 49),
+  bgYellow        = (input) => color(input, 43, 49),
+  bgBlue          = (input) => color(input, 44, 49),
+  bgMagenta       = (input) => color(input, 45, 49),
+  bgCyan          = (input) => color(input, 46, 49),
+  bgWhite         = (input) => color(input, 47, 49),
+  bgGray          = (input) => color(input, 100, 49),
+  bgGrey          = bgGray,
+  bgBrightBlack   = bgGray,
+  bgBrightRed     = (input) => color(input, 101, 49),
+  bgBrightGreen   = (input) => color(input, 102, 49),
+  bgBrightYellow  = (input) => color(input, 103, 49),
+  bgBrightBlue    = (input) => color(input, 104, 49),
+  bgBrightMagenta = (input) => color(input, 105, 49),
+  bgBrightCyan    = (input) => color(input, 106, 49),
+  bgBrightWhite   = (input) => color(input, 107, 49);
