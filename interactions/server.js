@@ -3,7 +3,7 @@ import { createKey, verify } from "./key.js";
 
 export const startServer = async (port, publicKey, handle) => {
   const key = await createKey(publicKey);
-  return Deno.serve({ port }, (request) => handleRequest(request, key, handle)).finished;
+  return Deno.serve({ port }, (request) => handleRequest(request, key, handle));
 };
 
 export const isBadRequest = (signature, timestamp, request) =>

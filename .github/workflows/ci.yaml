@@ -11,6 +11,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: denoland/setup-deno@v1
         with:
-          deno-version: 1.36.4
+          deno-version: 1.37.2
       - run: deno fmt --check
       - run: deno lint
