@@ -5,7 +5,7 @@ The library for Discord's HTTP API.
 ### Install
 
 ```js
-export * from "https://github.com/apacheli/whirlybird/raw/dev/rest/lib.js";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/rest/lib.js";
 ```
 
 ### Getting Started

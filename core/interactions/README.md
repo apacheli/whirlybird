@@ -5,7 +5,7 @@ The library for Discord's interactions API.
 ### Install
 
 ```js
-export * from "https://github.com/apacheli/whirlybird/raw/dev/interactions/lib.js";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/lib.js";
 ```
 
 ### Getting Started

@@ -5,7 +5,7 @@ A simple, in-memory cache for data received from Discord.
 ### Install
 
 ```js
-export * from "https://github.com/apacheli/whirlybird/raw/dev/cache/lib.js";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/cache/lib.js";
 ```
 
 ### Getting Started

@@ -5,7 +5,7 @@ The library for Discord's WebSocket API.
 ### Install
 
 ```js
-export * from "https://github.com/apacheli/whirlybird/raw/dev/gateway/lib.js";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/gateway/lib.js";
 ```
 
 ### Getting Started

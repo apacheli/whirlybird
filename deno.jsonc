@@ -3,10 +3,11 @@
     "lineWidth": 800
   },
   "imports": {
-    "whirlybird": "./lib.js",
-    "whirlybird/": "./"
+    "whirlybird": "./core/lib.js",
+    "whirlybird/": "./core/"
   },
   "tasks": {
+    "example": "deno run --allow-env --allow-net example/example.js",
     "ci": "deno fmt --check && deno lint"
   }
 }

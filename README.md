@@ -4,18 +4,18 @@ whirlybird is a JavaScript library for building Discord bots.
 
 ### Core
 
-- [`core/cache`](cache)
-- [`core/gateway`](gateway)
-- [`core/interactions`](interactions)
-- [`core/rest`](rest)
-- [`core/util`](util)
+- [`core/cache`](core/cache)
+- [`core/gateway`](core/gateway)
+- [`core/interactions`](core/interactions)
+- [`core/rest`](core/rest)
+- [`core/util`](core/util)
 
 ### Install
 
 Deno [`deps.js`](https://deno.land/manual/examples/manage_dependencies):
 
 ```js
-export * from "https://github.com/apacheli/whirlybird/raw/dev/lib.js";
+export * from "https://github.com/apacheli/whirlybird/raw/dev/core/lib.js";
 ```
 
 Deno using [configuration file](https://deno.land/manual/getting_started/configuration_file):
@@ -23,8 +23,8 @@ Deno using [configuration file](https://deno.land/manual/getting_started/configu
 ```jsonc
 {
   "imports": {
-    "whirlybird": "https://github.com/apacheli/whirlybird/raw/dev/lib.js",
-    "whirlybird/": "https://github.com/apacheli/whirlybird/raw/dev/"
+    "whirlybird": "https://github.com/apacheli/whirlybird/raw/core/dev/lib.js",
+    "whirlybird/": "https://github.com/apacheli/whirlybird/raw/dev/core"
   }
 }
 ```
@@ -36,7 +36,7 @@ See [releases](https://github.com/apacheli/whirlybird/releases) for bundled + mi
 An example:
 
 ```js
-import { CacheClient, closeOnInterrupt, GatewayClient, RestClient } from "whirlybird";
+import { CacheClient, closeOnInterrupt, GatewayClient, Intents, RestClient } from "whirlybird";
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
@@ -62,7 +62,7 @@ const handleEvent = async (event, data) => {
 const gateway = new GatewayClient({
   handleEvent,
   identifyOptions: {
-    intents: 1 << 9 | 1 << 15,
+    intents: Intents.GuildMessages | Intents.MessageContent,
   },
   token,
   url: "wss://gateway.discord.gg",
@@ -77,4 +77,4 @@ Information regarding core modules can be found in their respective READMEs.
 
 ### Development
 
-Use `deno lint` and `deno fmt` for code styling.
+use `$ deno task ci` before committing a change.
