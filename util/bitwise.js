@@ -1,3 +1,40 @@
+/**
+ * Combine all the flags from a table.
+ *
+ * ```js
+ * bitwiseAll({
+ *   Hello: 1 << 0,
+ *   World: 1 << 1,
+ * });
+ * // => 3
+ * ```
+ *
+ * @param {Record<string, number | bigint>} table
+ * @param {number | bigint} [x]
+ */
+export const bitwiseAll = (table, x = 0) => {
+  for (const key in table) {
+    x |= table[key];
+  }
+  return x;
+};
+
+/**
+ * Combine flags from `table` using `list` as keys.
+ *
+ * ```js
+ * const Flags = {
+ *   Hello: 1 << 0,
+ *   World: 1 << 1,
+ * };
+ *
+ * bitwiseMap(["Hello", "world"], Flags); // => 3
+ * ```
+ *
+ * @param {string[]} list
+ * @param {Record<string, number | bigint>} table
+ * @param {number | bigint} [x]
+ */
 export const bitwiseMap = (list, table, x = 0) => {
   const len = list.length;
   for (let i = 0; i < len; i++) {
@@ -6,6 +43,21 @@ export const bitwiseMap = (list, table, x = 0) => {
   return x;
 };
 
+/**
+ * Return a list for enabled flags.
+ *
+ * ```js
+ * const Flags = {
+ *   Hello: 1 << 0,
+ *   World: 1 << 1,
+ * };
+ *
+ * bitwiseList(3, Flags); // => ["Hello", "World"]
+ * ```
+ *
+ * @param {number | bigint} value
+ * @param {Record<string, number | bigint>} table
+ */
 export const bitwiseList = (value, table) => {
   const list = [];
   for (const key in table) {
@@ -17,6 +69,25 @@ export const bitwiseList = (value, table) => {
   return list;
 };
 
+/**
+ * Return a table for each flag disabled or enabled.
+ *
+ * ```js
+ * const Flags = {
+ *   Hello: 1 << 0,
+ *   World: 1 << 1,
+ * };
+ *
+ * bitwiseTable(3, Flags);
+ * // => {
+ * //    Hello: true,
+ * //    World: true,
+ * // }
+ * ```
+ *
+ * @param {number | bigint} value
+ * @param {Record<string, number | bigint>} table
+ */
 export const bitwiseTable = (value, table) => {
   const t = {};
   for (const key in table) {
@@ -24,6 +95,48 @@ export const bitwiseTable = (value, table) => {
     t[key] = (value & f) === f;
   }
   return t;
+};
+
+export const ActivityFlags = {
+  Instance: 1 << 0,
+  Join: 1 << 1,
+  Spectate: 1 << 2,
+  JoinRequest: 1 << 3,
+  Sync: 1 << 4,
+  Play: 1 << 5,
+  PartyPrivacyFriends: 1 << 6,
+  PartyPrivacyVoiceChannel: 1 << 9,
+  Embedded: 1 << 10,
+};
+
+export const ApplicationFlags = {
+  ApplicationAutoModerationRuleCreateBadge: 1 << 6,
+  GatewayPresence: 1 << 12,
+  GatewayPresenceLimited: 1 << 13,
+  GatewayGuildMembers: 1 << 14,
+  GatewayGuildMembersLimited: 1 << 15,
+  VerificationPendingGuildLimit: 1 << 16,
+  Embedded: 1 << 17,
+  GatewayMessageContent: 1 << 18,
+  GatewayMessageContentLimited: 1 << 19,
+  ApplicationCommandBadge: 1 << 23,
+};
+
+export const AttachmentFlags = {
+  IsRemix: 1 << 2,
+};
+
+export const ChannelFlags = {
+  Pinned: 1 << 1,
+  RequireTag: 1 << 4,
+  HideMediaDownloadOptions: 1 << 15,
+};
+
+export const GuildMemberFlags = {
+  DidRejoin: 1 << 0,
+  CompletedOnboarding: 1 << 1,
+  BypassesVerification: 1 << 2,
+  StartedOnboarding: 1 << 3,
 };
 
 export const Intents = {
@@ -46,6 +159,20 @@ export const Intents = {
   GuildScheduledEvents: 1 << 16,
   AutoModerationConfiguration: 1 << 20,
   AutoModerationExecution: 1 << 21,
+};
+
+export const MessageFlags = {
+  Crossposted: 1 << 0,
+  IsCrosspost: 1 << 1,
+  SuppressEmbeds: 1 << 2,
+  SourceMessageDeleted: 1 << 3,
+  Urgent: 1 << 4,
+  HasThread: 1 << 5,
+  Ephemeral: 1 << 6,
+  Loading: 1 << 7,
+  FailedToMentionSomeRolesInThread: 1 << 8,
+  SuppressNotifications: 1 << 12,
+  IsVoiceMessage: 1 << 13,
 };
 
 export const Permissions = {
@@ -90,8 +217,35 @@ export const Permissions = {
   SendMessagesInThreads: 1n << 38n,
   UseEmbeddedActivities: 1n << 39n,
   ModerateMembers: 1n << 40n,
-  ViewCreatorMonetizationAnalytics: 1n << 41,
+  ViewCreatorMonetizationAnalytics: 1n << 41n,
   UseSoundboard: 1n << 42n,
   UseExternalSounds: 1n << 45n,
   SendVoiceMessages: 1n << 46n,
+};
+
+export const SystemChannelFlags = {
+  SuppressJoinNotifications: 1 << 0,
+  SuppressPremiumSubscriptions: 1 << 1,
+  SuppressGuildReminderNotifications: 1 << 2,
+  SuppressJoinNotificationReplies: 1 << 3,
+  SuppressRoleSubscriptionPurchaseNotifications: 1 << 4,
+  SuppressRoleSubscriptionPurchaseNotificationReplies: 1 << 5,
+};
+
+export const UserFlags = {
+  Staff: 1 << 0,
+  Partner: 1 << 1,
+  Hypesquad: 1 << 2,
+  BugHunterLevel1: 1 << 3,
+  HypesquadOnlineHouse1: 1 << 6,
+  HypesquadOnlineHouse2: 1 << 7,
+  HypesquadOnlineHouse3: 1 << 8,
+  PremiumEarlySupporter: 1 << 9,
+  TeamPseudoUser: 1 << 0,
+  BugHunterLevel2: 1 << 14,
+  VerifiedBot: 1 << 16,
+  VerifiedDeveloper: 1 << 17,
+  CertifiedModerator: 1 << 18,
+  BotHttpInteractions: 1 << 19,
+  ActiveDeveloper: 1 << 22,
 };

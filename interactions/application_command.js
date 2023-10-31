@@ -1,4 +1,13 @@
-const a = (type) => (name, description, x) => ({
+/**
+ * @param {number} type
+ */
+const a = (type) =>
+/**
+ * @param {string} name
+ * @param {string} description
+ * @param {Record<string, unknown>} [x]
+ */
+(name, description, x) => ({
   name,
   description,
   type,
@@ -11,7 +20,16 @@ export const
   messageCommand = a(2),
   userCommand = a(3);
 
-const o = (type) => (name, description, x) => ({
+/**
+ * @param {number} type
+ */
+const o = (type) =>
+/**
+ * @param {string} name
+ * @param {string} description
+ * @param {Record<string, unknown>} [x]
+ */
+(name, description, x) => ({
   name,
   description,
   type,
@@ -32,7 +50,13 @@ export const
   number = o(10),
   attachment = o(11);
 
-export const choice = (name, value) => ({
+/**
+ * @param {string} name
+ * @param {string | number} value
+ * @param {Record<string, unknown>} [x]
+ */
+export const choice = (name, value, x) => ({
   name,
   value,
+  ...x,
 });

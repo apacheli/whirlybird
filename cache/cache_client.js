@@ -36,6 +36,7 @@ export const defaultCacheClientOptions = {
   updateVoiceState,
 };
 
+/** A simple, in-memory cache for data received from Discord. */
 export class CacheClient {
   guilds;
   presences;
@@ -45,12 +46,28 @@ export class CacheClient {
 
   constructor(options = defaultCacheClientOptions) {
     this.options = options;
-    this.guilds = new CacheMap(options.createGuild, options.updateGuild, this);
-    this.presences = new CacheMap(options.createPresence, options.updatePresence, this);
-    this.users = new CacheMap(options.createUser, options.updateUser, this);
-    this.voiceStates = new CacheMap(options.createVoiceState, options.updateVoiceState, this);
+    this.guilds = new CacheMap(options.createGuild, options.updateGuild);
+    this.presences = new CacheMap(options.createPresence, options.updatePresence);
+    this.users = new CacheMap(options.createUser, options.updateUser);
+    this.voiceStates = new CacheMap(options.createVoiceState, options.updateVoiceState);
   }
 
+  /**
+   * Handle a gateway event.
+   *
+   * ```js
+   * const handleEvent = (event, data) => {
+   *   cache.handleEvent(event, data);
+   * };
+   *
+   * const gateway = new GatewayClient({
+   *   handleEvent,
+   * });
+   * ```
+   *
+   * @param {string} event
+   * @param {unknown} data
+   */
   handleEvent(event, data) {
     if (this.options.ignoreEvents?.[event]) {
       return;
@@ -61,8 +78,8 @@ export class CacheClient {
       case "CHANNEL_UPDATE":
       case "THREAD_CREATE":
       case "THREAD_UPDATE": {
-        if (this.options.ignoreTypes?.CHANNEL) {
-          this.guilds.get(data.guild_id).channels.set(data.id, data);
+        if (!this.options.ignoreTypes?.CHANNEL) {
+          this.guilds.get(data.guild_id).channels.set(data.id, data, this);
         }
         break;
       }
@@ -76,58 +93,58 @@ export class CacheClient {
       }
 
       case "GUILD_CREATE": {
-        const guild = this.guilds.set(data.id, data);
+        const guild = this.guilds.set(data.id, data, this);
         if (!this.options.ignoreTypes?.CHANNEL) {
           for (const channel of data.channels) {
-            guild.channels.set(channel.id, channel);
+            guild.channels.set(channel.id, channel, this);
           }
           for (const thread of data.threads) {
-            guild.channels.set(thread.id, thread);
+            guild.channels.set(thread.id, thread, this);
           }
         }
         if (!this.options.ignoreTypes?.EMOJI) {
           for (const emoji of data.emojis) {
-            guild.emojis.set(emoji.id, emoji);
+            guild.emojis.set(emoji.id, emoji, this);
           }
         }
         if (!this.options.ignoreTypes?.MEMBER) {
           for (const member of data.members) {
-            guild.members.set(member.user.id, member);
+            guild.members.set(member.user.id, member, this);
           }
         }
         if (!this.options.ignoreTypes?.USER) {
           for (const member of data.members) {
-            this.users.set(member.user.id, member.user);
+            this.users.set(member.user.id, member.user, this);
           }
         }
         if (!this.options.ignoreTypes?.PRESENCE) {
           for (const presence of data.presences) {
-            this.presences.set(presence.user.id, presence);
+            this.presences.set(presence.user.id, presence, this);
           }
         }
         if (!this.options.ignoreTypes?.ROLE) {
           for (const role of data.roles) {
-            guild.roles.set(role.id, role);
+            guild.roles.set(role.id, role, this);
           }
         }
         if (!this.options.ignoreTypes?.SCHEDULED_EVENT) {
           for (const scheduledEvent of data.guild_scheduled_events) {
-            guild.scheduledEvents.set(scheduledEvent.id, scheduledEvent);
+            guild.scheduledEvents.set(scheduledEvent.id, scheduledEvent, this);
           }
         }
         if (!this.options.ignoreTypes?.STAGE_INSTANCE) {
           for (const stageInstance of data.stage_instances) {
-            guild.stageInstances.set(stageInstance.id, stageInstance);
+            guild.stageInstances.set(stageInstance.id, stageInstance, this);
           }
         }
         if (!this.options.ignoreTypes?.STICKER) {
           for (const sticker of data.stickers) {
-            guild.stickers.set(sticker.id, sticker);
+            guild.stickers.set(sticker.id, sticker, this);
           }
         }
         if (this.options.ignoreTypes?.VOICE_STATE) {
           for (const voiceState of data.voice_states) {
-            this.voiceStates.set(voiceState.id, voiceState);
+            this.voiceStates.set(voiceState.id, voiceState, this);
           }
         }
         break;
@@ -144,7 +161,7 @@ export class CacheClient {
         if (!this.options.ignoreTypes?.EMOJI) {
           const guild = this.guilds.get(data.guild_id);
           for (const emoji of data.emojis) {
-            guild.emojis.set(emoji.id, emoji);
+            guild.emojis.set(emoji.id, emoji, this);
           }
         }
         break;
@@ -153,10 +170,10 @@ export class CacheClient {
       case "GUILD_MEMBER_ADD":
       case "GUILD_MEMBER_UPDATE": {
         if (!this.options.ignoreTypes?.MEMBER) {
-          this.guilds.get(data.guild_id).members.set(data.user.id, data);
+          this.guilds.get(data.guild_id).members.set(data.user.id, data, this);
         }
         if (!this.options.ignoreTypes?.USER) {
-          this.users.set(data.user.id, data.user);
+          this.users.set(data.user.id, data.user, this);
         }
         break;
       }
@@ -171,7 +188,7 @@ export class CacheClient {
       case "GUILD_ROLE_CREATE":
       case "GUILD_ROLE_UPDATE": {
         if (!this.options.ignoreTypes?.ROLE) {
-          this.guilds.get(data.guild_id).roles.set(data.role.id, data.role);
+          this.guilds.get(data.guild_id).roles.set(data.role.id, data.role, this);
         }
         break;
       }
@@ -186,7 +203,7 @@ export class CacheClient {
       case "GUILD_SCHEDULED_EVENT_CREATE":
       case "GUILD_SCHEDULED_EVENT_UPDATE": {
         if (!this.options.ignoreTypes?.SCHEDULED_EVENT) {
-          this.guilds.get(data.guild_id).scheduledEvents.set(data.id, data);
+          this.guilds.get(data.guild_id).scheduledEvents.set(data.id, data, this);
         }
         break;
       }
@@ -202,7 +219,7 @@ export class CacheClient {
         if (!this.options.ignoreTypes?.STICKER) {
           const guild = this.guilds.get(data.guild_id);
           for (const sticker of data.stickers) {
-            guild.stickers.set(sticker.id, sticker);
+            guild.stickers.set(sticker.id, sticker, this);
           }
         }
         break;
@@ -210,14 +227,14 @@ export class CacheClient {
 
       case "GUILD_UPDATE": {
         if (!this.options.ignoreTypes?.GUILD) {
-          this.guilds.set(data.id, data);
+          this.guilds.set(data.id, data, this);
         }
         break;
       }
 
       case "PRESENCE_UPDATE": {
         if (!this.options.ignoreTypes?.PRESENCE) {
-          this.presences.set(data.user.id, data);
+          this.presences.set(data.user.id, data, this);
         }
         break;
       }
@@ -225,7 +242,7 @@ export class CacheClient {
       case "STAGE_INSTANCE_CREATE":
       case "STAGE_INSTANCE_UPDATE": {
         if (!this.options.ignoreTypes?.STAGE_INSTANCE) {
-          this.guilds.get(data.guild_id).stageInstances.set(data.id, data);
+          this.guilds.get(data.guild_id).stageInstances.set(data.id, data, this);
         }
         break;
       }
@@ -241,7 +258,7 @@ export class CacheClient {
         if (!this.options.ignoreTypes?.CHANNEL) {
           const guild = this.guilds.get(data.guild_id);
           for (const thread of data.threads) {
-            guild.channels.set(thread.id, thread);
+            guild.channels.set(thread.id, thread, this);
           }
         }
         break;
@@ -249,14 +266,14 @@ export class CacheClient {
 
       case "USER_UPDATE": {
         if (!this.options.ignoreTypes?.USER) {
-          this.users.set(data.id, data);
+          this.users.set(data.id, data, this);
         }
         break;
       }
 
       case "VOICE_STATE_UPDATE": {
         if (!this.options.ignoreTypes?.VOICE_STATE) {
-          this.voiceStates.set(data.user_id, data);
+          this.voiceStates.set(data.user_id, data, this);
         }
         break;
       }

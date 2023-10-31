@@ -1,8 +1,17 @@
+/**
+ * @param {unknown[]} components
+ */
 export const actionRow = (components) => ({
   components,
   type: 1,
 });
 
+/**
+ * @param {string} customId
+ * @param {string} label
+ * @param {number} style
+ * @param {Record<string, unknown>} [x]
+ */
 export const button = (customId, label, style, x) => ({
   custom_id: customId,
   label,
@@ -11,6 +20,12 @@ export const button = (customId, label, style, x) => ({
   ...x,
 });
 
+/**
+ * @param {string} customId
+ * @param {string} label
+ * @param {number} style
+ * @param {Record<string, unknown>} [x]
+ */
 export const textInput = (customId, label, style, x) => ({
   custom_id: customId,
   label,
@@ -19,7 +34,16 @@ export const textInput = (customId, label, style, x) => ({
   ...x,
 });
 
-const s = (type) => (customId, options, x) => ({
+/**
+ * @param {number} type
+ */
+const s = (type) =>
+/**
+ * @param {string} customId
+ * @param {unknown[]} options
+ * @param {Record<string, unknown>} [x]
+ */
+(customId, options, x) => ({
   custom_id: customId,
   options,
   type,
@@ -34,8 +58,13 @@ export const
   mentionableSelect = s(7),
   channelSelect = s(8);
 
-export const option = (label, value, description) => ({
-  description,
+/**
+ * @param {string} label
+ * @param {string} value
+ * @param {Record<string, unknown>} [x]
+ */
+export const option = (label, value, x) => ({
   label,
   value,
+  ...x,
 });

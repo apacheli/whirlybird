@@ -1,22 +1,43 @@
 import { debug, info, warn } from "../util/logger.js";
 
+/**
+ * @typedef ShardClientOptions
+ * @property {(code: number, reason: string) => void} [close]
+ * @property {(payload: unknown, shard: ShardClient) => void} [payload]
+ */
+
+/** A single connection to the gateway. */
 export class ShardClient {
+  /** @type {number} */
   heartbeatInterval;
   id;
   lastHeartbeat = 0;
+  /** @type {number} */
   latency;
   options;
   ready = false;
+  /** @type {string | undefined} */
   resumeGatewayUrl;
   seq = 0;
+  /** @type {string | undefined} */
   sessionId;
+  /** @type {WebSocket | undefined} */
   socket;
 
+  /**
+   * @param {ShardClientOptions} [options]
+   * @param {number} [id]
+   */
   constructor(options, id) {
     this.id = id;
     this.options = options;
   }
 
+  /**
+   * Connect to the gateway.
+   *
+   * @param {string} url
+   */
   connect(url) {
     debug(`[Shard ${this.id}]: Connecting to "${url}"`);
     const socket = this.socket = new WebSocket(url);
@@ -25,6 +46,12 @@ export class ShardClient {
     return new Promise((resolve) => socket.addEventListener("open", resolve));
   }
 
+  /**
+   * Disconnect from the gateway.
+   *
+   * @param {number} [code]
+   * @param {string} [reason]
+   */
   disconnect(code = 3000, reason) {
     if (!this.socket) {
       return;
@@ -47,10 +74,41 @@ export class ShardClient {
     this.sendPayload(2, data);
   }
 
+  /**
+   * Update the shard's presence.
+   *
+   * ```js
+   * shard.presenceUpdate({
+   *   activities: [
+   *     {
+   *       name: "running on whirlybird",
+   *       type: 0,
+   *     },
+   *   ],
+   *   status: "online",
+   * });
+   * ```
+   *
+   * @param {unknown} data
+   */
   presenceUpdate(data) {
     this.sendPayload(3, data);
   }
 
+  /**
+   * Update the shard's voice state.
+   *
+   * ```js
+   * shard.voiceStateUpdate({
+   *   guild_id: "1234567890",
+   *   channel_id: "0987654321",
+   *   self_mute: false,
+   *   self_deaf: false,
+   * });
+   * ```
+   *
+   * @param {unknown} data
+   */
   voiceStateUpdate(data) {
     this.sendPayload(4, data);
   }
@@ -64,6 +122,19 @@ export class ShardClient {
     });
   }
 
+  /**
+   * Request members from a guild.
+   *
+   * ```js
+   * shard.requestGuildMembers({
+   *   guild_id: "1234567890",
+   *   query: "",
+   *   limit: 0,
+   * });
+   * ```
+   *
+   * @param {unknown} data
+   */
   requestGuildMembers(data) {
     this.sendPayload(8, data);
   }

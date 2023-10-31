@@ -1,4 +1,12 @@
-const r = (type) => (data, files) => ({ body: { type, data }, files });
+/**
+ * @param {number} type
+ */
+const r = (type) =>
+/**
+ * @param {unknown} data
+ * @param {File[]} [files]
+ */
+(data, files) => ({ body: { type, data }, files });
 
 // deno-fmt-ignore
 export const

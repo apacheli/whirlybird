@@ -1,18 +1,18 @@
 import { CacheMap } from "./cache_map.js";
 
-export const createGuild = (id, data, c) =>
+export const createGuild = (id, data, { options }) =>
   updateGuild({
     id,
     joinedAt: Date.parse(data.joined_at),
     large: data.large,
     memberCount: data.member_count,
-    channels: new CacheMap(c.options.createChannel, c.options.updateChannel, c),
-    emojis: new CacheMap(c.options.createEmoji, c.options.updateEmoji, c),
-    members: new CacheMap(c.options.createMember, c.options.updateMember, c),
-    roles: new CacheMap(c.options.createRole, c.options.updateRole, c),
-    scheduledEvents: new CacheMap(c.options.createScheduledEvent, c.options.updateScheduledEvent, c),
-    stageInstances: new CacheMap(c.options.createStageInstance, c.options.updateStageInstance, c),
-    stickers: new CacheMap(c.options.createSticker, c.options.updateSticker, c),
+    channels: new CacheMap(options.createChannel, options.updateChannel),
+    emojis: new CacheMap(options.createEmoji, options.updateEmoji),
+    members: new CacheMap(options.createMember, options.updateMember),
+    roles: new CacheMap(options.createRole, options.updateRole),
+    scheduledEvents: new CacheMap(options.createScheduledEvent, options.updateScheduledEvent),
+    stageInstances: new CacheMap(options.createStageInstance, options.updateStageInstance),
+    stickers: new CacheMap(options.createSticker, options.updateSticker),
   }, data);
 
 export const updateGuild = (guild, data) => {

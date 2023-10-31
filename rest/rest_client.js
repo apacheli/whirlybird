@@ -3,15 +3,22 @@ import { warn } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { HttpError } from "./http_error.js";
 
+/** The library for Discord's HTTP API. */
 export class RestClient {
+  /** @type {Map<string, string>} */
   buckets = new Map();
+  /** @type {Map<string, RateLimit>} */
   rateLimits = new Map();
   token;
 
+  /**
+   * @param {string} token
+   */
   constructor(token) {
     this.token = token;
   }
 
+  /** Reset inactive rate limits. */
   resetRateLimits() {
     for (const rateLimits of this.rateLimits.values()) {
       for (const [rateLimitId, rateLimit] of rateLimits) {

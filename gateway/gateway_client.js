@@ -3,16 +3,36 @@ import { debug } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { ShardClient } from "./shard_client.js";
 
+/**
+ * @typedef GatewayClientOptions
+ * @property {Record<string, unknown>} [identifyOptions]
+ * @property {number} [maxConcurrency]
+ * @property {number} [shardCount]
+ * @property {string} token
+ * @property {string} url
+ */
+
+/** The library for Discord's WebSocket API. */
 export class GatewayClient {
   options;
   rateLimit;
+  /** @type {Map<number, ShardClient>} */
   shards = new Map();
 
+  /**
+   * @param {GatewayClientOptions} options
+   */
   constructor(options) {
     this.options = options;
     this.rateLimit = new RateLimit(options.maxConcurrency);
   }
 
+  /**
+   * Connect shards to Discord. `lastShard` defaults to `gateway.options.shardCount` if unset.
+   *
+   * @param {number} [firstShard]
+   * @param {number} [lastShard]
+   */
   connect(firstShard = 0, lastShard = this.options.shardCount ?? 1) {
     debug(
       `Connecting ${lastShard - firstShard}/${this.options.shardCount ?? 1} shards`,
@@ -26,9 +46,15 @@ export class GatewayClient {
   }
 
   connectShard(shard) {
-    return shard.connect(`${shard.resumeGatewayUrl ?? this.options.url}/?encoding=json&v=10`);
+    return shard.connect(`${shard.resumeGatewayUrl ?? this.options.url}?encoding=json&v=10`);
   }
 
+  /**
+   * Disconnect all shards. Returns `Promise<void>` when all shards close.
+   *
+   * @param {number} [code]
+   * @param {string} [reason]
+   */
   disconnect(code = 3001, reason) {
     return Promise.all([...this.shards.values()].map((shard) => shard.disconnect(code, reason)));
   }

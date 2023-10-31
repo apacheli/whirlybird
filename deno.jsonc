@@ -5,5 +5,8 @@
   "imports": {
     "whirlybird": "./lib.js",
     "whirlybird/": "./"
+  },
+  "tasks": {
+    "ci": "deno fmt --check && deno lint"
   }
 }

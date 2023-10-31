@@ -1,16 +1,29 @@
 import { debug } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 
+/**
+ * @typedef ClusterClientOptions
+ * @property {number} [maxConcurrency]
+ * @property {string} specifier
+ * @property {number} [workerCount]
+ */
+
+/** Hire workers to handle some shards. */
 export class ClusterClient {
   options;
   rateLimit;
+  /** @type {Worker[]} */
   workers = [];
 
+  /**
+   * @param {ClusterClientOptions} options
+   */
   constructor(options) {
     this.options = options;
     this.rateLimit = new RateLimit(options.maxConcurrency);
   }
 
+  /** Spawn workers. */
   connect() {
     const workerCount = this.options.workerCount ?? 1;
     debug(`Spawning ${workerCount} workers`);
@@ -22,6 +35,12 @@ export class ClusterClient {
     }
   }
 
+  /**
+   * Disconnect workers.
+   *
+   * @param {number} [code]
+   * @param {string} [reason]
+   */
   disconnect(code = 3002, reason) {
     for (const worker of this.workers) {
       worker.postMessage({ opcode: 2, data: { code, reason } });
