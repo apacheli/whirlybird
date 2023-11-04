@@ -24,7 +24,7 @@ Deno using [configuration file](https://deno.land/manual/getting_started/configu
 {
   "imports": {
     "whirlybird": "https://github.com/apacheli/whirlybird/raw/core/dev/lib.js",
-    "whirlybird/": "https://github.com/apacheli/whirlybird/raw/dev/core"
+    "whirlybird/": "https://github.com/apacheli/whirlybird/raw/dev/core/"
   }
 }
 ```
@@ -73,7 +73,7 @@ gateway.connect();
 closeOnInterrupt(gateway);
 ```
 
-Information regarding core modules can be found in their respective READMEs.
+Information regarding core modules can be found in [their respective READMEs](core).
 
 ### Development
 

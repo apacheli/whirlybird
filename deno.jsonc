@@ -7,7 +7,7 @@
     "whirlybird/": "./core/"
   },
   "tasks": {
-    "example": "deno run --allow-env --allow-net example/example.js",
-    "ci": "deno fmt --check && deno lint"
+    "ci": "deno fmt --check && deno lint",
+    "example": "deno run --allow-env --allow-net example/example.js"
   }
 }

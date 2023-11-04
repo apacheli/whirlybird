@@ -1,4 +1,4 @@
-import { warn } from "whirlybird/util/lib.js";
+import { warn } from "../util/lib.js";
 import { debug } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { ShardClient } from "./shard_client.js";

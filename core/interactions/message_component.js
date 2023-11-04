@@ -1,6 +1,4 @@
-/**
- * @param {unknown[]} components
- */
+/** @param {unknown[]} components */
 export const actionRow = (components) => ({
   components,
   type: 1,
@@ -34,9 +32,7 @@ export const textInput = (customId, label, style, x) => ({
   ...x,
 });
 
-/**
- * @param {number} type
- */
+/** @param {number} type */
 const s = (type) =>
 /**
  * @param {string} customId

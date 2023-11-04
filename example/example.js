@@ -1,4 +1,4 @@
-import { CacheClient, closeOnInterrupt, GatewayClient, RestClient } from "../core/lib.js";
+import { CacheClient, closeOnInterrupt, GatewayClient, Intents, RestClient } from "../core/lib.js";
 
 const developerId = Deno.env.get("DEVELOPER_ID");
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
@@ -21,7 +21,11 @@ const handleEvent = async (event, data) => {
       } catch (e) {
         result = e;
       }
-      rest.createMessage(data.channel_id, {
+      await rest.createMessage(data.channel_id, {
+        body: {
+          allowed_mentions: { parse: [] },
+          message_reference: { message_id: data.id },
+        },
         files: [
           new File([Deno.inspect(result, { depth: 0, colors: true })], `${Date.now()}.ansi`),
         ],
@@ -34,7 +38,7 @@ const handleEvent = async (event, data) => {
 const gateway = new GatewayClient({
   handleEvent,
   identifyOptions: {
-    intents: 1 << 9 | 1 << 15 | 1 << 0 | 1 << 1 | 1 << 3 | 1 << 7 | 1 << 8 | 1 << 16,
+    intents: Intents.GuildMessages | Intents.MessageContent,
   },
   token,
   url: "wss://gateway.discord.gg",
