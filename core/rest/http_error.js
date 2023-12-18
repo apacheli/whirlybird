@@ -1,6 +1,7 @@
 import { cyan } from "../util/ansi.js";
 import { highlight } from "../util/logger.js";
 
+/** An error received over HTTP. */
 export class HttpError extends Error {
   body;
 

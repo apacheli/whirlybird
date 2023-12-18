@@ -1,4 +1,4 @@
-import { CacheClient, closeOnInterrupt, GatewayClient, Intents, RestClient } from "../core/lib.js";
+import { CacheClient, closeOnInterrupt, GatewayClient, IntentFlags, RestClient } from "../core/lib.js";
 
 const developerId = Deno.env.get("DEVELOPER_ID");
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
@@ -38,7 +38,7 @@ const handleEvent = async (event, data) => {
 const gateway = new GatewayClient({
   handleEvent,
   identifyOptions: {
-    intents: Intents.GuildMessages | Intents.MessageContent,
+    intents: IntentFlags.GuildMessages | IntentFlags.MessageContent,
   },
   token,
   url: "wss://gateway.discord.gg",

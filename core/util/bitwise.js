@@ -97,6 +97,7 @@ export const bitwiseTable = (value, table) => {
   return t;
 };
 
+/** https://discord.com/developers/docs/topics/gateway-events#activity-object-activity-flags */
 export const ActivityFlags = {
   Instance: 1 << 0,
   Join: 1 << 1,
@@ -109,6 +110,7 @@ export const ActivityFlags = {
   Embedded: 1 << 10,
 };
 
+/** https://discord.com/developers/docs/resources/application#application-object-application-flags */
 export const ApplicationFlags = {
   ApplicationAutoModerationRuleCreateBadge: 1 << 6,
   GatewayPresence: 1 << 12,
@@ -122,16 +124,19 @@ export const ApplicationFlags = {
   ApplicationCommandBadge: 1 << 23,
 };
 
+/** https://discord.com/developers/docs/resources/channel#attachment-object-attachment-flags */
 export const AttachmentFlags = {
   IsRemix: 1 << 2,
 };
 
+/** https://discord.com/developers/docs/resources/channel#channel-object-channel-flags */
 export const ChannelFlags = {
   Pinned: 1 << 1,
   RequireTag: 1 << 4,
   HideMediaDownloadOptions: 1 << 15,
 };
 
+/** https://discord.com/developers/docs/resources/guild#guild-member-object-guild-member-flags */
 export const GuildMemberFlags = {
   DidRejoin: 1 << 0,
   CompletedOnboarding: 1 << 1,
@@ -139,7 +144,8 @@ export const GuildMemberFlags = {
   StartedOnboarding: 1 << 3,
 };
 
-export const Intents = {
+/** https://discord.com/developers/docs/topics/gateway#list-of-intents */
+export const IntentFlags = {
   Guilds: 1 << 0,
   GuildMembers: 1 << 1,
   GuildModeration: 1 << 2,
@@ -161,6 +167,7 @@ export const Intents = {
   AutoModerationExecution: 1 << 21,
 };
 
+/** https://discord.com/developers/docs/resources/channel#message-object-message-flags */
 export const MessageFlags = {
   Crossposted: 1 << 0,
   IsCrosspost: 1 << 1,
@@ -175,7 +182,8 @@ export const MessageFlags = {
   IsVoiceMessage: 1 << 13,
 };
 
-export const Permissions = {
+/** https://discord.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags */
+export const PermissionFlags = {
   CreateInstantInvite: 1n << 0n,
   KickMembers: 1n << 1n,
   BanMembers: 1n << 2n,
@@ -223,6 +231,7 @@ export const Permissions = {
   SendVoiceMessages: 1n << 46n,
 };
 
+/** https://discord.com/developers/docs/resources/guild#guild-object-system-channel-flags */
 export const SystemChannelFlags = {
   SuppressJoinNotifications: 1 << 0,
   SuppressPremiumSubscriptions: 1 << 1,
@@ -232,6 +241,7 @@ export const SystemChannelFlags = {
   SuppressRoleSubscriptionPurchaseNotificationReplies: 1 << 5,
 };
 
+/** https://discord.com/developers/docs/resources/user#user-object-user-flags */
 export const UserFlags = {
   Staff: 1 << 0,
   Partner: 1 << 1,
@@ -241,7 +251,7 @@ export const UserFlags = {
   HypesquadOnlineHouse2: 1 << 7,
   HypesquadOnlineHouse3: 1 << 8,
   PremiumEarlySupporter: 1 << 9,
-  TeamPseudoUser: 1 << 0,
+  TeamPseudoUser: 1 << 10,
   BugHunterLevel2: 1 << 14,
   VerifiedBot: 1 << 16,
   VerifiedDeveloper: 1 << 17,

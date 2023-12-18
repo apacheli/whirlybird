@@ -3,18 +3,37 @@ import { warn } from "../util/logger.js";
 import { RateLimit } from "../util/rate_limit.js";
 import { HttpError } from "./http_error.js";
 
+/**
+ * @typedef RestClientOptions
+ * @property {number} [attempts]
+ * @property {string} [baseUrl]
+ * @property {string} [userAgent]
+ * @property {number} [timeout]
+ */
+
+/**
+ * @typedef RequestOptions
+ * @property {unknown} [body]
+ * @property {File[]} [files]
+ * @property {Record<string, unknown>} [query]
+ * @property {string} [reason]
+ */
+
 /** The library for Discord's HTTP API. */
 export class RestClient {
   /** @type {Map<string, string>} */
   buckets = new Map();
+  options;
   /** @type {Map<string, RateLimit>} */
   rateLimits = new Map();
   token;
 
   /**
    * @param {string} token
+   * @param {RestClientOptions} [options]
    */
-  constructor(token) {
+  constructor(token, options) {
+    this.options = options;
     this.token = token;
   }
 
@@ -29,10 +48,19 @@ export class RestClient {
     }
   }
 
+  /**
+   * Make a request.
+   *
+   * @param {string} method
+   * @param {string} pathname
+   * @param {string} bucketId
+   * @param {string} rateLimitId
+   * @param {RequestOptions} [options]
+   */
   async request(method, pathname, bucketId, rateLimitId, { body, files, query, reason } = {}) {
     const headers = {
       "Authorization": this.token,
-      "User-Agent": "whirlybird/0.0.1",
+      "User-Agent": this.options?.userAgent ?? "whirlybird/0.0.1",
     };
     if (reason) {
       headers["X-Audit-Log-Reason"] = reason;
@@ -40,48 +68,60 @@ export class RestClient {
 
     const data = encodeBody(body, files, headers);
 
-    let url = `https://discord.com/api/v10${pathname}`;
+    let url = `${this.options?.baseUrl ?? "https://discord.com/api/v10"}${pathname}`;
     if (query) {
       url += `?${encodeQuery(query)}`;
     }
 
     const bucket = this.buckets.get(bucketId);
-    let rateLimit, rateLimits;
+    let rateLimit;
+    let rateLimits;
     if (bucket) {
       rateLimits = this.rateLimits.get(bucket);
       rateLimit = rateLimits.get(rateLimitId);
-      await rateLimit?.lock();
+      if (rateLimit) {
+        console.log("locked");
+        await rateLimit.lock();
+      }
     }
 
-    let attempts = 5, response;
+    const timeout = this.options?.timeout ?? 15_000;
+    let attempts = this.options?.attempts ?? 5;
+    let response;
     do {
-      response = await fetch(url, { body: data, headers, method });
+      response = await fetch(url, {
+        body: data,
+        headers,
+        method,
+        signal: AbortSignal.timeout(timeout),
+      });
       const newBucket = response.headers.get("X-RateLimit-Bucket");
-      if (newBucket) {
-        this.buckets.set(bucketId, newBucket);
-        if (!rateLimits) {
-          rateLimits = new Map();
-          this.rateLimits.set(newBucket, rateLimits);
-        }
-        if (!rateLimit) {
-          rateLimit = new RateLimit();
-          rateLimits.set(rateLimitId, rateLimit);
-        }
-        rateLimit.update(
-          Date.parse(response.headers.get("Date")),
-          +response.headers.get("X-RateLimit-Limit"),
-          +response.headers.get("X-RateLimit-Remaining"),
-          +response.headers.get("X-RateLimit-Reset-After") * 1e+3,
-        );
-        if (response.status === 429) {
-          const retryAfter = +response.headers.get("Retry-After") * 1e+3;
-          warn(`Rate limit at "${pathname}" retry after: ${retryAfter} (${attempts} attempts)`);
-          await new Promise((resolve) => setTimeout(resolve, retryAfter));
-          continue;
-        }
-        rateLimit.unlock();
+      if (!newBucket) {
         break;
       }
+      this.buckets.set(bucketId, newBucket);
+      if (!rateLimits) {
+        rateLimits = new Map();
+        this.rateLimits.set(newBucket, rateLimits);
+      }
+      if (!rateLimit) {
+        rateLimit = new RateLimit();
+        rateLimits.set(rateLimitId, rateLimit);
+      }
+      rateLimit.update(
+        Date.parse(response.headers.get("Date")),
+        +response.headers.get("X-RateLimit-Limit"),
+        +response.headers.get("X-RateLimit-Remaining"),
+        +response.headers.get("X-RateLimit-Reset-After") * 1e+3,
+      );
+      if (response.status === 429) {
+        const retryAfter = +response.headers.get("Retry-After") * 1e+3;
+        warn(`Rate limit at "${pathname}" retry after: ${retryAfter} attempts: ${attempts}`);
+        await new Promise((resolve) => setTimeout(resolve, retryAfter));
+        continue;
+      }
+      rateLimit.unlock();
+      break;
     } while (--attempts);
     if (response.ok) {
       return response.headers.get("Content-Type") === "application/json" ? response.json() : response.text();

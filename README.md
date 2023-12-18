@@ -36,7 +36,7 @@ See [releases](https://github.com/apacheli/whirlybird/releases) for bundled + mi
 An example:
 
 ```js
-import { CacheClient, closeOnInterrupt, GatewayClient, Intents, RestClient } from "whirlybird";
+import { CacheClient, closeOnInterrupt, GatewayClient, IntentFlags, RestClient } from "whirlybird";
 
 const token = `Bot ${Deno.env.get("BOT_TOKEN")}`;
 
@@ -62,7 +62,7 @@ const handleEvent = async (event, data) => {
 const gateway = new GatewayClient({
   handleEvent,
   identifyOptions: {
-    intents: Intents.GuildMessages | Intents.MessageContent,
+    intents: IntentFlags.GuildMessages | IntentFlags.MessageContent,
   },
   token,
   url: "wss://gateway.discord.gg",

@@ -14,16 +14,12 @@ export class CacheMap extends Map {
     this.update = update;
   }
 
-  /**
-   * @param {string | bigint} id
-   */
+  /** @param {string | bigint} id */
   delete(id) {
     return super.delete(BigInt(id));
   }
 
-  /**
-   * @param {string | bigint} id
-   */
+  /** @param {string | bigint} id */
   get(id) {
     return super.get(BigInt(id));
   }
