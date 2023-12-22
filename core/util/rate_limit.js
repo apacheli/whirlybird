@@ -1,6 +1,7 @@
+export const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
 export class RateLimit {
-  /** @type {number} */
-  lastUpdate;
+  lastUpdateAt = 0;
   left;
   limit;
   locked = false;
@@ -17,9 +18,9 @@ export class RateLimit {
     this.reset = reset;
   }
 
-  /** Determine if the rate limit can reset. */
-  isOutdated() {
-    return Date.now() - this.lastUpdate > this.reset;
+  /** If the rate limit is clearable or not. */
+  get isClearable() {
+    return !this.locked && Date.now() - this.lastUpdateAt > this.reset;
   }
 
   /** Lock the queue. */
@@ -30,9 +31,8 @@ export class RateLimit {
     this.locked = true;
     if (this.left < 1) {
       const now = Date.now();
-      if (now - this.lastUpdate < this.reset) {
-        const delay = this.lastUpdate + this.reset - now;
-        await new Promise((resolve) => setTimeout(resolve, delay));
+      if (now - this.lastUpdateAt < this.reset) {
+        await sleep(this.lastUpdateAt + this.reset - now);
         this.left = this.limit;
       }
     }
@@ -41,21 +41,22 @@ export class RateLimit {
   /** Unlock and shift the queue. */
   unlock() {
     this.locked = false;
-    queueMicrotask(() => this.queue.shift()?.());
+    if (this.queue.length > 0) {
+      queueMicrotask(this.queue.shift());
+    }
   }
 
   /**
    * Update rate limit information.
    *
-   * @param {number} [a]
-   * @param {number} [b]
-   * @param {number} [c]
-   * @param {number} [d]
+   * @param {number} [left]
+   * @param {number} [limit]
+   * @param {number} [reset]
    */
-  update(a = Date.now(), b = this.left - 1, c = this.limit, d = this.reset) {
-    this.lastUpdate = a;
-    this.left = b;
-    this.limit = c;
-    this.reset = d;
+  update(left = this.left - 1, limit = this.limit, reset = this.reset) {
+    this.lastUpdateAt = Date.now();
+    this.left = left;
+    this.limit = limit;
+    this.reset = reset;
   }
 }

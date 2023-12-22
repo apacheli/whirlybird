@@ -6,7 +6,7 @@ const r = (type) =>
  * @param {unknown} data
  * @param {File[]} [files]
  */
-(data, files) => ({ body: { type, data }, files });
+(data, files) => ({ data: { type, data }, files });
 
 // deno-fmt-ignore
 export const

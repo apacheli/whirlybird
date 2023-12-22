@@ -53,7 +53,7 @@ export const handleRequest = async (request, key, handle) => {
     return Response.json({ type: 1 });
   }
 
-  const { body, files } = await handle(json);
+  const { data, files } = await handle(json);
   const headers = {};
-  return new Response(encodeBody(body, files, headers), { headers });
+  return new Response(encodeBody(data, files, headers), { headers });
 };

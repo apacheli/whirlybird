@@ -1,4 +1,4 @@
-import { blue, bold, cyan, gray, green, magenta, red, yellow } from "./ansi.js";
+import { blue, cyan, gray, green, magenta, red, yellow } from "./ansi.js";
 
 export const formatDate = (date = new Date()) => {
   const year = date.getFullYear();
@@ -20,13 +20,13 @@ export const highlight = (input) =>
 
 export const log = (level, args) =>
   console.log(
-    `${bold(formatDate())} | ${level} |`,
+    `${gray(formatDate())}   ${level}  `,
     ...args.map((arg) => typeof arg === "string" ? highlight(arg) : arg),
   );
 
 // deno-fmt-ignore
 export const
-  debug = (...args) => log(gray("[DBG]"), args),
+  debug = (...args) => log(green("[DBG]"), args),
   error = (...args) => log(red("[ERR]"), args),
   fatal = (...args) => log(magenta("[FTL]"), args),
   info  = (...args) => log(blue("[INF]"), args),

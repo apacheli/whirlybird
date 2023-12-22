@@ -4,6 +4,8 @@ The library for Discord's HTTP API.
 
 ### Install
 
+You need Deno 1.38 or higher.
+
 ```js
 export * from "https://github.com/apacheli/whirlybird/raw/dev/core/rest/lib.js";
 ```
@@ -37,8 +39,8 @@ await rest.createMessage(channelId, {
 });
 ```
 
-Using `RestClient.resetRateLimits()` to reset rate limits:
+Using `RestClient.clearRateLimits()` to reset rate limits:
 
 ```js
-setInterval(() => rest.resetRateLimits(), 3.6e+6);
+setInterval(() => rest.clearRateLimits(), 3.6e+6);
 ```

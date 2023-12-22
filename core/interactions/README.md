@@ -4,6 +4,8 @@ The library for Discord's interactions API.
 
 ### Install
 
+You need Deno 1.38 or higher.
+
 ```js
 export * from "https://github.com/apacheli/whirlybird/raw/dev/core/interactions/lib.js";
 ```

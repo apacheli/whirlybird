@@ -1,8 +1,8 @@
-export const encodeBody = (body, files, headers) => {
+export const encodeBody = (data, files, headers) => {
   if (files?.length) {
     const f = new FormData();
-    if (body) {
-      f.append("payload_json", JSON.stringify(body));
+    if (data) {
+      f.append("payload_json", JSON.stringify(data));
     }
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -11,7 +11,7 @@ export const encodeBody = (body, files, headers) => {
     return f;
   }
   headers["Content-Type"] = "application/json";
-  return JSON.stringify(body);
+  return JSON.stringify(data);
 };
 
 export const encodeQuery = (query) => {

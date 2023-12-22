@@ -12,6 +12,8 @@ whirlybird is a JavaScript library for building Discord bots.
 
 ### Install
 
+You need Deno 1.38 or higher.
+
 Deno [`deps.js`](https://deno.land/manual/examples/manage_dependencies):
 
 ```js

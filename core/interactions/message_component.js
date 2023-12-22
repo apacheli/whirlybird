@@ -1,4 +1,6 @@
-/** @param {unknown[]} components */
+/**
+ * @param {unknown[]} components
+ */
 export const actionRow = (components) => ({
   components,
   type: 1,

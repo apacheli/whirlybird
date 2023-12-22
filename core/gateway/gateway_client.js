@@ -1,6 +1,6 @@
 import { warn } from "../util/lib.js";
 import { debug } from "../util/logger.js";
-import { RateLimit } from "../util/rate_limit.js";
+import { RateLimit, sleep } from "../util/rate_limit.js";
 import { ShardClient } from "./shard_client.js";
 
 /**
@@ -108,7 +108,7 @@ export class GatewayClient {
       default: {
         if (code < 1000) {
           warn(`[Shard ${shard.id}]: Unknown gateway error. Reconnecting in 15 seconds...`);
-          await new Promise((resolve) => setTimeout(resolve, 15_000));
+          await sleep(15_000);
         }
         if (code < 3000 || code > 3999) {
           this.connectShard(shard).then(() => shard.resume(this.options.token));
