@@ -1,0 +1,60 @@
+// deno-fmt-ignore
+export const
+  code  = (str, a, b) => `\x1b[${a}m${str}\x1b[${b}m`,
+  codes = (str, a, b) => `\x1b[${a.join(";")}m${str}\x1b[${b.join(";")}m`,
+  fg    = (str, c) => `\x1b[38;5;${c}m${str}\x1b[39m`,
+  bg    = (str, c) => `\x1b[48;5;${c}m${str}\x1b[49m`,
+  fgRgb = (str, r, g, b) => `\x1b[38;2;${r};${g};${b}m${str}\x1b[39m`,
+  bgRgb = (str, r, g, b) => `\x1b[48;2;${r};${g};${b}m${str}\x1b[49m`;
+
+// deno-fmt-ignore
+export const
+  reset       = (str) => code(str, 0, 0),
+  bold        = (str) => code(str, 1, 22),
+  dim         = (str) => code(str, 2, 22),
+  italic      = (str) => code(str, 3, 23),
+  underline   = (str) => code(str, 4, 24),
+  blink       = (str) => code(str, 5, 25),
+  invert      = (str) => code(str, 7, 27),
+  hide        = (str) => code(str, 8, 28),
+  strike      = (str) => code(str, 9, 29),
+  black       = (str) => code(str, 30, 39),
+  red         = (str) => code(str, 31, 39),
+  green       = (str) => code(str, 32, 39),
+  yellow      = (str) => code(str, 33, 39),
+  blue        = (str) => code(str, 34, 39),
+  magenta     = (str) => code(str, 35, 39),
+  cyan        = (str) => code(str, 36, 39),
+  white       = (str) => code(str, 37, 39),
+  bgBlack     = (str) => code(str, 40, 49),
+  bgRed       = (str) => code(str, 41, 49),
+  bgGreen     = (str) => code(str, 42, 49),
+  bgYellow    = (str) => code(str, 43, 49),
+  bgBlue      = (str) => code(str, 44, 49),
+  bgMagenta   = (str) => code(str, 45, 49),
+  bgCyan      = (str) => code(str, 46, 49),
+  bgWhite     = (str) => code(str, 47, 49),
+  overline    = (str) => code(str, 53, 55),
+  brBlack     = (str) => code(str, 90, 39),
+  brRed       = (str) => code(str, 91, 39),
+  brGreen     = (str) => code(str, 92, 39),
+  brYellow    = (str) => code(str, 93, 39),
+  brBlue      = (str) => code(str, 94, 39),
+  brMagenta   = (str) => code(str, 95, 39),
+  brCyan      = (str) => code(str, 96, 39),
+  brWhite     = (str) => code(str, 97, 39),
+  bgBrBlack   = (str) => code(str, 100, 49),
+  bgBrRed     = (str) => code(str, 101, 49),
+  bgBrGreen   = (str) => code(str, 102, 49),
+  bgBrYellow  = (str) => code(str, 103, 49),
+  bgBrBlue    = (str) => code(str, 104, 49),
+  bgBrMagenta = (str) => code(str, 105, 49),
+  bgBrCyan    = (str) => code(str, 106, 49),
+  bgBrWhite   = (str) => code(str, 107, 49);
+
+// deno-fmt-ignore
+export const
+  gray = brBlack,
+  grey = brBlack,
+  bgGray = bgBrBlack,
+  bgGrey = bgBrBlack;

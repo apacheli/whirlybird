@@ -1,0 +1,18 @@
+{
+  "name": "whirlybird",
+  "version": "0.0.1",
+  "main": "core/lib.js",
+  "files": [
+    "core"
+  ],
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fmt": "dprint fmt",
+    "start": "bun run test.js"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.1.3",
+    "dprint": "^0.46.1"
+  }
+}
