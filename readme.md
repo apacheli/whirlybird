@@ -12,27 +12,26 @@ A JavaScript library for making Discord bots.
 
 ## Install
 
-Install using Bun v1.1.15 (recommended):
+Using Bun v1.1.15 (recommended):
 
 ```sh
 $ bun install https://github.com/apacheli/whirlybird
 ```
 
-Install using Deno:
+Using Deno v1.44.4:
 
 ```js
 import * as whirlybird from "https://github.com/apacheli/whirlybird/raw/dev/core/lib.js";
 ```
 
-Install with Node.js:
+Using Node.js v22.3.0:
 
 ```sh
 $ npm i https://github.com/apacheli/whirlybird
 ```
 
 > [!TIP]
-> You can install `ws` and `node-fetch` if you use an older version of Node.js.
-> This is not recommended.
+> You can install `ws` and `node-fetch` on older versions of Node.js. I do not recommend this approach.
 
 ## Example
 

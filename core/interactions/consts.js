@@ -1,3 +1,4 @@
+/** https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-type */
 export const InteractionType = {
   PING: 1,
   APPLICATION_COMMAND: 2,
@@ -6,12 +7,14 @@ export const InteractionType = {
   MODAL_SUBMIT: 5,
 };
 
+/** https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-context-types */
 export const InteractionContextType = {
   GUILD: 0,
   BOT_DM: 1,
   PRIVATE_CHANNEL: 2,
 };
 
+/** https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-response-object-interaction-callback-type */
 export const InteractionCallbackType = {
   PONG: 1,
   MESSAGE: 4,
@@ -23,12 +26,14 @@ export const InteractionCallbackType = {
   PREMIUM_REQUIRED: 10,
 };
 
+/** https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types */
 export const ApplicationCommandType = {
   CHAT_INPUT: 1,
   USER: 2,
   MESSAGE: 3,
 };
 
+/** https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type */
 export const ApplicationCommandOptionType = {
   SUB_COMMAND: 1,
   SUB_COMMAND_GROUP: 2,
@@ -43,12 +48,14 @@ export const ApplicationCommandOptionType = {
   ATTACHMENT: 11,
 };
 
+/** https://discord.com/developers/docs/interactions/application-commands#application-command-permissions-object-application-command-permission-type */
 export const ApplicationCommandPermissionType = {
   ROLE: 1,
   USER: 2,
   CHANNEL: 3,
 };
 
+/** https://discord.com/developers/docs/interactions/message-components#component-object-component-types */
 export const ComponentType = {
   ACTION_ROW: 1,
   BUTTON: 2,
@@ -60,6 +67,7 @@ export const ComponentType = {
   CHANNEL_SELECT: 8,
 };
 
+/** https://discord.com/developers/docs/interactions/message-components#button-object-button-styles */
 export const ButtonStyle = {
   PRIMARY: 1,
   SECONDARY: 2,
@@ -69,6 +77,7 @@ export const ButtonStyle = {
   PREMIUM: 6,
 };
 
+/** https://discord.com/developers/docs/interactions/message-components#text-input-object-text-input-styles */
 export const TextInputStyle = {
   SHORT: 1,
   PARAGRAPH: 2,
