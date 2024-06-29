@@ -19,13 +19,13 @@ export const updateMessage = (message, data) => {
     message.mentionEveryone = data.mention_everyone;
   }
   if (data.mentions !== undefined) {
-    message.mentions = data.mentions.map(mapId);
+    message.mentions = data.mentions.map(_mapId);
   }
   if (data.mention_roles !== undefined) {
     message.mentionRoles = data.mention_roles.map(BigInt);
   }
   if (data.mention_channels !== undefined) {
-    message.mentionChannels = data.mention_channels.map(mapId);
+    message.mentionChannels = data.mention_channels.map(_mapId);
   }
   if (data.attachments !== undefined) {
     message.attachments = data.attachments;
@@ -91,7 +91,7 @@ export const updateMessage = (message, data) => {
   return message;
 };
 
-const mapId = (item) => BigInt(item.id);
+const _mapId = (item) => BigInt(item.id);
 
 /** https://discord.com/developers/docs/resources/channel#message-object-message-types */
 export const MessageType = {
@@ -125,7 +125,6 @@ export const MessageType = {
   STAGE_TOPIC: 31,
   GUILD_APPLICATION_PREMIUM_SUBSCRIPTION: 32,
   GUILD_INCIDENT_ALERT_NODE_ENABLED: 37,
-  GUILD_INCIDENT_ALERT_NODE_ENABLED: 38,
   GUILD_INCIDENT_REPORT_RAID: 38,
   GUILD_INCIDENT_REPORT_FALSE_ALARM: 39,
   PURCHASE_NOTIFICATION: 44,

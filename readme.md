@@ -30,9 +30,6 @@ Using Node.js v22.3.0:
 $ npm i https://github.com/apacheli/whirlybird
 ```
 
-> [!TIP]
-> You can install `ws` and `node-fetch` on older versions of Node.js. I do not recommend this approach.
-
 ## Example
 
 ```js
