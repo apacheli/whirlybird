@@ -1,5 +1,5 @@
 import { createChannel, updateChannel } from "./channel.js";
-import { createEmoji, updateEmoji } from "./emoji.js";
+import { createEmoji } from "./emoji.js";
 import { createGuild, updateGuild } from "./guild.js";
 import { createMember, updateMember } from "./member.js";
 import { createMessage, updateMessage } from "./message.js";
@@ -7,7 +7,7 @@ import { createPresence, updatePresence } from "./presence.js";
 import { createRole, updateRole } from "./role.js";
 import { createScheduledEvent, updateScheduledEvent } from "./scheduled_event.js";
 import { createStage, updateStage } from "./stage.js";
-import { createSticker, updateSticker } from "./sticker.js";
+import { createSticker } from "./sticker.js";
 import { createUser, updateUser } from "./user.js";
 import { createVoice, updateVoice } from "./voice.js";
 
@@ -209,6 +209,22 @@ export class CacheClient {
       }
 
       case "GUILD_MEMBERS_CHUNK": {
+        if (!this.options?.types?.MEMBER) {
+          return;
+        }
+        const members = this.guilds.get(BigInt(data.guild_id)).members;
+        for (let i = 0, j = data.members.length; i < j; i++) {
+          const member = data.members[i];
+          const userId = BigInt(member.user.id);
+          if (this.users.has(userId) === false) {
+            this.users.set(userId, createUser(userId, member.user));
+          }
+          members.set(userId, createMember(userId, member));
+        }
+        for (let i = 0, j = data.presences.length; i < j; i++) {
+          const presence = data.presences[i];
+          this.users.get(BigInt(presence.user.id)).presence = createPresence(presence);
+        }
         break;
       }
 
@@ -262,7 +278,7 @@ export class CacheClient {
         const userId = BigInt(data.user.id);
         let user = this.users.get(userId);
         if (user === undefined) {
-          if (data.user.username === undefined) {
+          if (!this.options?.types?.USER || data.user.username === undefined) {
             break;
           }
           user = createUser(userId, data.user);

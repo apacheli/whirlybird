@@ -4,7 +4,8 @@ A JavaScript library for making Discord bots.
 
 ## Core
 
-- [`whirlybird/gcache`](core/cache)
+- [`whirlybird/bot`](core/bot)
+- [`whirlybird/cache`](core/cache)
 - [`whirlybird/gateway`](core/gateway)
 - [`whirlybird/interactions`](core/interactions)
 - [`whirlybird/rest`](core/rest)
