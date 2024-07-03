@@ -29,12 +29,15 @@ export const createRoleTags = (data) => {
   if (data.integration_id !== undefined) {
     tags.integrationId = BigInt(data.integration_id);
   }
+  if (data.subscription_listing_id !== undefined) {
+    tags.subscriptionListingId = BigInt(data.subscription_listing_id);
+  }
   tags.flags = 0;
   if (data.premium_subscriber === null) {
     tags.flags |= RoleTagFlags.PREMIUM_SUBSCRIBER;
   }
-  if (data.subscription_listing_id === null) {
-    tags.flags |= RoleTagFlags.PURCHASABLE;
+  if (data.available_for_purchase === null) {
+    tags.flags |= RoleTagFlags.AVAILABLE_FOR_PURCHASE;
   }
   if (data.guild_connections === null) {
     tags.flags |= RoleTagFlags.GUILD_CONNECTIONS;
@@ -44,6 +47,6 @@ export const createRoleTags = (data) => {
 
 export const RoleTagFlags = {
   PREMIUM_SUBSCRIBER: 1 << 0,
-  PURCHASABLE: 1 << 1,
+  AVAILABLE_FOR_PURCHASE: 1 << 1,
   GUILD_CONNECTIONS: 1 << 2,
 };
