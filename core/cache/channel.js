@@ -18,7 +18,7 @@ export const updateChannel = (channel, data) => {
     channel.position = data.position;
   }
   if (data.permission_overwrites !== undefined) {
-    channel.permissionOverwrites = data.permission_overwrites;
+    channel.permissionOverwrites = data.permission_overwrites.map(createChannelPermissionOverwrite);
   }
   if (data.name !== undefined) {
     channel.name = data.name;
@@ -63,7 +63,7 @@ export const updateChannel = (channel, data) => {
     channel.memberCount = data.member_count;
   }
   if (data.thread_metadata !== undefined) {
-    channel.threadMetadata = data.thread_metadata;
+    channel.threadMetadata = createChannelThreadMetadata(data.thread_metadata);
   }
   if (data.member !== undefined) {
     channel.member = data.member;
@@ -105,6 +105,29 @@ export const updateChannel = (channel, data) => {
     channel.status = data.status;
   }
   return channel;
+};
+
+export const createChannelPermissionOverwrite = (data) => ({
+  allow: BigInt(data.allow),
+  deny: BigInt(data.deny),
+  id: BigInt(data.id),
+  type: data.type,
+});
+
+export const createChannelThreadMetadata = (data) => {
+  const threadMetadata = {
+    archived: data.archived,
+    autoArchiveDuration: data.auto_archive_duration,
+    archiveTimestamp: Date.parse(data.archive_timestamp),
+    locked: data.locked,
+  };
+  if (data.invitable !== undefined) {
+    threadMetadata.invitable = data.invitable;
+  }
+  if (data.create_timestamp !== undefined) {
+    threadMetadata.create_timestamp = data.create_timestamp && Date.parse(data.create_timestamp);
+  }
+  return threadMetadata;
 };
 
 /** https://discord.com/developers/docs/resources/channel#channel-object-channel-types */

@@ -24,9 +24,6 @@ export const updateGuild = (guild, data) => {
   }
   guild.splash = data.splash;
   guild.discoverySplash = data.discovery_splash;
-  if (data.owner !== undefined) {
-    guild.owner = data.owner;
-  }
   guild.ownerId = BigInt(data.owner_id);
   if (data.permissions !== undefined) {
     guild.permissions = BigInt(data.permissions);

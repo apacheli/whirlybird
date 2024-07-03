@@ -12,7 +12,7 @@ import { createUser, updateUser } from "./user.js";
 import { createVoice, updateVoice } from "./voice.js";
 
 export class CacheClient {
-  application;
+  applicationId;
   guilds = new Map();
   options;
   users = new Map();
@@ -27,7 +27,7 @@ export class CacheClient {
     }
     switch (event) {
       case "READY": {
-        this.application ??= data.application;
+        this.applicationId = BigInt(data.application.id);
         break;
       }
 

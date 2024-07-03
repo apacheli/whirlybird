@@ -13,6 +13,7 @@ export default botCommand("info", (bot) => {
   }
   const embed = {
     title: "Information",
+    description: bot.config.description,
     color: bot.config.themeColor,
     fields: [
       field("Bun", `\`${process.versions.bun}\``, true),

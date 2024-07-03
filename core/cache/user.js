@@ -49,6 +49,7 @@ export const updateUser = (user, data) => {
   return user;
 };
 
+/** https://discord.com/developers/docs/resources/user#user-object-premium-types */
 export const UserPremiumType = {
   NONE: 0,
   NITRO_CLASSIC: 1,

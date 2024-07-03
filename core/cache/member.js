@@ -21,6 +21,7 @@ export const updateMember = (member, data) => {
   if (data.mute !== undefined) {
     member.mute = data.mute;
   }
+  member.flags = data.flags;
   if (data.pending !== undefined) {
     member.pending = data.pending;
   }
@@ -29,6 +30,9 @@ export const updateMember = (member, data) => {
   }
   if (data.communication_disabled_until !== undefined) {
     member.communicationDisabledUntil = data.communication_disabled_until && Date.parse(data.communication_disabled_until);
+  }
+  if (data.avatar_decoration_data !== undefined) {
+    member.avatarDecorationDataAsset = data.avatar_decoration_data?.asset ?? null;
   }
   return member;
 };
